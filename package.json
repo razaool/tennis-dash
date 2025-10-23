@@ -1,0 +1,30 @@
+{
+  "name": "tennis-dash",
+  "version": "1.0.0",
+  "description": "A tennis dashboard with player rating systems",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "keywords": [
+    "tennis",
+    "dashboard",
+    "ratings",
+    "elo",
+    "glicko2"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "csv-writer": "^1.6.0",
+    "pg": "^8.16.3"
+  }
+}

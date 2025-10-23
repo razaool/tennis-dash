@@ -1,0 +1,285 @@
+/* Tennis Dashboard Styles */
+
+.App {
+  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.App-header {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.App-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 3rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.App-header p {
+  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Statistics Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Top Players */
+.top-players {
+  margin-bottom: 3rem;
+}
+
+.top-players h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.players-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.player-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.player-card:hover {
+  transform: translateY(-3px);
+}
+
+.player-rank {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  min-width: 3rem;
+}
+
+.player-info {
+  flex: 1;
+  text-align: left;
+}
+
+.player-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.player-country {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.player-rating {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4ade80;
+}
+
+/* Recent Matches */
+.recent-matches {
+  margin-bottom: 3rem;
+}
+
+.recent-matches h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.matches-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1rem;
+}
+
+.match-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.match-card:hover {
+  transform: translateY(-3px);
+}
+
+.match-players {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.winner {
+  font-weight: bold;
+  color: #4ade80;
+}
+
+.vs {
+  opacity: 0.7;
+  font-weight: bold;
+}
+
+.match-score {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 0.5rem;
+}
+
+.match-date {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+}
+
+.match-tournament {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+/* Surface Statistics */
+.surface-stats h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.surface-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.surface-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.surface-card:hover {
+  transform: translateY(-3px);
+}
+
+.surface-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+}
+
+.surface-count {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 2rem;
+  }
+  
+  .App-header p {
+    font-size: 1rem;
+  }
+  
+  .dashboard {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .players-list,
+  .matches-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .player-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .player-info {
+    text-align: center;
+  }
+}

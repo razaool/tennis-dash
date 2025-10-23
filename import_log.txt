@@ -1,0 +1,28 @@
+Starting historical match import (1968-2025)...
+
+Found 58 match files to import
+
+  Loaded 4377 matches from atp_matches_1968.csv
+Error importing matches: error: insert or update on table "matches" violates foreign key constraint "matches_tournament_id_fkey"
+    at /Users/razaool/tennis-dash/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async importMatchesToDatabase (/Users/razaool/tennis-dash/scripts/importAllMatches.js:142:5)
+    at async main (/Users/razaool/tennis-dash/scripts/importAllMatches.js:164:24) {
+  length: 277,
+  severity: 'ERROR',
+  code: '23503',
+  detail: 'Key (tournament_id)=(1968) is not present in table "tournaments".',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'matches',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'matches_tournament_id_fkey',
+  file: 'ri_triggers.c',
+  line: '2539',
+  routine: 'ri_ReportViolation'
+}
