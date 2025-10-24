@@ -1,4 +1,4 @@
-// Calculate Glicko2 Ratings: Overall (tournament-weighted) + Surface-Specific
+// Calculate Glicko2 Ratings: Overall (tournament-weighted)
 const { Pool } = require('pg');
 
 const pool = new Pool({
@@ -26,16 +26,6 @@ const tournamentWeights = {
   'F': 0.6,    // Futures
   'A': 1.0     // Default ATP tour
 };
-
-// Normalize surface names
-function normalizeSurface(surface) {
-  if (!surface) return 'Hard';
-  const s = surface.toLowerCase();
-  if (s.includes('hard')) return 'Hard';
-  if (s.includes('clay')) return 'Clay';
-  if (s.includes('grass')) return 'Grass';
-  return 'Hard'; // Default
-}
 
 function getTournamentWeight(level) {
   return tournamentWeights[level] || tournamentWeights['A'];
@@ -68,9 +58,9 @@ function calculateGlicko2Match(player1Rating, player2Rating, player1Wins, tourna
   const newMu1 = mu1 + delta1;
   const newMu2 = mu2 + delta2;
   
-  // Update RD (more realistic decrease)
-  const newPhi1 = Math.max(phi1 * 0.995, 30);
-  const newPhi2 = Math.max(phi2 * 0.995, 30);
+  // Update RD (slower decrease per match)
+  const newPhi1 = Math.max(phi1 * 0.998, 20);
+  const newPhi2 = Math.max(phi2 * 0.998, 20);
   
   // Keep volatility stable
   const newSigma1 = sigma1;
@@ -132,7 +122,7 @@ async function getCurrentGlicko2Rating(playerId, ratingType, surface = null) {
 async function saveGlicko2Rating(playerId, ratingType, mu, phi, sigma, matchId, surface = null) {
   // Bounds checking
   const boundedMu = isNaN(mu) ? INITIAL_RATING : Math.max(Math.min(mu, 2200), 800);
-  const boundedPhi = isNaN(phi) ? INITIAL_RD : Math.max(Math.min(phi, 400), 30);
+  const boundedPhi = isNaN(phi) ? INITIAL_RD : Math.max(Math.min(phi, 400), 20);
   const boundedSigma = isNaN(sigma) ? INITIAL_VOLATILITY : Math.max(Math.min(sigma, 0.1), 0.01);
   
   await pool.query(`
@@ -142,7 +132,7 @@ async function saveGlicko2Rating(playerId, ratingType, mu, phi, sigma, matchId, 
 }
 
 async function calculateGlicko2Ratings() {
-  console.log('Calculating Glicko2 ratings (Overall + Surface-Specific)...\n');
+  console.log('Calculating Glicko2 ratings (Overall only)...\n');
   
   // Clear existing Glicko2 ratings
   await pool.query("DELETE FROM ratings WHERE rating_type = 'glicko2'");
@@ -157,7 +147,6 @@ async function calculateGlicko2Ratings() {
       m.winner_id,
       m.match_date,
       m.round,
-      m.surface,
       t.level as tournament_level
     FROM matches m
     LEFT JOIN tournaments t ON m.tournament_id = t.id
@@ -167,18 +156,24 @@ async function calculateGlicko2Ratings() {
   console.log(`Processing ${matches.rows.length} matches...\n`);
   
   let processed = 0;
+  const startTime = Date.now();
+  
+  // Set up 5-second updates
+  const updateInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const matchesPerSecond = processed / elapsed;
+    const remaining = matches.rows.length - processed;
+    const eta = Math.floor(remaining / matchesPerSecond);
+    
+    console.log(`🔄 Progress: ${processed}/${matches.rows.length} matches (${((processed/matches.rows.length)*100).toFixed(1)}%) | Speed: ${matchesPerSecond.toFixed(1)} matches/sec | ETA: ${eta}s`);
+  }, 5000);
   
   for (const match of matches.rows) {
-    const { player1_id, player2_id, winner_id, tournament_level, surface } = match;
+    const { player1_id, player2_id, winner_id, tournament_level } = match;
     
-    const normalizedSurface = normalizeSurface(surface);
     const tournamentWeight = getTournamentWeight(tournament_level);
     
-    // Calculate THREE ratings for each match:
-    // 1. Overall Glicko2 (tournament-weighted)
-    // 2. Surface-specific Glicko2 (Hard/Clay/Grass)
-    
-    // ===== OVERALL RATING =====
+    // Calculate OVERALL Glicko2 rating only
     const overall1Rating = await getCurrentGlicko2Rating(player1_id, 'glicko2', null);
     const overall2Rating = await getCurrentGlicko2Rating(player2_id, 'glicko2', null);
     
@@ -196,29 +191,10 @@ async function calculateGlicko2Ratings() {
       overallResult.player2.mu, overallResult.player2.phi, overallResult.player2.sigma, 
       match.id, null);
     
-    // ===== SURFACE-SPECIFIC RATING =====
-    const surface1Rating = await getCurrentGlicko2Rating(player1_id, 'glicko2', normalizedSurface);
-    const surface2Rating = await getCurrentGlicko2Rating(player2_id, 'glicko2', normalizedSurface);
-    
-    const surfaceResult = calculateGlicko2Match(
-      surface1Rating, surface2Rating, 
-      winner_id === player1_id, tournamentWeight
-    );
-    
-    // Save surface-specific ratings
-    await saveGlicko2Rating(player1_id, 'glicko2', 
-      surfaceResult.player1.mu, surfaceResult.player1.phi, surfaceResult.player1.sigma, 
-      match.id, normalizedSurface);
-    await saveGlicko2Rating(player2_id, 'glicko2', 
-      surfaceResult.player2.mu, surfaceResult.player2.phi, surfaceResult.player2.sigma, 
-      match.id, normalizedSurface);
-    
     processed++;
-    
-    if (processed % 10000 === 0) {
-      console.log(`Processed ${processed} matches...`);
-    }
   }
+  
+  clearInterval(updateInterval);
   
   console.log(`\n✓ Successfully calculated Glicko2 ratings for all matches`);
 }
