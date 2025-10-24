@@ -72,19 +72,22 @@ function updateTrueSkill(player1, player2, winnerIsPlayer1, tournamentWeight = 1
   const perfVar1 = player1.sigma * player1.sigma + BETA * BETA;
   const perfVar2 = player2.sigma * player2.sigma + BETA * BETA;
   
-  // Calculate expected performance
-  const expectedPerf1 = player1.mu;
-  const expectedPerf2 = player2.mu;
+  // Calculate expected scores (similar to ELO)
+  const expectedScore1 = 1 / (1 + Math.pow(10, (player2.mu - player1.mu) / 400));
+  const expectedScore2 = 1 - expectedScore1;
   
-  // Calculate actual performance based on result
-  const actualPerf1 = winnerIsPlayer1 ? expectedPerf2 + BETA : expectedPerf2 - BETA;
-  const actualPerf2 = winnerIsPlayer1 ? expectedPerf1 - BETA : expectedPerf1 + BETA;
+  // Actual scores (1 for winner, 0 for loser)
+  const actualScore1 = winnerIsPlayer1 ? 1 : 0;
+  const actualScore2 = 1 - actualScore1;
   
-  // Update ratings
-  const newMu1 = player1.mu + (actualPerf1 - expectedPerf1) * (perfVar1 / (perfVar1 + perfVar2)) * weightFactor;
-  const newMu2 = player2.mu + (actualPerf2 - expectedPerf2) * (perfVar2 / (perfVar1 + perfVar2)) * weightFactor;
+  // Update mu (rating) - use a learning rate based on uncertainty
+  const learningRate1 = (perfVar1 / (perfVar1 + perfVar2)) * weightFactor;
+  const learningRate2 = (perfVar2 / (perfVar1 + perfVar2)) * weightFactor;
   
-  // Update uncertainty (decrease confidence)
+  const newMu1 = player1.mu + learningRate1 * (actualScore1 - expectedScore1) * 50;
+  const newMu2 = player2.mu + learningRate2 * (actualScore2 - expectedScore2) * 50;
+  
+  // Update uncertainty (decrease confidence gradually)
   const newSigma1 = Math.max(player1.sigma * 0.995, 10);
   const newSigma2 = Math.max(player2.sigma * 0.995, 10);
   
@@ -106,7 +109,7 @@ async function saveTrueSkillRating(playerId, mu, sigma, matchId, surface = null)
 }
 
 async function calculateTrueSkillRatings() {
-  console.log('Calculating TrueSkill ratings (Overall + Surface-Specific)...\n');
+  console.log('Calculating TrueSkill ratings (Overall only)...\n');
 
   // Clear existing TrueSkill ratings
   await pool.query("DELETE FROM ratings WHERE rating_type = 'trueskill'");
@@ -119,7 +122,6 @@ async function calculateTrueSkillRatings() {
       m.player2_id,
       m.winner_id,
       m.match_date,
-      m.surface,
       t.level as tournament_level
     FROM matches m
     LEFT JOIN tournaments t ON m.tournament_id = t.id
@@ -129,9 +131,20 @@ async function calculateTrueSkillRatings() {
   console.log(`Processing ${matches.rows.length} matches...\n`);
 
   let processed = 0;
+  const startTime = Date.now();
+  
+  // Set up 5-second updates
+  const updateInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const matchesPerSecond = processed / elapsed;
+    const remaining = matches.rows.length - processed;
+    const eta = Math.floor(remaining / matchesPerSecond);
+    
+    console.log(`🔄 Progress: ${processed}/${matches.rows.length} matches (${((processed/matches.rows.length)*100).toFixed(1)}%) | Speed: ${matchesPerSecond.toFixed(1)} matches/sec | ETA: ${eta}s`);
+  }, 5000);
 
   for (const match of matches.rows) {
-    const { id: matchId, player1_id, player2_id, winner_id, surface, tournament_level } = match;
+    const { id: matchId, player1_id, player2_id, winner_id, tournament_level } = match;
 
     // Skip if missing required data
     if (!player1_id || !player2_id || !winner_id) {
@@ -141,7 +154,7 @@ async function calculateTrueSkillRatings() {
 
     const tournamentWeight = getTournamentWeight(tournament_level);
 
-    // --- Overall TrueSkill Rating ---
+    // --- Overall TrueSkill Rating Only ---
     const p1Overall = getPlayerRating(player1_id, null);
     const p2Overall = getPlayerRating(player2_id, null);
 
@@ -153,51 +166,32 @@ async function calculateTrueSkillRatings() {
     await saveTrueSkillRating(player1_id, newPlayer1.mu, newPlayer1.sigma, matchId, null);
     await saveTrueSkillRating(player2_id, newPlayer2.mu, newPlayer2.sigma, matchId, null);
 
-    // --- Surface-Specific TrueSkill Rating ---
-    if (surface) {
-      const p1Surface = getPlayerRating(player1_id, surface);
-      const p2Surface = getPlayerRating(player2_id, surface);
-
-      const [newSurfacePlayer1, newSurfacePlayer2] = updateTrueSkill(p1Surface, p2Surface, winner_id === player1_id, tournamentWeight);
-
-      setPlayerRating(player1_id, newSurfacePlayer1.mu, newSurfacePlayer1.sigma, surface);
-      setPlayerRating(player2_id, newSurfacePlayer2.mu, newSurfacePlayer2.sigma, surface);
-
-      await saveTrueSkillRating(player1_id, newSurfacePlayer1.mu, newSurfacePlayer1.sigma, matchId, surface);
-      await saveTrueSkillRating(player2_id, newSurfacePlayer2.mu, newSurfacePlayer2.sigma, matchId, surface);
-    }
-
     processed++;
-    if (processed % 10000 === 0) {
-      console.log(`Processed ${processed} matches...`);
-    }
   }
+  
+  clearInterval(updateInterval);
 
   console.log('\n✓ Successfully calculated TrueSkill ratings for all matches\n');
 
   // Summary statistics
   const summary = await pool.query(`
     SELECT 
-      surface,
       COUNT(*) as count,
       AVG(rating_value) as avg_rating,
       AVG(rating_deviation) as avg_deviation,
       MAX(rating_value) as max_rating,
       MIN(rating_value) as min_rating
     FROM ratings
-    WHERE rating_type = 'trueskill'
-    GROUP BY surface
-    ORDER BY surface ASC NULLS FIRST;
+    WHERE rating_type = 'trueskill' AND surface IS NULL
   `);
 
   console.log('TrueSkill Rating Summary:');
-  summary.rows.forEach(row => {
-    console.log(`  ${row.surface === null ? 'Overall' : row.surface}: ${row.count} ratings`);
-    console.log(`    Avg Rating: ${Math.round(row.avg_rating)}`);
-    console.log(`    Avg Deviation: ${Math.round(row.avg_deviation)}`);
-    console.log(`    Range: ${Math.round(row.min_rating)} - ${Math.round(row.max_rating)}`);
-    console.log('');
-  });
+  const row = summary.rows[0];
+  console.log(`  Overall: ${row.count} ratings`);
+  console.log(`    Avg Rating: ${Math.round(row.avg_rating)}`);
+  console.log(`    Avg Deviation: ${Math.round(row.avg_deviation)}`);
+  console.log(`    Range: ${Math.round(row.min_rating)} - ${Math.round(row.max_rating)}`);
+  console.log('');
 
   console.log('✓ TrueSkill calculation complete!\n');
 }
