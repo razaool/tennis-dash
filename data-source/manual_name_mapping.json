@@ -1,0 +1,2596 @@
+{
+  "version": "1.0",
+  "created": "2025-10-24T00:06:36.095Z",
+  "totalUncertain": 49,
+  "uncertainMappings": [
+    {
+      "abbreviatedName": "O Connell C.",
+      "currentMapping": {
+        "id": "106331",
+        "fullName": "Christopher Oconnell",
+        "hand": "R",
+        "height": "183",
+        "ioc": "AUS"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "106331",
+          "fullName": "Christopher Oconnell",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUS",
+          "confidence": 100
+        },
+        {
+          "id": "132446",
+          "fullName": "Charles Mcconnell",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "149276",
+          "fullName": "Claude Ishimwe",
+          "hand": "U",
+          "height": "",
+          "ioc": "RWA",
+          "confidence": 100
+        },
+        {
+          "id": "210726",
+          "fullName": "Cesar Bouchelaghem",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "211470",
+          "fullName": "Christian Teszari",
+          "hand": "U",
+          "height": "",
+          "ioc": "ROU",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Gomez F.",
+      "currentMapping": {
+        "id": "144870",
+        "fullName": "Federico Agustin Gomez",
+        "hand": "R",
+        "height": "191",
+        "ioc": "ARG"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "121640",
+          "fullName": "Facundo Gomez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "134358",
+          "fullName": "Felipe Gomez",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "134575",
+          "fullName": "Fabrizio Hernan Gomez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "134958",
+          "fullName": "Fernando Machado E Bernardes",
+          "hand": "U",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "144870",
+          "fullName": "Federico Agustin Gomez",
+          "hand": "R",
+          "height": "191",
+          "ioc": "ARG",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Tien L.",
+      "currentMapping": {
+        "id": "210530",
+        "fullName": "Learner Tien",
+        "hand": "L",
+        "height": "180",
+        "ioc": "USA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "210208",
+          "fullName": "Luka Kalenic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "210530",
+          "fullName": "Learner Tien",
+          "hand": "L",
+          "height": "180",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "210604",
+          "fullName": "Loann Massard",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210605",
+          "fullName": "Liam Branger",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210660",
+          "fullName": "Luis Francisco",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Moro Canas A.",
+      "currentMapping": {
+        "id": "208279",
+        "fullName": "Alejandro Moro Canas",
+        "hand": "R",
+        "height": "183",
+        "ioc": "ESP"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "208279",
+          "fullName": "Alejandro Moro Canas",
+          "hand": "R",
+          "height": "183",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "210222",
+          "fullName": "Adrian Contreras",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "210314",
+          "fullName": "Artur Khairutdinov",
+          "hand": "U",
+          "height": "",
+          "ioc": "KAZ",
+          "confidence": 100
+        },
+        {
+          "id": "210480",
+          "fullName": "Alberto Puello",
+          "hand": "U",
+          "height": "",
+          "ioc": "DOM",
+          "confidence": 100
+        },
+        {
+          "id": "210482",
+          "fullName": "Anargha Ganguly",
+          "hand": "U",
+          "height": "",
+          "ioc": "IND",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Huesler M.A.",
+      "currentMapping": {
+        "id": "144817",
+        "fullName": "Marc Andrea Huesler",
+        "hand": "L",
+        "height": "196",
+        "ioc": "SUI"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "131015",
+          "fullName": "Marc Le Clair",
+          "hand": "U",
+          "height": "",
+          "ioc": "CAN",
+          "confidence": 100
+        },
+        {
+          "id": "131660",
+          "fullName": "Mathieu Le Chat",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "133673",
+          "fullName": "Michel James Hu Kwo",
+          "hand": "L",
+          "height": "",
+          "ioc": "PER",
+          "confidence": 100
+        },
+        {
+          "id": "137297",
+          "fullName": "M Ikmal Hisyam R",
+          "hand": "U",
+          "height": "",
+          "ioc": "INA",
+          "confidence": 100
+        },
+        {
+          "id": "141373",
+          "fullName": "Maxime Le Pivert",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Munar J.",
+      "currentMapping": {
+        "id": "144719",
+        "fullName": "Jaume Munar",
+        "hand": "R",
+        "height": "183",
+        "ioc": "ESP"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "137715",
+          "fullName": "John Cham A Koon",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "144719",
+          "fullName": "Jaume Munar",
+          "hand": "R",
+          "height": "183",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        },
+        {
+          "id": "210546",
+          "fullName": "Jan Kobierski",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUT",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Wong C.",
+      "currentMapping": {
+        "id": "124022",
+        "fullName": "Coleman Wong",
+        "hand": "R",
+        "height": "",
+        "ioc": "HKG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "109387",
+          "fullName": "Clifton Wong",
+          "hand": "R",
+          "height": "",
+          "ioc": "ARU",
+          "confidence": 100
+        },
+        {
+          "id": "110830",
+          "fullName": "Chee Leong Wong",
+          "hand": "U",
+          "height": "",
+          "ioc": "SGP",
+          "confidence": 100
+        },
+        {
+          "id": "124022",
+          "fullName": "Chun Hun Wong",
+          "hand": "R",
+          "height": "170",
+          "ioc": "HKG",
+          "confidence": 100
+        },
+        {
+          "id": "130918",
+          "fullName": "Chris Wong",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "146249",
+          "fullName": "Clinton Wong",
+          "hand": "U",
+          "height": "",
+          "ioc": "JAM",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Etcheverry T.",
+      "currentMapping": {
+        "id": "144869",
+        "fullName": "Tomas Martin Etcheverry",
+        "hand": "R",
+        "height": "196",
+        "ioc": "ARG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "144869",
+          "fullName": "Tomas Martin Etcheverry",
+          "hand": "R",
+          "height": "196",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "149103",
+          "fullName": "Tristan Nitschke",
+          "hand": "U",
+          "height": "",
+          "ioc": "GER",
+          "confidence": 100
+        },
+        {
+          "id": "210485",
+          "fullName": "Togan Tokac",
+          "hand": "R",
+          "height": "",
+          "ioc": "TUR",
+          "confidence": 100
+        },
+        {
+          "id": "211341",
+          "fullName": "Tommy Czaplinski",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "212199",
+          "fullName": "Tymur Bieldiugin",
+          "hand": "U",
+          "height": "",
+          "ioc": "UKR",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Paul T.",
+      "currentMapping": {
+        "id": "126205",
+        "fullName": "Tommy Paul",
+        "hand": "R",
+        "height": "185",
+        "ioc": "USA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "104652",
+          "fullName": "Todd Paul",
+          "hand": "L",
+          "height": "180",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "126205",
+          "fullName": "Tommy Paul",
+          "hand": "R",
+          "height": "185",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "149103",
+          "fullName": "Tristan Nitschke",
+          "hand": "U",
+          "height": "",
+          "ioc": "GER",
+          "confidence": 100
+        },
+        {
+          "id": "210485",
+          "fullName": "Togan Tokac",
+          "hand": "R",
+          "height": "",
+          "ioc": "TUR",
+          "confidence": 100
+        },
+        {
+          "id": "211341",
+          "fullName": "Tommy Czaplinski",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Nardi L.",
+      "currentMapping": {
+        "id": "109607",
+        "fullName": "Luca Nardi",
+        "hand": "R",
+        "height": "",
+        "ioc": "ITA"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "120046",
+          "fullName": "Laerte Di Falco",
+          "hand": "R",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "120939",
+          "fullName": "Lorenzo Di Giovanni",
+          "hand": "R",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "121691",
+          "fullName": "Luciano Di Scala",
+          "hand": "R",
+          "height": "",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "123852",
+          "fullName": "Lorenzo Di Maro",
+          "hand": "U",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "136193",
+          "fullName": "Luca Di Lenarda",
+          "hand": "U",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Diaz Acosta F.",
+      "currentMapping": {
+        "id": "207680",
+        "fullName": "Facundo Diaz Acosta",
+        "hand": "L",
+        "height": "183",
+        "ioc": "ARG"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "207680",
+          "fullName": "Facundo Diaz Acosta",
+          "hand": "L",
+          "height": "183",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "210359",
+          "fullName": "Frazier  Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "211360",
+          "fullName": "Filipe Grebentsov",
+          "hand": "U",
+          "height": "",
+          "ioc": "POR",
+          "confidence": 100
+        },
+        {
+          "id": "212563",
+          "fullName": "Frazier Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "102239",
+          "fullName": "Francisco Costa",
+          "hand": "R",
+          "height": "180",
+          "ioc": "BRA",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Struff J.L.",
+      "currentMapping": {
+        "id": "105526",
+        "fullName": "Jan Lennard Struff",
+        "hand": "R",
+        "height": "193",
+        "ioc": "GER"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "105526",
+          "fullName": "Jan Lennard Struff",
+          "hand": "R",
+          "height": "193",
+          "ioc": "GER",
+          "confidence": 100
+        },
+        {
+          "id": "147450",
+          "fullName": "John De St Croix",
+          "hand": "U",
+          "height": "",
+          "ioc": "RSA",
+          "confidence": 100
+        },
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        },
+        {
+          "id": "210546",
+          "fullName": "Jan Kobierski",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUT",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Seyboth Wild T.",
+      "currentMapping": {
+        "id": "205734",
+        "fullName": "Thiago Seyboth Wild",
+        "hand": "R",
+        "height": "185",
+        "ioc": "BRA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "149103",
+          "fullName": "Tristan Nitschke",
+          "hand": "U",
+          "height": "",
+          "ioc": "GER",
+          "confidence": 100
+        },
+        {
+          "id": "205734",
+          "fullName": "Thiago Seyboth Wild",
+          "hand": "R",
+          "height": "185",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "210485",
+          "fullName": "Togan Tokac",
+          "hand": "R",
+          "height": "",
+          "ioc": "TUR",
+          "confidence": 100
+        },
+        {
+          "id": "211341",
+          "fullName": "Tommy Czaplinski",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "212199",
+          "fullName": "Tymur Bieldiugin",
+          "hand": "U",
+          "height": "",
+          "ioc": "UKR",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Daniel T.",
+      "currentMapping": {
+        "id": "106121",
+        "fullName": "Taro Daniel",
+        "hand": "R",
+        "height": "191",
+        "ioc": "JPN"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "102018",
+          "fullName": "Tamer El Sawy",
+          "hand": "R",
+          "height": "188",
+          "ioc": "EGY",
+          "confidence": 100
+        },
+        {
+          "id": "106121",
+          "fullName": "Taro Daniel",
+          "hand": "R",
+          "height": "191",
+          "ioc": "JPN",
+          "confidence": 100
+        },
+        {
+          "id": "108356",
+          "fullName": "Tarek El Sakka",
+          "hand": "R",
+          "height": "180",
+          "ioc": "EGY",
+          "confidence": 100
+        },
+        {
+          "id": "120698",
+          "fullName": "Tarek El Esawy",
+          "hand": "R",
+          "height": "",
+          "ioc": "EGY",
+          "confidence": 100
+        },
+        {
+          "id": "123885",
+          "fullName": "Thomas Da Silva Ramos",
+          "hand": "R",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Draper J.",
+      "currentMapping": {
+        "id": "113451",
+        "fullName": "Jack Draper",
+        "hand": "U",
+        "height": "",
+        "ioc": "ESP"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "117272",
+          "fullName": "Jose Maria Draper",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "137715",
+          "fullName": "John Cham A Koon",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "145281",
+          "fullName": "J K Draper",
+          "hand": "U",
+          "height": "",
+          "ioc": "GBR",
+          "confidence": 100
+        },
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Faria J.",
+      "currentMapping": {
+        "id": "210262",
+        "fullName": "Jaime Faria",
+        "hand": "R",
+        "height": "188",
+        "ioc": "POR"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "137715",
+          "fullName": "John Cham A Koon",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        },
+        {
+          "id": "210262",
+          "fullName": "Jaime Faria",
+          "hand": "R",
+          "height": "188",
+          "ioc": "POR",
+          "confidence": 100
+        },
+        {
+          "id": "210546",
+          "fullName": "Jan Kobierski",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUT",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Ugo Carabelli C.",
+      "currentMapping": {
+        "id": "200116",
+        "fullName": "Camilo Ugo Carabelli",
+        "hand": "R",
+        "height": "185",
+        "ioc": "ARG"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "149276",
+          "fullName": "Claude Ishimwe",
+          "hand": "U",
+          "height": "",
+          "ioc": "RWA",
+          "confidence": 100
+        },
+        {
+          "id": "200116",
+          "fullName": "Camilo Ugo Carabelli",
+          "hand": "R",
+          "height": "185",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "210726",
+          "fullName": "Cesar Bouchelaghem",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "211470",
+          "fullName": "Christian Teszari",
+          "hand": "U",
+          "height": "",
+          "ioc": "ROU",
+          "confidence": 100
+        },
+        {
+          "id": "211719",
+          "fullName": "Carles Cordoba",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "De Minaur A.",
+      "currentMapping": {
+        "id": "200282",
+        "fullName": "Alex De Minaur",
+        "hand": "R",
+        "height": "183",
+        "ioc": "AUS"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "110113",
+          "fullName": "Andre Van Der Merwe A",
+          "hand": "U",
+          "height": "",
+          "ioc": "RSA",
+          "confidence": 100
+        },
+        {
+          "id": "200282",
+          "fullName": "Alex De Minaur",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUS",
+          "confidence": 100
+        },
+        {
+          "id": "210222",
+          "fullName": "Adrian Contreras",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "210314",
+          "fullName": "Artur Khairutdinov",
+          "hand": "U",
+          "height": "",
+          "ioc": "KAZ",
+          "confidence": 100
+        },
+        {
+          "id": "210480",
+          "fullName": "Alberto Puello",
+          "hand": "U",
+          "height": "",
+          "ioc": "DOM",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Van De Zandschulp B.",
+      "currentMapping": {
+        "id": "122298",
+        "fullName": "Botic Van De Zandschulp",
+        "hand": "R",
+        "height": "191",
+        "ioc": "NED"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "122298",
+          "fullName": "Botic Van De Zandschulp",
+          "hand": "R",
+          "height": "191",
+          "ioc": "NED",
+          "confidence": 100
+        },
+        {
+          "id": "210078",
+          "fullName": "Berk Bugarikj",
+          "hand": "U",
+          "height": "",
+          "ioc": "MKD",
+          "confidence": 100
+        },
+        {
+          "id": "210458",
+          "fullName": "Bernardo Munk Mesa",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211619",
+          "fullName": "Bruno Sanchez Sanchez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "113078",
+          "fullName": "Bobby De",
+          "hand": "U",
+          "height": "",
+          "ioc": "",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "De Jong J.",
+      "currentMapping": {
+        "id": "207411",
+        "fullName": "Jesper De Jong",
+        "hand": "R",
+        "height": "180",
+        "ioc": "NED"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        },
+        {
+          "id": "207411",
+          "fullName": "Jesper De Jong",
+          "hand": "R",
+          "height": "180",
+          "ioc": "NED",
+          "confidence": 100
+        },
+        {
+          "id": "210546",
+          "fullName": "Jan Kobierski",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUT",
+          "confidence": 100
+        },
+        {
+          "id": "210574",
+          "fullName": "Jeiden Saidizand",
+          "hand": "U",
+          "height": "",
+          "ioc": "SWE",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Holt B.",
+      "currentMapping": {
+        "id": "200587",
+        "fullName": "Brandon Holt",
+        "hand": "R",
+        "height": "185",
+        "ioc": "USA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "200587",
+          "fullName": "Brandon Holt",
+          "hand": "R",
+          "height": "185",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "200695",
+          "fullName": "Bradley Holt",
+          "hand": "R",
+          "height": "191",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "210078",
+          "fullName": "Berk Bugarikj",
+          "hand": "U",
+          "height": "",
+          "ioc": "MKD",
+          "confidence": 100
+        },
+        {
+          "id": "210458",
+          "fullName": "Bernardo Munk Mesa",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211619",
+          "fullName": "Bruno Sanchez Sanchez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Cerundolo J.M.",
+      "currentMapping": {
+        "id": "207678",
+        "fullName": "Juan Manuel Cerundolo",
+        "hand": "L",
+        "height": "183",
+        "ioc": "ARG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "117724",
+          "fullName": "Jacopo Lo Monaco",
+          "hand": "U",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "144254",
+          "fullName": "Joseph Lo Vullo",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "144756",
+          "fullName": "Jordan Correia Passos Do Carmo",
+          "hand": "U",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Burruchaga R.",
+      "currentMapping": {
+        "id": "208882",
+        "fullName": "Roman Andres Burruchaga",
+        "hand": "R",
+        "height": "183",
+        "ioc": "ARG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "208882",
+          "fullName": "Roman Andres Burruchaga",
+          "hand": "R",
+          "height": "183",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "210488",
+          "fullName": "Roger Pascual Ferra",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211565",
+          "fullName": "Ricardo Villacorta",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211593",
+          "fullName": "Romeo Hadzimehmedovic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "212266",
+          "fullName": "Rudy Ceccon",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Van Assche L.",
+      "currentMapping": {
+        "id": "209414",
+        "fullName": "Luca Van Assche",
+        "hand": "R",
+        "height": "178",
+        "ioc": "FRA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "209414",
+          "fullName": "Luca Van Assche",
+          "hand": "R",
+          "height": "178",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210208",
+          "fullName": "Luka Kalenic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "210604",
+          "fullName": "Loann Massard",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210605",
+          "fullName": "Liam Branger",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210660",
+          "fullName": "Luis Francisco",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Gea A.",
+      "currentMapping": {
+        "id": "210338",
+        "fullName": "Arthur Gea",
+        "hand": "R",
+        "height": "180",
+        "ioc": "FRA"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "110113",
+          "fullName": "Andre Van Der Merwe A",
+          "hand": "U",
+          "height": "",
+          "ioc": "RSA",
+          "confidence": 100
+        },
+        {
+          "id": "210222",
+          "fullName": "Adrian Contreras",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "210314",
+          "fullName": "Artur Khairutdinov",
+          "hand": "U",
+          "height": "",
+          "ioc": "KAZ",
+          "confidence": 100
+        },
+        {
+          "id": "210338",
+          "fullName": "Arthur Gea",
+          "hand": "R",
+          "height": "180",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210480",
+          "fullName": "Alberto Puello",
+          "hand": "U",
+          "height": "",
+          "ioc": "DOM",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Herbert P.",
+      "currentMapping": {
+        "id": "105732",
+        "fullName": "Pierre Hugues Herbert",
+        "hand": "R",
+        "height": "188",
+        "ioc": "FRA"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "105732",
+          "fullName": "Pierre Hugues Herbert",
+          "hand": "R",
+          "height": "188",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210429",
+          "fullName": "Pietro Romeo Scomparin",
+          "hand": "R",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "211474",
+          "fullName": "Pablo Trochu",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "211536",
+          "fullName": "Patrik Meszaros",
+          "hand": "U",
+          "height": "",
+          "ioc": "HUN",
+          "confidence": 100
+        },
+        {
+          "id": "147191",
+          "fullName": "Pete Herb",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Meligeni Alves F.",
+      "currentMapping": {
+        "id": "200335",
+        "fullName": "Felipe Meligeni Alves",
+        "hand": "R",
+        "height": "185",
+        "ioc": "BRA"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "134958",
+          "fullName": "Fernando Machado E Bernardes",
+          "hand": "U",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "200335",
+          "fullName": "Felipe Meligeni Alves",
+          "hand": "R",
+          "height": "185",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "210359",
+          "fullName": "Frazier  Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "211360",
+          "fullName": "Filipe Grebentsov",
+          "hand": "U",
+          "height": "",
+          "ioc": "POR",
+          "confidence": 100
+        },
+        {
+          "id": "212563",
+          "fullName": "Frazier Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Tseng C.H.",
+      "currentMapping": {
+        "id": "202358",
+        "fullName": "Chun Hsin Tseng",
+        "hand": "R",
+        "height": "175",
+        "ioc": "TPE"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "132123",
+          "fullName": "Chanchai Sookton Eng",
+          "hand": "U",
+          "height": "",
+          "ioc": "AUS",
+          "confidence": 100
+        },
+        {
+          "id": "149276",
+          "fullName": "Claude Ishimwe",
+          "hand": "U",
+          "height": "",
+          "ioc": "RWA",
+          "confidence": 100
+        },
+        {
+          "id": "202358",
+          "fullName": "Chun Hsin Tseng",
+          "hand": "R",
+          "height": "175",
+          "ioc": "TPE",
+          "confidence": 100
+        },
+        {
+          "id": "210726",
+          "fullName": "Cesar Bouchelaghem",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "211470",
+          "fullName": "Christian Teszari",
+          "hand": "U",
+          "height": "",
+          "ioc": "ROU",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Pacheco Mendez R.",
+      "currentMapping": {
+        "id": "210202",
+        "fullName": "Rodrigo Pacheco Mendez",
+        "hand": "L",
+        "height": "188",
+        "ioc": "MEX"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "210202",
+          "fullName": "Rodrigo Pacheco Mendez",
+          "hand": "L",
+          "height": "188",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "210488",
+          "fullName": "Roger Pascual Ferra",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211565",
+          "fullName": "Ricardo Villacorta",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211593",
+          "fullName": "Romeo Hadzimehmedovic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "212266",
+          "fullName": "Rudy Ceccon",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Ficovich J.P.",
+      "currentMapping": {
+        "id": "126663",
+        "fullName": "Juan Pablo Ficovich",
+        "hand": "R",
+        "height": "191",
+        "ioc": "ARG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "106253",
+          "fullName": "Jaume Martinez Vich",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "126663",
+          "fullName": "Juan Pablo Ficovich",
+          "hand": "R",
+          "height": "191",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        },
+        {
+          "id": "210546",
+          "fullName": "Jan Kobierski",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUT",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Tirante T.A.",
+      "currentMapping": {
+        "id": "202058",
+        "fullName": "Thiago Agustin Tirante",
+        "hand": "R",
+        "height": "185",
+        "ioc": "ARG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "149103",
+          "fullName": "Tristan Nitschke",
+          "hand": "U",
+          "height": "",
+          "ioc": "GER",
+          "confidence": 100
+        },
+        {
+          "id": "202058",
+          "fullName": "Thiago Agustin Tirante",
+          "hand": "R",
+          "height": "185",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "210485",
+          "fullName": "Togan Tokac",
+          "hand": "R",
+          "height": "",
+          "ioc": "TUR",
+          "confidence": 100
+        },
+        {
+          "id": "211341",
+          "fullName": "Tommy Czaplinski",
+          "hand": "U",
+          "height": "",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "212199",
+          "fullName": "Tymur Bieldiugin",
+          "hand": "U",
+          "height": "",
+          "ioc": "UKR",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Wu Y.",
+      "currentMapping": {
+        "id": "208167",
+        "fullName": "Yuchen Wu",
+        "hand": "U",
+        "height": "",
+        "ioc": "CHN"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "126895",
+          "fullName": "Yifan Wu",
+          "hand": "U",
+          "height": "",
+          "ioc": "CHN",
+          "confidence": 100
+        },
+        {
+          "id": "200059",
+          "fullName": "Yibing Wu",
+          "hand": "R",
+          "height": "183",
+          "ioc": "CHN",
+          "confidence": 100
+        },
+        {
+          "id": "208167",
+          "fullName": "Yuchen Wu",
+          "hand": "U",
+          "height": "",
+          "ioc": "CHN",
+          "confidence": 100
+        },
+        {
+          "id": "210715",
+          "fullName": "Yaroslav Demin",
+          "hand": "U",
+          "height": "",
+          "ioc": "RUS",
+          "confidence": 100
+        },
+        {
+          "id": "211460",
+          "fullName": "Yuki Mochizuki",
+          "hand": "U",
+          "height": "",
+          "ioc": "JPN",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Jianu F.C.",
+      "currentMapping": {
+        "id": "202262",
+        "fullName": "Filip Cristian Jianu",
+        "hand": "R",
+        "height": "180",
+        "ioc": "ROU"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "202262",
+          "fullName": "Filip Cristian Jianu",
+          "hand": "R",
+          "height": "180",
+          "ioc": "ROU",
+          "confidence": 100
+        },
+        {
+          "id": "210359",
+          "fullName": "Frazier  Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "211360",
+          "fullName": "Filipe Grebentsov",
+          "hand": "U",
+          "height": "",
+          "ioc": "POR",
+          "confidence": 100
+        },
+        {
+          "id": "212563",
+          "fullName": "Frazier Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Galan D.E.",
+      "currentMapping": {
+        "id": "123755",
+        "fullName": "Daniel Elahi Galan",
+        "hand": "R",
+        "height": "191",
+        "ioc": "COL"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "103926",
+          "fullName": "Daniel Munoz de la Nava",
+          "hand": "L",
+          "height": "178",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "117831",
+          "fullName": "Diego De La O",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "121012",
+          "fullName": "Daniel Serur De La Torre",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "122007",
+          "fullName": "Daniel De La Cruz",
+          "hand": "U",
+          "height": "",
+          "ioc": "CUB",
+          "confidence": 100
+        },
+        {
+          "id": "122299",
+          "fullName": "Dean Tjin A Ton",
+          "hand": "R",
+          "height": "",
+          "ioc": "NED",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Moreno De Alboran N.",
+      "currentMapping": {
+        "id": "134457",
+        "fullName": "Nicolas Moreno De Alboran",
+        "hand": "R",
+        "height": "185",
+        "ioc": "USA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "134457",
+          "fullName": "Nicolas Moreno De Alboran",
+          "hand": "R",
+          "height": "185",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "210195",
+          "fullName": "Nicolo Pozzani",
+          "hand": "U",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "211710",
+          "fullName": "Niccolo Festini Mira",
+          "hand": "U",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "212119",
+          "fullName": "Nik Mikovic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SLO",
+          "confidence": 100
+        },
+        {
+          "id": "130357",
+          "fullName": "Nicolas Eduardo Moreno",
+          "hand": "R",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Hassan B.",
+      "currentMapping": {
+        "id": "133975",
+        "fullName": "Benjamin Hassan",
+        "hand": "R",
+        "height": "183",
+        "ioc": "LBN"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "133975",
+          "fullName": "Benjamin Hassan",
+          "hand": "R",
+          "height": "183",
+          "ioc": "LBN",
+          "confidence": 100
+        },
+        {
+          "id": "210078",
+          "fullName": "Berk Bugarikj",
+          "hand": "U",
+          "height": "",
+          "ioc": "MKD",
+          "confidence": 100
+        },
+        {
+          "id": "210458",
+          "fullName": "Bernardo Munk Mesa",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "211619",
+          "fullName": "Bruno Sanchez Sanchez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "132886",
+          "fullName": "Byeong Mo An",
+          "hand": "U",
+          "height": "",
+          "ioc": "KOR",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Nava E.",
+      "currentMapping": {
+        "id": "124013",
+        "fullName": "Eduardo Nava",
+        "hand": "R",
+        "height": "180",
+        "ioc": "USA"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "124013",
+          "fullName": "Eduardo Nava",
+          "hand": "R",
+          "height": "180",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "149111",
+          "fullName": "Ethan Yi Hang Leung",
+          "hand": "U",
+          "height": "",
+          "ioc": "HKG",
+          "confidence": 100
+        },
+        {
+          "id": "207182",
+          "fullName": "Emilio Nava",
+          "hand": "R",
+          "height": "185",
+          "ioc": "USA",
+          "confidence": 100
+        },
+        {
+          "id": "210330",
+          "fullName": "Evangelos Kypriotis",
+          "hand": "U",
+          "height": "",
+          "ioc": "GRE",
+          "confidence": 100
+        },
+        {
+          "id": "210347",
+          "fullName": "Egor Tsarapkin",
+          "hand": "U",
+          "height": "",
+          "ioc": "RUS",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Llamas Ruiz P.",
+      "currentMapping": {
+        "id": "208010",
+        "fullName": "Pablo Llamas Ruiz",
+        "hand": "R",
+        "height": "188",
+        "ioc": "ESP"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "208010",
+          "fullName": "Pablo Llamas Ruiz",
+          "hand": "R",
+          "height": "188",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "210429",
+          "fullName": "Pietro Romeo Scomparin",
+          "hand": "R",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "211474",
+          "fullName": "Pablo Trochu",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "211536",
+          "fullName": "Patrik Meszaros",
+          "hand": "U",
+          "height": "",
+          "ioc": "HUN",
+          "confidence": 100
+        },
+        {
+          "id": "106294",
+          "fullName": "Pedro Pablo Ruiz",
+          "hand": "R",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Gomez F.A.",
+      "currentMapping": {
+        "id": "144870",
+        "fullName": "Federico Agustin Gomez",
+        "hand": "R",
+        "height": "191",
+        "ioc": "ARG"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "121640",
+          "fullName": "Facundo Gomez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "134358",
+          "fullName": "Felipe Gomez",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "134575",
+          "fullName": "Fabrizio Hernan Gomez",
+          "hand": "U",
+          "height": "",
+          "ioc": "ARG",
+          "confidence": 100
+        },
+        {
+          "id": "134958",
+          "fullName": "Fernando Machado E Bernardes",
+          "hand": "U",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "144870",
+          "fullName": "Federico Agustin Gomez",
+          "hand": "R",
+          "height": "191",
+          "ioc": "ARG",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Harris L.",
+      "currentMapping": {
+        "id": "144750",
+        "fullName": "Lloyd Harris",
+        "hand": "R",
+        "height": "193",
+        "ioc": "RSA"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "144750",
+          "fullName": "Lloyd Harris",
+          "hand": "R",
+          "height": "193",
+          "ioc": "RSA",
+          "confidence": 100
+        },
+        {
+          "id": "210208",
+          "fullName": "Luka Kalenic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "210604",
+          "fullName": "Loann Massard",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210605",
+          "fullName": "Liam Branger",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210660",
+          "fullName": "Luis Francisco",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Pinnington Jones J.",
+      "currentMapping": {
+        "id": "209957",
+        "fullName": "Jack Pinnington Jones",
+        "hand": "R",
+        "height": "180",
+        "ioc": "GBR"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "149099",
+          "fullName": "Joaquin Aguilar Cardozo",
+          "hand": "U",
+          "height": "",
+          "ioc": "URU",
+          "confidence": 100
+        },
+        {
+          "id": "149107",
+          "fullName": "Jakub Vrba",
+          "hand": "U",
+          "height": "",
+          "ioc": "CZE",
+          "confidence": 100
+        },
+        {
+          "id": "209957",
+          "fullName": "Jack Pinnington Jones",
+          "hand": "R",
+          "height": "180",
+          "ioc": "GBR",
+          "confidence": 100
+        },
+        {
+          "id": "210546",
+          "fullName": "Jan Kobierski",
+          "hand": "R",
+          "height": "183",
+          "ioc": "AUT",
+          "confidence": 100
+        },
+        {
+          "id": "210574",
+          "fullName": "Jeiden Saidizand",
+          "hand": "U",
+          "height": "",
+          "ioc": "SWE",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Fery A.",
+      "currentMapping": {
+        "id": "209259",
+        "fullName": "Arthur Fery",
+        "hand": "R",
+        "height": "175",
+        "ioc": "GBR"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "113054",
+          "fullName": "A Fe D Ostiani",
+          "hand": "U",
+          "height": "",
+          "ioc": "ITA",
+          "confidence": 100
+        },
+        {
+          "id": "122337",
+          "fullName": "Alejandro Pascacio F",
+          "hand": "R",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "209259",
+          "fullName": "Arthur Fery",
+          "hand": "R",
+          "height": "175",
+          "ioc": "GBR",
+          "confidence": 100
+        },
+        {
+          "id": "210222",
+          "fullName": "Adrian Contreras",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "210314",
+          "fullName": "Artur Khairutdinov",
+          "hand": "U",
+          "height": "",
+          "ioc": "KAZ",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Ymer M.",
+      "currentMapping": {
+        "id": "144707",
+        "fullName": "Arthur Fery",
+        "hand": "R",
+        "height": "183",
+        "ioc": "SWE"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "113825",
+          "fullName": "Mariano Lozano Y Alatorre",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "137297",
+          "fullName": "M Ikmal Hisyam R",
+          "hand": "U",
+          "height": "",
+          "ioc": "INA",
+          "confidence": 100
+        },
+        {
+          "id": "144707",
+          "fullName": "Arthur Fery",
+          "hand": "R",
+          "height": "183",
+          "ioc": "SWE",
+          "confidence": 100
+        },
+        {
+          "id": "210058",
+          "fullName": "Marko Stakusic",
+          "hand": "L",
+          "height": "191",
+          "ioc": "CAN",
+          "confidence": 100
+        },
+        {
+          "id": "210124",
+          "fullName": "Mehdi Sadaoui",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Alvarez Valdes L.C.",
+      "currentMapping": {
+        "id": "100150",
+        "fullName": "Luis Carlos Alvarez",
+        "hand": "R",
+        "height": "",
+        "ioc": "ARG"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "210208",
+          "fullName": "Luka Kalenic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "210604",
+          "fullName": "Loann Massard",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210605",
+          "fullName": "Liam Branger",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210660",
+          "fullName": "Luis Francisco",
+          "hand": "U",
+          "height": "",
+          "ioc": "ESP",
+          "confidence": 100
+        },
+        {
+          "id": "210747",
+          "fullName": "Lui Maxted",
+          "hand": "U",
+          "height": "",
+          "ioc": "GBR",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Guillen Meza A.",
+      "currentMapping": {
+        "id": "208223",
+        "fullName": "Alvaro Guillen Meza",
+        "hand": "R",
+        "height": "175",
+        "ioc": "ECU"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "208223",
+          "fullName": "Alvaro Guillen Meza",
+          "hand": "R",
+          "height": "175",
+          "ioc": "ECU",
+          "confidence": 100
+        },
+        {
+          "id": "210222",
+          "fullName": "Adrian Contreras",
+          "hand": "U",
+          "height": "",
+          "ioc": "MEX",
+          "confidence": 100
+        },
+        {
+          "id": "210314",
+          "fullName": "Artur Khairutdinov",
+          "hand": "U",
+          "height": "",
+          "ioc": "KAZ",
+          "confidence": 100
+        },
+        {
+          "id": "210480",
+          "fullName": "Alberto Puello",
+          "hand": "U",
+          "height": "",
+          "ioc": "DOM",
+          "confidence": 100
+        },
+        {
+          "id": "210482",
+          "fullName": "Anargha Ganguly",
+          "hand": "U",
+          "height": "",
+          "ioc": "IND",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Suresh D.",
+      "currentMapping": {
+        "id": "207559",
+        "fullName": "Darrshan Suresh",
+        "hand": "R",
+        "height": "",
+        "ioc": "MAS"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "149278",
+          "fullName": "Daniel Khazime",
+          "hand": "U",
+          "height": "",
+          "ioc": "RUS",
+          "confidence": 100
+        },
+        {
+          "id": "202290",
+          "fullName": "Dhakshineswar Suresh",
+          "hand": "R",
+          "height": "193",
+          "ioc": "IND",
+          "confidence": 100
+        },
+        {
+          "id": "207559",
+          "fullName": "Darrshan Suresh",
+          "hand": "R",
+          "height": "",
+          "ioc": "MAS",
+          "confidence": 100
+        },
+        {
+          "id": "210074",
+          "fullName": "Dusan Trunic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SRB",
+          "confidence": 100
+        },
+        {
+          "id": "210251",
+          "fullName": "Dean Cooper Kirby",
+          "hand": "U",
+          "height": "",
+          "ioc": "GBR",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Sun F.",
+      "currentMapping": {
+        "id": "111806",
+        "fullName": "Fajing Sun",
+        "hand": "R",
+        "height": "178",
+        "ioc": "CHN"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "111806",
+          "fullName": "Fajing Sun",
+          "hand": "R",
+          "height": "178",
+          "ioc": "CHN",
+          "confidence": 100
+        },
+        {
+          "id": "210359",
+          "fullName": "Frazier  Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "211360",
+          "fullName": "Filipe Grebentsov",
+          "hand": "U",
+          "height": "",
+          "ioc": "POR",
+          "confidence": 100
+        },
+        {
+          "id": "212563",
+          "fullName": "Frazier Rengifo",
+          "hand": "U",
+          "height": "",
+          "ioc": "COL",
+          "confidence": 100
+        },
+        {
+          "id": "106339",
+          "fullName": "Felipe Assuncao Garla",
+          "hand": "R",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 95
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Topo M.",
+      "currentMapping": {
+        "id": "209916",
+        "fullName": "Marko Topo",
+        "hand": "R",
+        "height": "185",
+        "ioc": "GER"
+      },
+      "confidence": 50,
+      "suggestions": [
+        {
+          "id": "102603",
+          "fullName": "Melvyn Op Der Heijde",
+          "hand": "R",
+          "height": "180",
+          "ioc": "NED",
+          "confidence": 100
+        },
+        {
+          "id": "209916",
+          "fullName": "Marko Topo",
+          "hand": "R",
+          "height": "185",
+          "ioc": "GER",
+          "confidence": 100
+        },
+        {
+          "id": "210058",
+          "fullName": "Marko Stakusic",
+          "hand": "L",
+          "height": "191",
+          "ioc": "CAN",
+          "confidence": 100
+        },
+        {
+          "id": "210124",
+          "fullName": "Mehdi Sadaoui",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "210174",
+          "fullName": "Matic Dimic",
+          "hand": "U",
+          "height": "",
+          "ioc": "SLO",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "abbreviatedName": "Bailly G.A.",
+      "currentMapping": {
+        "id": "211451",
+        "fullName": "Gilles Arnaud Bailly",
+        "hand": "R",
+        "height": "180",
+        "ioc": "BEL"
+      },
+      "confidence": 85,
+      "suggestions": [
+        {
+          "id": "120540",
+          "fullName": "Gregory Chin A Kwie",
+          "hand": "U",
+          "height": "",
+          "ioc": "NED",
+          "confidence": 100
+        },
+        {
+          "id": "210177",
+          "fullName": "Gustavo Tedesco",
+          "hand": "U",
+          "height": "",
+          "ioc": "BRA",
+          "confidence": 100
+        },
+        {
+          "id": "211409",
+          "fullName": "Guillaume Dalmasso",
+          "hand": "U",
+          "height": "",
+          "ioc": "FRA",
+          "confidence": 100
+        },
+        {
+          "id": "211451",
+          "fullName": "Gilles Arnaud Bailly",
+          "hand": "R",
+          "height": "180",
+          "ioc": "BEL",
+          "confidence": 100
+        },
+        {
+          "id": "211533",
+          "fullName": "Gianluca Cadenasso",
+          "hand": "R",
+          "height": "178",
+          "ioc": "ITA",
+          "confidence": 100
+        }
+      ]
+    }
+  ]
+}

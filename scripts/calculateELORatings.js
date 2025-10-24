@@ -1,6 +1,5 @@
 // Calculate ELO Ratings: Overall (tournament-weighted) + Surface-Specific
 const { Pool } = require('pg');
-const { EloRating } = require('../server/utils/ratingSystems');
 
 const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
@@ -94,8 +93,6 @@ async function saveRating(playerId, ratingType, ratingValue, matchId, surface = 
 async function calculateELORatings() {
   console.log('Calculating ELO ratings (Overall + Surface-Specific)...\n');
   
-  const eloRating = new EloRating();
-  
   // Get all matches ordered by date
   const matches = await pool.query(`
     SELECT 
@@ -116,15 +113,24 @@ async function calculateELORatings() {
   console.log(`Processing ${matches.rows.length} matches...\n`);
   
   let processed = 0;
+  const startTime = Date.now();
+  
+  // Set up 5-second updates
+  const updateInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const matchesPerSecond = processed / elapsed;
+    const remaining = matches.rows.length - processed;
+    const eta = Math.floor(remaining / matchesPerSecond);
+    
+    console.log(`🔄 Progress: ${processed}/${matches.rows.length} matches (${((processed/matches.rows.length)*100).toFixed(1)}%) | Speed: ${matchesPerSecond.toFixed(1)} matches/sec | ETA: ${eta}s`);
+  }, 5000);
   
   for (const match of matches.rows) {
     const { player1_id, player2_id, winner_id, tournament_level, surface } = match;
     
     const normalizedSurface = normalizeSurface(surface);
     
-    // Calculate THREE ratings for each match:
-    // 1. Overall ELO (tournament-weighted)
-    // 2. Surface-specific ELO (Hard/Clay/Grass)
+    // Calculate ELO ratings: Overall + Surface-Specific
     
     // ===== OVERALL RATING =====
     const overall1Rating = await getCurrentRating(player1_id, 'elo', null);
@@ -135,19 +141,21 @@ async function calculateELORatings() {
     
     const tournamentWeight = getTournamentWeight(tournament_level);
     
-    const overallResult = eloRating.calculateMatchRatings(
-      overall1Rating,
-      overall2Rating,
-      winner_id === player1_id
-    );
+    // Calculate expected scores
+    const expected1 = 1 / (1 + Math.pow(10, (overall2Rating - overall1Rating) / 400));
+    const expected2 = 1 - expected1;
     
-    // Apply tournament weight
-    const effectiveK1 = overallK1 * tournamentWeight;
-    const effectiveK2 = overallK2 * tournamentWeight;
+    // Actual scores
+    const actual1 = winner_id === player1_id ? 1 : 0;
+    const actual2 = 1 - actual1;
+    
+    // Calculate new ratings
+    const newRating1 = overall1Rating + (overallK1 * tournamentWeight) * (actual1 - expected1);
+    const newRating2 = overall2Rating + (overallK2 * tournamentWeight) * (actual2 - expected2);
     
     // Save overall ratings
-    await saveRating(player1_id, 'elo', overallResult.player1, match.id, null);
-    await saveRating(player2_id, 'elo', overallResult.player2, match.id, null);
+    await saveRating(player1_id, 'elo', newRating1, match.id, null);
+    await saveRating(player2_id, 'elo', newRating2, match.id, null);
     
     // ===== SURFACE-SPECIFIC RATING =====
     const surface1Rating = await getCurrentRating(player1_id, 'elo', normalizedSurface);
@@ -156,26 +164,22 @@ async function calculateELORatings() {
     const surfaceK1 = await getKFactor(player1_id, `elo_${normalizedSurface}`);
     const surfaceK2 = await getKFactor(player2_id, `elo_${normalizedSurface}`);
     
-    const surfaceResult = eloRating.calculateMatchRatings(
-      surface1Rating,
-      surface2Rating,
-      winner_id === player1_id
-    );
+    // Calculate expected scores for surface
+    const surfaceExpected1 = 1 / (1 + Math.pow(10, (surface2Rating - surface1Rating) / 400));
+    const surfaceExpected2 = 1 - surfaceExpected1;
     
-    // Apply tournament weight to surface ratings too
-    const surfaceEffectiveK1 = surfaceK1 * tournamentWeight;
-    const surfaceEffectiveK2 = surfaceK2 * tournamentWeight;
+    // Calculate new surface ratings
+    const newSurfaceRating1 = surface1Rating + (surfaceK1 * tournamentWeight) * (actual1 - surfaceExpected1);
+    const newSurfaceRating2 = surface2Rating + (surfaceK2 * tournamentWeight) * (actual2 - surfaceExpected2);
     
     // Save surface-specific ratings
-    await saveRating(player1_id, 'elo', surfaceResult.player1, match.id, normalizedSurface);
-    await saveRating(player2_id, 'elo', surfaceResult.player2, match.id, normalizedSurface);
+    await saveRating(player1_id, 'elo', newSurfaceRating1, match.id, normalizedSurface);
+    await saveRating(player2_id, 'elo', newSurfaceRating2, match.id, normalizedSurface);
     
     processed++;
-    
-    if (processed % 10000 === 0) {
-      console.log(`Processed ${processed} matches...`);
-    }
   }
+  
+  clearInterval(updateInterval);
   
   console.log(`\n✓ Successfully calculated ELO ratings for all matches`);
 }
