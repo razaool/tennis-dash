@@ -166,40 +166,52 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
       <h2>TOP PLAYERS</h2>
       
       {/* Rating System and Surface Toggles */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-        {(['elo', 'glicko2', 'trueskill'] as const).map((system) => (
-          <button
-            key={system}
-            onClick={() => setRatingSystem(system)}
-            style={{
-              background: ratingSystem === system ? '#00ff41' : '#131818',
-              color: ratingSystem === system ? '#0a0e0e' : '#d0d0d0',
-              border: '1px solid #1a1f1f',
-              padding: '0.25rem 0.5rem',
-              fontSize: '0.6rem',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              fontFamily: 'inherit'
-            }}
-          >
-            {system.toUpperCase()}
-          </button>
-        ))}
-        
-        {/* Surface Toggle (only for ELO) */}
-        {ratingSystem === 'elo' && (
-          <>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.25rem' }}>
+        <div style={{ display: 'flex', gap: '0.25rem' }}>
+          {(['elo', 'glicko2', 'trueskill'] as const).map((system) => (
             <button
-              onClick={() => setSurface(null)}
+              key={system}
+              onClick={() => setRatingSystem(system)}
               style={{
-                background: surface === null ? '#00ff41' : '#131818',
-                color: surface === null ? '#0a0e0e' : '#d0d0d0',
+                background: ratingSystem === system ? '#00ff41' : '#131818',
+                color: ratingSystem === system ? '#0a0e0e' : '#d0d0d0',
                 border: '1px solid #1a1f1f',
                 padding: '0.25rem 0.5rem',
                 fontSize: '0.6rem',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
                 fontFamily: 'inherit'
+              }}
+            >
+              {system.toUpperCase()}
+            </button>
+          ))}
+        </div>
+        
+        {/* Surface Toggle (only for ELO) */}
+        {ratingSystem === 'elo' && (
+          <div style={{ 
+            display: 'flex', 
+            gap: '0.125rem', 
+            background: '#131818', 
+            border: '1px solid #1a1f1f', 
+            padding: '0.125rem',
+            borderRadius: '0.25rem',
+            position: 'relative'
+          }}>
+            <button
+              onClick={() => setSurface(null)}
+              style={{
+                background: surface === null ? '#00d9ff' : 'transparent',
+                color: surface === null ? '#0a0e0e' : '#d0d0d0',
+                border: 'none',
+                padding: '0.25rem 0.5rem',
+                fontSize: '0.6rem',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 0.2s ease',
+                borderRadius: '0.125rem'
               }}
             >
               All
@@ -209,20 +221,22 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
                 key={surf}
                 onClick={() => setSurface(surf)}
                 style={{
-                  background: surface === surf ? '#00ff41' : '#131818',
+                  background: surface === surf ? '#00d9ff' : 'transparent',
                   color: surface === surf ? '#0a0e0e' : '#d0d0d0',
-                  border: '1px solid #1a1f1f',
+                  border: 'none',
                   padding: '0.25rem 0.5rem',
                   fontSize: '0.6rem',
                   textTransform: 'uppercase',
                   cursor: 'pointer',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s ease',
+                  borderRadius: '0.125rem'
                 }}
               >
                 {surf}
               </button>
             ))}
-          </>
+          </div>
         )}
       </div>
 
