@@ -23,9 +23,13 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "csv-parser": "^3.2.0",
     "csv-writer": "^1.6.0",
+    "express": "^5.1.0",
     "pg": "^8.16.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "trueskill": "^0.0.2"
   }
 }

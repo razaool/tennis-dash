@@ -1,5 +1,13 @@
 const fs = require('fs');
 const csv = require('csv-parser');
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  user: 'razaool',
+  host: 'localhost',
+  database: 'tennis_dash',
+  port: 5432,
+});
 
 async function get2025Tournaments() {
   const tournaments = new Map();
@@ -49,6 +57,20 @@ async function main() {
   
   console.log(`\n✅ Season Progression: ${seasonProgression}%`);
   
+  // Save to database
+  await pool.query(`
+    INSERT INTO season_stats (season_year, total_tournaments, completed_tournaments, remaining_tournaments, progression_percentage)
+    VALUES ($1, $2, $3, $4, $5)
+    ON CONFLICT (season_year) DO UPDATE SET
+      total_tournaments = EXCLUDED.total_tournaments,
+      completed_tournaments = EXCLUDED.completed_tournaments,
+      remaining_tournaments = EXCLUDED.remaining_tournaments,
+      progression_percentage = EXCLUDED.progression_percentage,
+      last_updated = CURRENT_TIMESTAMP
+  `, [2025, tournaments.length, tournaments.length - remainingTournaments.length, remainingTournaments.length, parseFloat(seasonProgression)]);
+  
+  console.log('💾 Saved to database');
+  
   console.log('\n📋 Remaining Tournaments:');
   remainingTournaments.forEach((tournament, index) => {
     console.log(`${index + 1}. ${tournament}`);
@@ -61,6 +83,8 @@ async function main() {
     const formattedDate = `${dateStr.substring(0,4)}-${dateStr.substring(4,6)}-${dateStr.substring(6,8)}`;
     console.log(`${index + 1}. ${tournament.name} - ${formattedDate}`);
   });
+  
+  await pool.end();
 }
 
 if (require.main === module) {
