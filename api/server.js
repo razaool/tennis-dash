@@ -750,14 +750,32 @@ app.get('/api/dashboard/trending', async (req, res) => {
  *   get:
  *     summary: Get all tournaments
  *     tags: [Tournaments]
+ *     parameters:
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *         description: Filter tournaments by year
+ *         example: 2025
  *     responses:
  *       200:
  *         description: List of tournaments
  */
 app.get('/api/tournaments', async (req, res) => {
   try {
+    const { year } = req.query;
+    
+    let where = '';
+    const queryParams = [];
+    
+    if (year) {
+      where = ' WHERE EXTRACT(YEAR FROM t.start_date) = $1';
+      queryParams.push(parseInt(year));
+    }
+    
+    // Get tournament-specific match counts for that specific year
     const result = await pool.query(`
-      SELECT DISTINCT 
+      SELECT 
         t.id,
         t.name,
         t.surface,
@@ -765,12 +783,16 @@ app.get('/api/tournaments', async (req, res) => {
         t.location,
         t.start_date,
         t.end_date,
-        COUNT(m.id) as match_count
+        (
+          SELECT COUNT(*)::text
+          FROM matches m
+          WHERE m.tournament_name = t.name
+            AND EXTRACT(YEAR FROM m.match_date) = EXTRACT(YEAR FROM t.start_date)
+        ) as match_count
       FROM tournaments t
-      LEFT JOIN matches m ON m.tournament_id = t.id
-      GROUP BY t.id, t.name, t.surface, t.level, t.location, t.start_date, t.end_date
+      ${where}
       ORDER BY t.start_date DESC
-    `);
+    `, queryParams);
     
     res.json(result.rows);
   } catch (error) {
