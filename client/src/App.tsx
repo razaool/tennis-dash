@@ -100,92 +100,55 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>🎾 Tennis Dashboard</h1>
-        <p>Track player performance with ELO, Glicko2, and TrueSkill ratings</p>
-      </header>
-
       <main className="dashboard">
-        {dashboardStats && (
-          <>
-            {/* Statistics Cards */}
-            <section className="stats-grid">
-              <div className="stat-card">
-                <h3>Total Players</h3>
-                <div className="stat-number">{dashboardStats.totals.players}</div>
-              </div>
-              <div className="stat-card">
-                <h3>Total Matches</h3>
-                <div className="stat-number">{dashboardStats.totals.matches}</div>
-              </div>
-              <div className="stat-card">
-                <h3>Tournaments</h3>
-                <div className="stat-number">{dashboardStats.totals.tournaments}</div>
-              </div>
-            </section>
+        {/* Box 1 - Top Left */}
+        <div className="box-1">
+          <h3>BOX 1</h3>
+          <div className="stat-number">1</div>
+        </div>
 
-            {/* Top Players */}
-            <section className="top-players">
-              <h2>🏆 Top Players (ELO Rating)</h2>
-              <div className="players-list">
-                {dashboardStats.topPlayersElo.map((player, index) => (
-                  <div key={index} className="player-card">
-                    <div className="player-rank">#{index + 1}</div>
-                    <div className="player-info">
-                      <div className="player-name">{player.player_name}</div>
-                      <div className="player-country">{player.country}</div>
-                    </div>
-                    <div className="player-rating">
-                      {Math.round(player.rating_value)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+        {/* Box 4 - Top Right 1 */}
+        <div className="box-4">
+          <h3>BOX 4</h3>
+          <div className="stat-number">4</div>
+        </div>
 
-            {/* Recent Matches */}
-            <section className="recent-matches">
-              <h2>📅 Recent Matches</h2>
-              <div className="matches-list">
-                {dashboardStats.recentMatches.map((match) => (
-                  <div key={match.id} className="match-card">
-                    <div className="match-players">
-                      <span className={match.winner_name === match.player1_name ? 'winner' : ''}>
-                        {match.player1_name}
-                      </span>
-                      <span className="vs">vs</span>
-                      <span className={match.winner_name === match.player2_name ? 'winner' : ''}>
-                        {match.player2_name}
-                      </span>
-                    </div>
-                    <div className="match-score">{match.score}</div>
-                    <div className="match-date">
-                      {new Date(match.match_date).toLocaleDateString()}
-                    </div>
-                    {match.tournament_name && (
-                      <div className="match-tournament">{match.tournament_name}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
+        {/* Box 5 - Top Right 2 */}
+        <div className="box-5">
+          <h3>BOX 5</h3>
+          <div className="stat-number">5</div>
+        </div>
 
-            {/* Surface Statistics */}
-            <section className="surface-stats">
-              <h2>🏟️ Matches by Surface</h2>
-              <div className="surface-grid">
-                {dashboardStats.matchesBySurface.map((surface) => (
-                  <div key={surface.surface} className="surface-card">
-                    <div className="surface-name">
-                      {surface.surface || 'Unknown'}
-                    </div>
-                    <div className="surface-count">{surface.count}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </>
-        )}
+        {/* Box 6 - Top Right 3 */}
+        <div className="box-6">
+          <h3>BOX 6</h3>
+          <div className="stat-number">6</div>
+        </div>
+
+        {/* Box 2 - Middle Left */}
+        <div className="box-2">
+          <h2>BOX 2</h2>
+          <div style={{ fontSize: '0.6rem', color: '#707070' }}>Content area</div>
+        </div>
+
+        {/* Box 3 - Tall Left */}
+        <div className="box-3">
+          <h2>BOX 3</h2>
+          <div style={{ fontSize: '0.6rem', color: '#707070' }}>Scrollable content</div>
+        </div>
+
+        {/* Box 7 - Main Content */}
+        <div className="box-7">
+          <h2>BOX 7 - MAIN CONTENT</h2>
+          <div style={{ fontSize: '0.6rem', color: '#707070' }}>Large content area</div>
+        </div>
+
+        {/* Box 8 - Footer */}
+        <div className="box-8">
+          <div style={{ textAlign: 'center', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            BOX 8 - FOOTER
+          </div>
+        </div>
       </main>
     </div>
   );
