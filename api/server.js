@@ -293,7 +293,7 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
               )
             END
           FROM matches 
-          WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+          WHERE EXTRACT(YEAR FROM match_date) = 2025
             AND (player1_id = p.id OR player2_id = p.id)
         ) as win_percentage_2025
       FROM ratings r
@@ -1057,7 +1057,7 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
               )
             END
           FROM matches 
-          WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+          WHERE EXTRACT(YEAR FROM match_date) = 2025
             AND surface = $2
             AND (player1_id = p.id OR player2_id = p.id)
         ) as win_percentage_2025

@@ -139,6 +139,20 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
     }
   };
 
+  const getWinPercentageColor = (winPercent: number): string => {
+    // Scale from 50% (red) to 100% (green)
+    if (!winPercent) return '#d0d0d0';
+    
+    const clamped = Math.max(50, Math.min(100, winPercent));
+    const normalized = (clamped - 50) / 50; // 0 to 1
+    
+    // Interpolate between red and green
+    const red = Math.round(255 * (1 - normalized));
+    const green = Math.round(255 * normalized);
+    
+    return `rgb(${red}, ${green}, 0)`;
+  };
+
   if (loading) {
     return (
       <div className={className}>
@@ -263,7 +277,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
             <div className="player-age" style={{ textAlign: 'right' }}>
               {calculateAge(player.birth_date)}
             </div>
-            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: player.win_percentage_2025 ? getWinPercentageColor(player.win_percentage_2025) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
               {player.win_percentage_2025 ? `${player.win_percentage_2025}%` : ''}
             </div>
             <div className="player-rating" style={{ minWidth: '3.5rem' }}>
