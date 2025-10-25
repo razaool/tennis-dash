@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import TopPlayersBox from './components/TopPlayersBox';
+import TotalPlayersBox from './components/TotalPlayersBox';
+import TotalMatchesBox from './components/TotalMatchesBox';
+import TotalTournamentsBox from './components/TotalTournamentsBox';
 import './App.css';
 
 // Types
@@ -33,91 +36,19 @@ interface Rating {
   calculated_at: string;
 }
 
-interface DashboardStats {
-  totals: {
-    players: number;
-    matches: number;
-    tournaments: number;
-  };
-  recentMatches: Match[];
-  topPlayersElo: Array<{
-    rating_value: number;
-    player_name: string;
-    country: string;
-  }>;
-  matchesBySurface: Array<{
-    surface: string;
-    count: number;
-  }>;
-}
-
-const API_BASE_URL = 'http://localhost:3001/api';
-
 function App() {
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const [dashboardResponse, playersResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/analytics/dashboard`),
-        axios.get(`${API_BASE_URL}/players`)
-      ]);
-      
-      setDashboardStats(dashboardResponse.data);
-      setPlayers(playersResponse.data.players);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load dashboard data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="App">
-        <div className="loading">Loading Tennis Dashboard...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="App">
-        <div className="error">Error: {error}</div>
-      </div>
-    );
-  }
 
   return (
     <div className="App">
       <main className="dashboard">
-        {/* Box 1 - Top Left */}
-        <div className="box-1">
-          <h3>BOX 1</h3>
-          <div className="stat-number">1</div>
-        </div>
+        {/* Box 1 - Total Players */}
+        <TotalPlayersBox className="box-1" />
 
-        {/* Box 4 - Top Right 1 */}
-        <div className="box-4">
-          <h3>BOX 4</h3>
-          <div className="stat-number">4</div>
-        </div>
+        {/* Box 4 - Total Matches */}
+        <TotalMatchesBox className="box-4" />
 
-        {/* Box 5 - Top Right 2 */}
-        <div className="box-5">
-          <h3>BOX 5</h3>
-          <div className="stat-number">5</div>
-        </div>
+        {/* Box 5 - Total Tournaments */}
+        <TotalTournamentsBox className="box-5" />
 
         {/* Box 6 - Top Right 3 */}
         <div className="box-6">
@@ -131,11 +62,8 @@ function App() {
           <div style={{ fontSize: '0.6rem', color: '#707070' }}>Content area</div>
         </div>
 
-        {/* Box 3 - Tall Left */}
-        <div className="box-3">
-          <h2>BOX 3</h2>
-          <div style={{ fontSize: '0.6rem', color: '#707070' }}>Scrollable content</div>
-        </div>
+            {/* Box 3 - Top Players */}
+            <TopPlayersBox className="box-3" />
 
         {/* Box 7 - Main Content */}
         <div className="box-7">

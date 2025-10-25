@@ -65,6 +65,61 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ============================================
+// STATS ENDPOINTS (for individual boxes)
+// ============================================
+
+/**
+ * @swagger
+ * /api/stats/total-players:
+ *   get:
+ *     summary: Get total number of players
+ *     tags: [Stats]
+ */
+app.get('/api/stats/total-players', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM players');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Error fetching total players:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/stats/total-matches:
+ *   get:
+ *     summary: Get total number of matches
+ *     tags: [Stats]
+ */
+app.get('/api/stats/total-matches', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM matches');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Error fetching total matches:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/stats/total-tournaments:
+ *   get:
+ *     summary: Get total number of tournaments
+ *     tags: [Stats]
+ */
+app.get('/api/stats/total-tournaments', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as count FROM tournaments');
+    res.json({ count: parseInt(result.rows[0].count) });
+  } catch (error) {
+    console.error('Error fetching total tournaments:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Head-to-head endpoint - MUST be before /api/players/:playerId
 /**
  * @swagger
@@ -220,6 +275,8 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
       SELECT 
         p.id,
         p.name,
+        p.country,
+        p.birth_date,
         r.rating_value,
         CASE 
           WHEN $1 = 'elo' THEN NULL
@@ -411,6 +468,16 @@ app.get('/api/players/stats', async (req, res) => {
     const playerData = playerResult.rows[0];
     const playerId = parseInt(playerData.id);
     
+    // Calculate decimal age from birth_date
+    let age = null;
+    if (playerData.birth_date) {
+      const today = new Date();
+      const birth = new Date(playerData.birth_date);
+      const ageInMs = today.getTime() - birth.getTime();
+      const ageInYears = ageInMs / (1000 * 60 * 60 * 24 * 365.25); // 365.25 accounts for leap years
+      age = parseFloat(ageInYears.toFixed(1));
+    }
+    
     // Get match statistics
     const matchStats = await pool.query(`
       SELECT 
@@ -422,7 +489,10 @@ app.get('/api/players/stats', async (req, res) => {
     `, [playerId]);
     
     res.json({
-      player: playerData,
+      player: {
+        ...playerData,
+        age: age
+      },
       stats: matchStats.rows[0]
     });
   } catch (error) {
@@ -666,16 +736,80 @@ app.get('/api/matches/player', async (req, res) => {
  */
 app.get('/api/dashboard/summary', async (req, res) => {
   try {
-    const [totalPlayers, totalMatches, seasonStats] = await Promise.all([
+    // Get totals
+    const [playersCount, matchesCount, tournamentsCount] = await Promise.all([
       pool.query('SELECT COUNT(*) as count FROM players'),
       pool.query('SELECT COUNT(*) as count FROM matches'),
-      pool.query('SELECT * FROM season_stats WHERE season_year = 2025')
+      pool.query('SELECT COUNT(*) as count FROM tournaments')
     ]);
     
+    // Get recent matches
+    const recentMatches = await pool.query(`
+      SELECT 
+        m.id,
+        m.score,
+        m.match_date,
+        m.surface,
+        p1.name as player1_name,
+        p2.name as player2_name,
+        winner.name as winner_name,
+        m.tournament_name
+      FROM matches m
+      JOIN players p1 ON m.player1_id = p1.id
+      JOIN players p2 ON m.player2_id = p2.id
+      JOIN players winner ON m.winner_id = winner.id
+      ORDER BY m.match_date DESC
+      LIMIT 10
+    `);
+    
+    // Get top players by ELO
+    const topPlayers = await pool.query(`
+      SELECT 
+        p.name as player_name,
+        p.country,
+        r.rating_value
+      FROM ratings r
+      JOIN players p ON r.player_id = p.id
+      WHERE r.rating_type = 'elo' AND r.surface IS NULL
+        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface IS NULL GROUP BY player_id)
+      ORDER BY r.rating_value DESC
+      LIMIT 10
+    `);
+    
+    // Get matches by surface
+    const surfaceStats = await pool.query(`
+      SELECT 
+        COALESCE(surface, 'Unknown') as surface,
+        COUNT(*) as count
+      FROM matches
+      GROUP BY surface
+      ORDER BY count DESC
+    `);
+    
     res.json({
-      total_players: parseInt(totalPlayers.rows[0].count),
-      total_matches: parseInt(totalMatches.rows[0].count),
-      season_stats: seasonStats.rows[0]
+      totals: {
+        players: parseInt(playersCount.rows[0].count),
+        matches: parseInt(matchesCount.rows[0].count),
+        tournaments: parseInt(tournamentsCount.rows[0].count)
+      },
+      recentMatches: recentMatches.rows.map(m => ({
+        id: m.id,
+        player1_name: m.player1_name,
+        player2_name: m.player2_name,
+        winner_name: m.winner_name,
+        score: m.score,
+        match_date: m.match_date,
+        tournament_name: m.tournament_name || null
+      })),
+      topPlayersElo: topPlayers.rows.map(p => ({
+        player_name: p.player_name,
+        country: p.country,
+        rating_value: parseFloat(p.rating_value)
+      })),
+      matchesBySurface: surfaceStats.rows.map(s => ({
+        surface: s.surface,
+        count: parseInt(s.count)
+      }))
     });
   } catch (error) {
     console.error('Error fetching dashboard summary:', error);
@@ -896,6 +1030,8 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
       SELECT 
         p.id,
         p.name,
+        p.country,
+        p.birth_date,
         r.rating_value,
         r.rating_deviation
       FROM ratings r

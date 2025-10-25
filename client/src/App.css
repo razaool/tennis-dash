@@ -150,7 +150,7 @@ h3 {
   border: 1px solid #1a1f1f;
   padding: 0.5rem;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 0.5rem;
   align-items: center;
   transition: all 0.2s ease;
@@ -181,6 +181,14 @@ h3 {
   color: #707070;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.player-age {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #d0d0d0;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .player-rating {
