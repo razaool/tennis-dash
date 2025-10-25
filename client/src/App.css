@@ -2,23 +2,37 @@
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .App {
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
   background: #0a0e0e;
   color: #d0d0d0;
   font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-  overflow-x: hidden;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .dashboard {
-  padding: 1rem;
+  padding: 0.25rem;
   display: grid;
-  grid-template-columns: 500px 10fr 10fr 10fr 1fr;
-  grid-template-rows: 100px 100px 1fr 50px;
-  gap: 0.75rem;
-  max-width: 100%;
+  grid-template-columns: 450px 1fr 1fr 1fr;
+  grid-template-rows: 60px 70px minmax(0, 1fr) 25px;
+  gap: 0.25rem;
+  width: 100%;
   height: 100vh;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Box 1 - Top Left Panel */
@@ -31,6 +45,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Boxes 4, 5, 6 - Top Right Three Panels */
@@ -43,6 +59,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .box-5 {
@@ -54,10 +72,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .box-6 {
-  grid-column: 4 / 6;
+  grid-column: 4;
   grid-row: 1;
   background: #0f1414;
   border: 1px solid #1a1f1f;
@@ -65,6 +85,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Box 2 - Middle Left Panel */
@@ -74,7 +96,8 @@
   background: #0f1414;
   border: 1px solid #1a1f1f;
   padding: 0.5rem;
-  overflow-y: auto;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Box 3 - Tall Left Panel */
@@ -85,16 +108,26 @@
   border: 1px solid #1a1f1f;
   padding: 0.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.box-3::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
 /* Box 7 - Main Content Area */
 .box-7 {
-  grid-column: 2 / -1;
+  grid-column: 2 / 4;
   grid-row: 2 / 4;
   background: #0f1414;
   border: 1px solid #1a1f1f;
   padding: 0.75rem;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* Box 8 - Bottom Footer */
@@ -107,17 +140,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Typography */
 h2 {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: #d0d0d0;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin: 0 0 0.5rem 0;
-  padding-bottom: 0.25rem;
+  margin: 0 0 0.25rem 0;
+  padding-bottom: 0.15rem;
   border-bottom: 1px solid #1a1f1f;
 }
 
@@ -150,8 +185,8 @@ h3 {
   border: 1px solid #1a1f1f;
   padding: 0.5rem;
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 0.5rem;
+  grid-template-columns: auto 1fr 3rem 3rem 3.5rem 3rem;
+  gap: 0.25rem;
   align-items: center;
   transition: all 0.2s ease;
 }
@@ -188,13 +223,13 @@ h3 {
   font-weight: 500;
   color: #d0d0d0;
   font-variant-numeric: tabular-nums;
-  text-align: center;
+  text-align: right;
 }
 
 .player-rating {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #00ff41;
+  color: #00d9ff;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }

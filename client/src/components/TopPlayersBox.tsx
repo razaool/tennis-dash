@@ -165,32 +165,30 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
     <div className={className}>
       <h2>TOP PLAYERS</h2>
       
-      {/* Rating System Toggle */}
-      <div style={{ marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.5rem' }}>
-          {(['elo', 'glicko2', 'trueskill'] as const).map((system) => (
-            <button
-              key={system}
-              onClick={() => setRatingSystem(system)}
-              style={{
-                background: ratingSystem === system ? '#00ff41' : '#131818',
-                color: ratingSystem === system ? '#0a0e0e' : '#d0d0d0',
-                border: '1px solid #1a1f1f',
-                padding: '0.25rem 0.5rem',
-                fontSize: '0.6rem',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                fontFamily: 'inherit'
-              }}
-            >
-              {system.toUpperCase()}
-            </button>
-          ))}
-        </div>
+      {/* Rating System and Surface Toggles */}
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+        {(['elo', 'glicko2', 'trueskill'] as const).map((system) => (
+          <button
+            key={system}
+            onClick={() => setRatingSystem(system)}
+            style={{
+              background: ratingSystem === system ? '#00ff41' : '#131818',
+              color: ratingSystem === system ? '#0a0e0e' : '#d0d0d0',
+              border: '1px solid #1a1f1f',
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.6rem',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              fontFamily: 'inherit'
+            }}
+          >
+            {system.toUpperCase()}
+          </button>
+        ))}
         
         {/* Surface Toggle (only for ELO) */}
         {ratingSystem === 'elo' && (
-          <div style={{ display: 'flex', gap: '0.25rem' }}>
+          <>
             <button
               onClick={() => setSurface(null)}
               style={{
@@ -204,7 +202,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
                 fontFamily: 'inherit'
               }}
             >
-              ALL
+              All
             </button>
             {['Hard', 'Clay', 'Grass'].map((surf) => (
               <button
@@ -224,34 +222,41 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
                 {surf}
               </button>
             ))}
-          </div>
+          </>
         )}
       </div>
 
       {/* Players List */}
       {/* Header Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto auto', gap: '0.5rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase' }}>
-        <div>#</div>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+        <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
-        <div style={{ textAlign: 'center' }}>Age</div>
+        <div style={{ textAlign: 'right' }}>Age</div>
+        <div style={{ textAlign: 'right' }}>Win%</div>
         <div style={{ textAlign: 'right' }}>Rating</div>
+        <div style={{ textAlign: 'right' }}>{ratingSystem !== 'elo' ? 'RD' : ''}</div>
       </div>
       <div className="players-list">
         {players.map((player, index) => (
           <div key={player.id} className="player-card">
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
-              <div className="player-name">{player.name}</div>
-              <div className="player-country" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.8rem', lineHeight: '1' }}>{getCountryFlag(player.country)}</span>
-                {player.win_percentage_2025 && <span>{player.win_percentage_2025}%</span>}
+                {player.name}
               </div>
             </div>
-            <div className="player-age">
+            <div className="player-age" style={{ textAlign: 'right' }}>
               {calculateAge(player.birth_date)}
             </div>
-            <div className="player-rating">
-              {formatRating(player.rating_value, player.rating_deviation)}
+            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
+              {player.win_percentage_2025 ? `${player.win_percentage_2025}%` : ''}
+            </div>
+            <div className="player-rating" style={{ minWidth: '3.5rem' }}>
+              {Math.round(player.rating_value).toString()}
+            </div>
+            <div className="player-rating" style={{ minWidth: '3rem' }}>
+              {ratingSystem !== 'elo' ? `±${Math.round(player.rating_deviation || 0).toString()}` : ''}
             </div>
           </div>
         ))}

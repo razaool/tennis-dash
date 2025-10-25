@@ -282,7 +282,20 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
           WHEN $1 = 'elo' THEN NULL
           ELSE r.rating_deviation
         END as rating_deviation,
-        r.calculated_at
+        r.calculated_at,
+        (
+          SELECT 
+            CASE 
+              WHEN COUNT(*) = 0 THEN 0
+              ELSE ROUND(
+                COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100, 
+                1
+              )
+            END
+          FROM matches 
+          WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+            AND (player1_id = p.id OR player2_id = p.id)
+        ) as win_percentage_2025
       FROM ratings r
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = $1 AND r.surface IS NULL
@@ -294,11 +307,11 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     if (active === 'true') {
       query += ` AND p.id IN (
         SELECT DISTINCT player_id FROM (
-          SELECT winner_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+          SELECT winner_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
           UNION
-          SELECT player1_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+          SELECT player1_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
           UNION  
-          SELECT player2_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+          SELECT player2_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
         ) active_players WHERE player_id IS NOT NULL
       )`;
     }
@@ -1033,7 +1046,21 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         p.country,
         p.birth_date,
         r.rating_value,
-        r.rating_deviation
+        r.rating_deviation,
+        (
+          SELECT 
+            CASE 
+              WHEN COUNT(*) = 0 THEN 0
+              ELSE ROUND(
+                COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100, 
+                1
+              )
+            END
+          FROM matches 
+          WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+            AND surface = $2
+            AND (player1_id = p.id OR player2_id = p.id)
+        ) as win_percentage_2025
       FROM ratings r
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = $1 AND r.surface = $2
@@ -1045,11 +1072,11 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
     if (active === 'true') {
       query += ` AND p.id IN (
         SELECT DISTINCT player_id FROM (
-          SELECT winner_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+          SELECT winner_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
           UNION
-          SELECT player1_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+          SELECT player1_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
           UNION  
-          SELECT player2_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+          SELECT player2_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
         ) active_players WHERE player_id IS NOT NULL
       )`;
     }
