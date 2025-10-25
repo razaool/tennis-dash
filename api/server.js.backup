@@ -26,8 +26,9 @@ const swaggerOptions = {
   apis: ['./api/server.js'],
 };
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Temporarily disable Swagger to debug
+// const swaggerSpec = swaggerJsdoc(swaggerOptions);
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware
 app.use(cors());
@@ -63,95 +64,6 @@ pool.query('SELECT NOW()', (err, res) => {
  */
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Head-to-head endpoint - MUST be before /api/players/:playerId
-/**
- * @swagger
- * /api/players/head-to-head:
- *   get:
- *     summary: Get head-to-head record between two players
- *     tags: [Players]
- *     parameters:
- *       - in: query
- *         name: player1
- *         required: true
- *         schema:
- *           type: string
- *         description: First player name
- *       - in: query
- *         name: player2
- *         required: true
- *         schema:
- *           type: string
- *         description: Second player name
- *     responses:
- *       200:
- *         description: Head-to-head record
- */
-app.get('/api/players/head-to-head', async (req, res) => {
-  try {
-    const { player1, player2 } = req.query;
-    
-    if (!player1 || !player2) {
-      return res.status(400).json({ error: 'player1 and player2 parameters required' });
-    }
-    
-    // Get player IDs
-    const player1Result = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player1}%`]);
-    const player2Result = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player2}%`]);
-    
-    if (player1Result.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player1}" not found` });
-    }
-    if (player2Result.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player2}" not found` });
-    }
-    
-    const player1Id = parseInt(player1Result.rows[0].id);
-    const player2Id = parseInt(player2Result.rows[0].id);
-    
-    const result = await pool.query(`
-      SELECT 
-        m.id,
-        m.tournament_id,
-        m.player1_id,
-        m.player2_id,
-        m.winner_id,
-        m.score,
-        m.sets_won_player1,
-        m.sets_won_player2,
-        m.match_date,
-        m.round,
-        m.duration_minutes,
-        m.created_at,
-        m.surface,
-        p1.name as player1_name,
-        p2.name as player2_name
-      FROM matches m
-      JOIN players p1 ON m.player1_id = p1.id
-      JOIN players p2 ON m.player2_id = p2.id
-      WHERE ((m.player1_id = $1 AND m.player2_id = $2) OR (m.player1_id = $2 AND m.player2_id = $1))
-      ORDER BY m.match_date DESC
-    `, [player1Id, player2Id]);
-    
-    const wins = result.rows.filter(m => m.winner_id == player1Id).length;
-    const losses = result.rows.length - wins;
-    
-    res.json({
-      player1: player1Result.rows[0].name,
-      player2: player2Result.rows[0].name,
-      total_matches: result.rows.length,
-      wins,
-      losses,
-      matches: result.rows
-    });
-  } catch (error) {
-    console.error('Error fetching head-to-head:', error);
-    console.error('Error details:', error.message);
-    console.error('Error stack:', error.stack);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  }
 });
 
 // Season stats
@@ -258,22 +170,10 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
 });
 
 // Player rating progression
-app.get('/api/players/ratings/:ratingType', async (req, res) => {
+app.get('/api/players/:playerId/ratings/:ratingType', async (req, res) => {
   try {
-    const { ratingType } = req.params;
-    const { player, surface } = req.query;
-    
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
-    
-    // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
-    }
-    
-    const playerId = parseInt(playerResult.rows[0].id);
+    const { playerId, ratingType } = req.params;
+    const { surface } = req.query;
     
     let query = `
       SELECT 
@@ -298,12 +198,7 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
     query += ` ORDER BY m.match_date ASC`;
     
     const result = await pool.query(query, params);
-    res.json({
-      player: playerResult.rows[0].name,
-      rating_type: ratingType,
-      surface: surface || 'overall',
-      progression: result.rows
-    });
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching player ratings:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -311,22 +206,17 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 });
 
 // Player details
-app.get('/api/players/details', async (req, res) => {
+app.get('/api/players/:playerId', async (req, res) => {
   try {
-    const { player } = req.query;
+    const { playerId } = req.params;
     
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
-    
-    const playerResult = await pool.query('SELECT * FROM players WHERE name ILIKE $1', [`%${player}%`]);
+    const playerResult = await pool.query('SELECT * FROM players WHERE id = $1', [playerId]);
     
     if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
+      return res.status(404).json({ error: 'Player not found' });
     }
     
-    const playerData = playerResult.rows[0];
-    const playerId = parseInt(playerData.id);
+    const player = playerResult.rows[0];
     
     // Get latest ratings
     const ratingsResult = await pool.query(`
@@ -341,9 +231,9 @@ app.get('/api/players/details', async (req, res) => {
         )
     `, [playerId]);
     
-    playerData.ratings = ratingsResult.rows;
+    player.ratings = ratingsResult.rows;
     
-    res.json(playerData);
+    res.json(player);
   } catch (error) {
     console.error('Error fetching player:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -377,39 +267,31 @@ app.get('/api/players/search', async (req, res) => {
 
 /**
  * @swagger
- * /api/players/stats:
+ * /api/players/{id}/stats:
  *   get:
  *     summary: Get player statistics
  *     tags: [Players]
  *     parameters:
- *       - in: query
- *         name: player
+ *       - in: path
+ *         name: id
  *         required: true
  *         schema:
- *           type: string
- *         description: Player name
+ *           type: integer
  *     responses:
  *       200:
  *         description: Player statistics
  *       404:
  *         description: Player not found
  */
-app.get('/api/players/stats', async (req, res) => {
+app.get('/api/players/:id/stats', async (req, res) => {
   try {
-    const { player } = req.query;
-    
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
+    const { id } = req.params;
     
     // Get basic player info
-    const playerResult = await pool.query('SELECT * FROM players WHERE name ILIKE $1', [`%${player}%`]);
+    const playerResult = await pool.query('SELECT * FROM players WHERE id = $1', [id]);
     if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
+      return res.status(404).json({ error: 'Player not found' });
     }
-    
-    const playerData = playerResult.rows[0];
-    const playerId = parseInt(playerData.id);
     
     // Get match statistics
     const matchStats = await pool.query(`
@@ -419,10 +301,10 @@ app.get('/api/players/stats', async (req, res) => {
         COUNT(CASE WHEN winner_id != $1 AND (player1_id = $1 OR player2_id = $1) THEN 1 END) as losses
       FROM matches
       WHERE player1_id = $1 OR player2_id = $1
-    `, [playerId]);
+    `, [id]);
     
     res.json({
-      player: playerData,
+      player: playerResult.rows[0],
       stats: matchStats.rows[0]
     });
   } catch (error) {
@@ -433,36 +315,23 @@ app.get('/api/players/stats', async (req, res) => {
 
 /**
  * @swagger
- * /api/players/surfaces:
+ * /api/players/{id}/surfaces:
  *   get:
  *     summary: Get player performance by surface
  *     tags: [Players]
  *     parameters:
- *       - in: query
- *         name: player
+ *       - in: path
+ *         name: id
  *         required: true
  *         schema:
- *           type: string
- *         description: Player name
+ *           type: integer
  *     responses:
  *       200:
  *         description: Player performance by surface
  */
-app.get('/api/players/surfaces', async (req, res) => {
+app.get('/api/players/:id/surfaces', async (req, res) => {
   try {
-    const { player } = req.query;
-    
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
-    
-    // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
-    }
-    
-    const playerId = parseInt(playerResult.rows[0].id);
+    const { id } = req.params;
     
     const result = await pool.query(`
       SELECT 
@@ -475,12 +344,9 @@ app.get('/api/players/surfaces', async (req, res) => {
       WHERE (player1_id = $1 OR player2_id = $1) AND surface IS NOT NULL
       GROUP BY surface
       ORDER BY total_matches DESC
-    `, [playerId]);
+    `, [id]);
     
-    res.json({
-      player: playerResult.rows[0].name,
-      surface_stats: result.rows
-    });
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching surface stats:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -489,17 +355,90 @@ app.get('/api/players/surfaces', async (req, res) => {
 
 /**
  * @swagger
- * /api/players/recent-matches:
+ * /api/players/head-to-head:
+ *   get:
+ *     summary: Get head-to-head record between two players
+ *     tags: [Players]
+ *     parameters:
+ *       - in: query
+ *         name: player1
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: First player name
+ *       - in: query
+ *         name: player2
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Second player name
+ *     responses:
+ *       200:
+ *         description: Head-to-head record
+ */
+app.get('/api/players/head-to-head', async (req, res) => {
+  try {
+    const { player1, player2 } = req.query;
+    
+    if (!player1 || !player2) {
+      return res.status(400).json({ error: 'player1 and player2 parameters required' });
+    }
+    
+    // Get player IDs
+    const player1Result = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player1}%`]);
+    const player2Result = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player2}%`]);
+    
+    if (player1Result.rows.length === 0) {
+      return res.status(404).json({ error: `Player "${player1}" not found` });
+    }
+    if (player2Result.rows.length === 0) {
+      return res.status(404).json({ error: `Player "${player2}" not found` });
+    }
+    
+    const player1Id = player1Result.rows[0].id;
+    const player2Id = player2Result.rows[0].id;
+    
+    const result = await pool.query(`
+      SELECT 
+        m.*,
+        p1.name as player1_name,
+        p2.name as player2_name
+      FROM matches m
+      JOIN players p1 ON m.player1_id = p1.id
+      JOIN players p2 ON m.player2_id = p2.id
+      WHERE ((m.player1_id = $1 AND m.player2_id = $2) OR (m.player1_id = $2 AND m.player2_id = $1))
+      ORDER BY m.match_date DESC
+    `, [player1Id, player2Id]);
+    
+    const wins = result.rows.filter(m => m.winner_id == player1Id).length;
+    const losses = result.rows.length - wins;
+    
+    res.json({
+      player1: player1Result.rows[0].name,
+      player2: player2Result.rows[0].name,
+      total_matches: result.rows.length,
+      wins,
+      losses,
+      matches: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching head-to-head:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/players/{id}/recent-matches:
  *   get:
  *     summary: Get recent matches for a player
  *     tags: [Players]
  *     parameters:
- *       - in: query
- *         name: player
+ *       - in: path
+ *         name: id
  *         required: true
  *         schema:
- *           type: string
- *         description: Player name
+ *           type: integer
  *       - in: query
  *         name: limit
  *         schema:
@@ -509,21 +448,10 @@ app.get('/api/players/surfaces', async (req, res) => {
  *       200:
  *         description: Recent matches
  */
-app.get('/api/players/recent-matches', async (req, res) => {
+app.get('/api/players/:id/recent-matches', async (req, res) => {
   try {
-    const { player, limit = 10 } = req.query;
-    
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
-    
-    // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
-    }
-    
-    const playerId = parseInt(playerResult.rows[0].id);
+    const { id } = req.params;
+    const { limit = 10 } = req.query;
     
     const result = await pool.query(`
       SELECT 
@@ -537,12 +465,9 @@ app.get('/api/players/recent-matches', async (req, res) => {
       WHERE m.player1_id = $1 OR m.player2_id = $1
       ORDER BY m.match_date DESC
       LIMIT $2
-    `, [playerId, parseInt(limit)]);
+    `, [id, parseInt(limit)]);
     
-    res.json({
-      player: playerResult.rows[0].name,
-      recent_matches: result.rows
-    });
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching recent matches:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -596,36 +521,23 @@ app.get('/api/matches/recent', async (req, res) => {
 
 /**
  * @swagger
- * /api/matches/player:
+ * /api/matches/player/{playerId}:
  *   get:
  *     summary: Get all matches for a player
  *     tags: [Matches]
  *     parameters:
- *       - in: query
- *         name: player
+ *       - in: path
+ *         name: playerId
  *         required: true
  *         schema:
- *           type: string
- *         description: Player name
+ *           type: integer
  *     responses:
  *       200:
  *         description: Player matches
  */
-app.get('/api/matches/player', async (req, res) => {
+app.get('/api/matches/player/:playerId', async (req, res) => {
   try {
-    const { player } = req.query;
-    
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
-    
-    // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
-    }
-    
-    const playerId = parseInt(playerResult.rows[0].id);
+    const { playerId } = req.params;
     
     const result = await pool.query(`
       SELECT 
@@ -640,10 +552,7 @@ app.get('/api/matches/player', async (req, res) => {
       ORDER BY m.match_date DESC
     `, [playerId]);
     
-    res.json({
-      player: playerResult.rows[0].name,
-      matches: result.rows
-    });
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching player matches:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -687,7 +596,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
  * @swagger
  * /api/dashboard/trending:
  *   get:
- *     summary: Get trending active players (top rated active players)
+ *     summary: Get trending players (biggest rating changes)
  *     tags: [Dashboard]
  *     parameters:
  *       - in: query
@@ -703,13 +612,14 @@ app.get('/api/dashboard/summary', async (req, res) => {
  *           default: 10
  *     responses:
  *       200:
- *         description: Trending active players
+ *         description: Trending players
  */
 app.get('/api/dashboard/trending', async (req, res) => {
   try {
     const { ratingType = 'elo', limit = 10 } = req.query;
     
-    // Return top active players only (played a match in 2025)
+    // This would need a more complex query to calculate rating changes
+    // For now, return top players
     const result = await pool.query(`
       SELECT 
         p.id,
@@ -720,15 +630,6 @@ app.get('/api/dashboard/trending', async (req, res) => {
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = $1 AND r.surface IS NULL
         AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = $1 AND surface IS NULL GROUP BY player_id)
-        AND p.id IN (
-          SELECT DISTINCT player_id FROM (
-            SELECT winner_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-            UNION
-            SELECT player1_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-            UNION  
-            SELECT player2_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-          ) active_players WHERE player_id IS NOT NULL
-        )
       ORDER BY r.rating_value DESC
       LIMIT $2
     `, [ratingType, parseInt(limit)]);
@@ -969,17 +870,16 @@ app.get('/api/rankings/compare', async (req, res) => {
 
 /**
  * @swagger
- * /api/analytics/form:
+ * /api/analytics/form/{playerId}:
  *   get:
  *     summary: Get player form analysis
  *     tags: [Analytics]
  *     parameters:
- *       - in: query
- *         name: player
+ *       - in: path
+ *         name: playerId
  *         required: true
  *         schema:
- *           type: string
- *         description: Player name
+ *           type: integer
  *       - in: query
  *         name: limit
  *         schema:
@@ -989,21 +889,10 @@ app.get('/api/rankings/compare', async (req, res) => {
  *       200:
  *         description: Player form analysis
  */
-app.get('/api/analytics/form', async (req, res) => {
+app.get('/api/analytics/form/:playerId', async (req, res) => {
   try {
-    const { player, limit = 10 } = req.query;
-    
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
-    }
-    
-    // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
-    }
-    
-    const playerId = parseInt(playerResult.rows[0].id);
+    const { playerId } = req.params;
+    const { limit = 10 } = req.query;
     
     const result = await pool.query(`
       SELECT 
@@ -1023,7 +912,6 @@ app.get('/api/analytics/form', async (req, res) => {
     const losses = result.rows.length - wins;
     
     res.json({
-      player: playerResult.rows[0].name,
       form: result.rows.map(m => m.result).join(''),
       wins,
       losses,
@@ -1044,30 +932,21 @@ app.get('/api/analytics/form', async (req, res) => {
  *     tags: [Analytics]
  *     parameters:
  *       - in: query
- *         name: player
+ *         name: playerId
  *         required: true
  *         schema:
- *           type: string
- *         description: Player name
+ *           type: integer
  *     responses:
  *       200:
  *         description: Surface strength analysis
  */
 app.get('/api/analytics/surfaces/strength', async (req, res) => {
   try {
-    const { player } = req.query;
+    const { playerId } = req.query;
     
-    if (!player) {
-      return res.status(400).json({ error: 'player parameter required' });
+    if (!playerId) {
+      return res.status(400).json({ error: 'playerId parameter required' });
     }
-    
-    // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    if (playerResult.rows.length === 0) {
-      return res.status(404).json({ error: `Player "${player}" not found` });
-    }
-    
-    const playerId = parseInt(playerResult.rows[0].id);
     
     const result = await pool.query(`
       SELECT 
@@ -1082,10 +961,7 @@ app.get('/api/analytics/surfaces/strength', async (req, res) => {
       ORDER BY win_percentage DESC
     `, [playerId]);
     
-    res.json({
-      player: playerResult.rows[0].name,
-      surface_strength: result.rows
-    });
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching surface strength:', error);
     res.status(500).json({ error: 'Internal server error' });
