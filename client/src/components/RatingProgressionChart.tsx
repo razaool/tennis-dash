@@ -100,7 +100,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
 
       {/* Chart */}
       {data.length > 0 ? (
-        <div style={{ width: '100%', height: '60%', marginTop: '1rem' }}>
+        <div style={{ width: '100%', height: '90%', marginTop: '0.25rem' }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={prepareChartData()}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1a1f1f" />
