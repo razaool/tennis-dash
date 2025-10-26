@@ -130,6 +130,18 @@ body, html {
   box-sizing: border-box;
 }
 
+/* Box 9 - Right side of rows 2-3 */
+.box-9 {
+  grid-column: 4;
+  grid-row: 2 / 4;
+  background: #0f1414;
+  border: 1px solid #1a1f1f;
+  padding: 0.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
 /* Box 8 - Bottom Footer */
 .box-8 {
   grid-column: 2 / -1;

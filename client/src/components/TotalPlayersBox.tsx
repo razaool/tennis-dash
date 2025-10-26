@@ -36,8 +36,7 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className }) => {
 
   return (
     <div className={className}>
-      <h3>PLAYERS</h3>
-      <div className="stat-number">{total}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>1</div>
     </div>
   );
 };

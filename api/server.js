@@ -336,6 +336,83 @@ app.get('/api/season/progression', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/players/win-streak:
+ *   get:
+ *     summary: Get active player with longest win streak
+ *     tags: [Players]
+ *     responses:
+ *       200:
+ *         description: Player with longest win streak
+ */
+app.get('/api/players/win-streak', async (req, res) => {
+  try {
+    // Get all active players (played in 2025)
+    const activePlayers = await pool.query(`
+      SELECT DISTINCT p.id, p.name
+      FROM players p
+      WHERE p.id IN (
+        SELECT DISTINCT winner_id FROM matches WHERE EXTRACT(YEAR FROM match_date) >= 2025
+        UNION
+        SELECT DISTINCT player1_id FROM matches WHERE EXTRACT(YEAR FROM match_date) >= 2025
+        UNION
+        SELECT DISTINCT player2_id FROM matches WHERE EXTRACT(YEAR FROM match_date) >= 2025
+      )
+    `);
+    
+    let maxStreak = 0;
+    let maxStreakPlayer = null;
+    let maxStreakTournaments = [];
+    
+    for (const player of activePlayers.rows) {
+      // Get all player's matches ordered by date descending
+      const matches = await pool.query(`
+        SELECT 
+          CASE WHEN m.winner_id = $1 THEN 'W' ELSE 'L' END as result,
+          m.match_date
+        FROM matches m
+        WHERE (m.player1_id = $1 OR m.player2_id = $1)
+          AND EXTRACT(YEAR FROM m.match_date) >= 2025
+        ORDER BY m.match_date DESC
+      `, [player.id]);
+      
+      // Count consecutive wins from most recent
+      let streak = 0;
+      const tournaments = [];
+      
+      for (const match of matches.rows) {
+        if (match.result === 'W') {
+          streak++;
+          tournaments.push(match.match_date);
+        } else {
+          break; // Streak broken
+        }
+      }
+      
+      if (streak > maxStreak) {
+        maxStreak = streak;
+        maxStreakPlayer = player;
+        maxStreakTournaments = tournaments;
+      }
+    }
+    
+    if (maxStreakPlayer) {
+      res.json({
+        player_name: maxStreakPlayer.name,
+        win_streak: maxStreak,
+        last_win_date: maxStreakTournaments[0] || null,
+        tournaments: maxStreakTournaments.slice(0, 5) // Last 5 tournament dates
+      });
+    } else {
+      res.json({ player_name: null, win_streak: 0, last_win_date: null, tournaments: [] });
+    }
+  } catch (error) {
+    console.error('Error fetching win streak:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Top players by rating type
 /**
  * @swagger

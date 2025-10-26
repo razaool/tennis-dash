@@ -5,6 +5,7 @@ import TotalMatchesBox from './components/TotalMatchesBox';
 import TotalTournamentsBox from './components/TotalTournamentsBox';
 import RatingProgressionChart from './components/RatingProgressionChart';
 import SeasonProgressionChart from './components/SeasonProgressionChart';
+import WinStreakBox from './components/WinStreakBox';
 import './App.css';
 
 // Types
@@ -56,10 +57,7 @@ function App() {
         <SeasonProgressionChart className="box-6" />
 
         {/* Box 2 - Middle Left */}
-        <div className="box-2">
-          <h2>BOX 2</h2>
-          <div style={{ fontSize: '0.6rem', color: '#707070' }}>Content area</div>
-        </div>
+        <WinStreakBox className="box-2" />
 
             {/* Box 3 - Top Players */}
             <TopPlayersBox className="box-3" />
@@ -67,11 +65,14 @@ function App() {
         {/* Box 7 - Rating Progression Chart */}
         <RatingProgressionChart className="box-7" />
 
+        {/* Box 9 - Right side container */}
+        <div className="box-9">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>5</div>
+        </div>
+
         {/* Box 8 - Footer */}
         <div className="box-8">
-          <div style={{ textAlign: 'center', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            BOX 8 - FOOTER
-          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>6</div>
         </div>
       </main>
     </div>

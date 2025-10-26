@@ -36,8 +36,7 @@ const TotalMatchesBox: React.FC<TotalMatchesBoxProps> = ({ className }) => {
 
   return (
     <div className={className}>
-      <h3>MATCHES</h3>
-      <div className="stat-number">{total}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>2</div>
     </div>
   );
 };
