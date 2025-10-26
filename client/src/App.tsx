@@ -6,6 +6,7 @@ import TotalTournamentsBox from './components/TotalTournamentsBox';
 import RatingProgressionChart from './components/RatingProgressionChart';
 import SeasonProgressionChart from './components/SeasonProgressionChart';
 import WinStreakBox from './components/WinStreakBox';
+import HighestELOBySurfaceBox from './components/HighestELOBySurfaceBox';
 import './App.css';
 
 // Types
@@ -50,8 +51,8 @@ function App() {
         {/* Box 4 - Total Matches */}
         <TotalMatchesBox className="box-4" />
 
-        {/* Box 5 - Total Tournaments */}
-        <TotalTournamentsBox className="box-5" />
+        {/* Box 5 - Highest ELO by Surface */}
+        <HighestELOBySurfaceBox className="box-5" />
 
         {/* Box 6 - Season Progression Chart */}
         <SeasonProgressionChart className="box-6" />

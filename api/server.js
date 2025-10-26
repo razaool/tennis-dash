@@ -413,6 +413,66 @@ app.get('/api/players/win-streak', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/players/highest-elo-by-surface:
+ *   get:
+ *     summary: Get highest ELO ratings by surface
+ *     tags: [Players]
+ *     responses:
+ *       200:
+ *         description: Highest ELO ratings by surface
+ */
+app.get('/api/players/highest-elo-by-surface', async (req, res) => {
+  try {
+    // Get historical peak ELO on each surface for all players (not just active)
+    const grassResult = await pool.query(`
+      SELECT p.name, MAX(r.rating_value) as elo_rating, 
+             (SELECT calculated_at FROM ratings WHERE player_id = p.id AND rating_type = 'elo' AND surface = 'Grass' AND rating_value = MAX(r.rating_value) ORDER BY calculated_at DESC LIMIT 1) as achieved_at
+      FROM ratings r
+      JOIN players p ON r.player_id = p.id
+      WHERE r.rating_type = 'elo'
+        AND r.surface = 'Grass'
+      GROUP BY p.id, p.name
+      ORDER BY elo_rating DESC
+      LIMIT 1
+    `);
+    
+    const clayResult = await pool.query(`
+      SELECT p.name, MAX(r.rating_value) as elo_rating,
+             (SELECT calculated_at FROM ratings WHERE player_id = p.id AND rating_type = 'elo' AND surface = 'Clay' AND rating_value = MAX(r.rating_value) ORDER BY calculated_at DESC LIMIT 1) as achieved_at
+      FROM ratings r
+      JOIN players p ON r.player_id = p.id
+      WHERE r.rating_type = 'elo'
+        AND r.surface = 'Clay'
+      GROUP BY p.id, p.name
+      ORDER BY elo_rating DESC
+      LIMIT 1
+    `);
+    
+    const hardResult = await pool.query(`
+      SELECT p.name, MAX(r.rating_value) as elo_rating,
+             (SELECT calculated_at FROM ratings WHERE player_id = p.id AND rating_type = 'elo' AND surface = 'Hard' AND rating_value = MAX(r.rating_value) ORDER BY calculated_at DESC LIMIT 1) as achieved_at
+      FROM ratings r
+      JOIN players p ON r.player_id = p.id
+      WHERE r.rating_type = 'elo'
+        AND r.surface = 'Hard'
+      GROUP BY p.id, p.name
+      ORDER BY elo_rating DESC
+      LIMIT 1
+    `);
+    
+    res.json({
+      grass: grassResult.rows[0] || null,
+      clay: clayResult.rows[0] || null,
+      hard: hardResult.rows[0] || null
+    });
+  } catch (error) {
+    console.error('Error fetching highest ELO by surface:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Top players by rating type
 /**
  * @swagger
