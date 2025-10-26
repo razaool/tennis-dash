@@ -7,6 +7,7 @@ import RatingProgressionChart from './components/RatingProgressionChart';
 import SeasonProgressionChart from './components/SeasonProgressionChart';
 import WinStreakBox from './components/WinStreakBox';
 import HighestELOBySurfaceBox from './components/HighestELOBySurfaceBox';
+import HeadToHeadBox from './components/HeadToHeadBox';
 import './App.css';
 
 // Types
@@ -67,9 +68,7 @@ function App() {
         <RatingProgressionChart className="box-7" />
 
         {/* Box 9 - Right side container */}
-        <div className="box-9">
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>5</div>
-        </div>
+        <HeadToHeadBox className="box-9" />
 
         {/* Box 8 - Footer */}
         <div className="box-8">

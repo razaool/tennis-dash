@@ -181,6 +181,7 @@ app.get('/api/players/head-to-head', async (req, res) => {
         m.duration_minutes,
         m.created_at,
         m.surface,
+        m.tournament_name,
         p1.name as player1_name,
         p2.name as player2_name
       FROM matches m
