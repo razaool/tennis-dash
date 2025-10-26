@@ -8,6 +8,7 @@ import SeasonProgressionChart from './components/SeasonProgressionChart';
 import WinStreakBox from './components/WinStreakBox';
 import HighestELOBySurfaceBox from './components/HighestELOBySurfaceBox';
 import HeadToHeadBox from './components/HeadToHeadBox';
+import RecentMatchesBox from './components/RecentMatchesBox';
 import './App.css';
 
 // Types
@@ -49,8 +50,8 @@ function App() {
         {/* Box 1 - Total Players */}
         <TotalPlayersBox className="box-1" />
 
-        {/* Box 4 - Total Matches */}
-        <TotalMatchesBox className="box-4" />
+        {/* Box 4 - Recent Matches */}
+        <RecentMatchesBox className="box-4" />
 
         {/* Box 5 - Highest ELO by Surface */}
         <HighestELOBySurfaceBox className="box-5" />
@@ -58,7 +59,7 @@ function App() {
         {/* Box 6 - Season Progression Chart */}
         <SeasonProgressionChart className="box-6" />
 
-        {/* Box 2 - Middle Left */}
+        {/* Box 2 - Win Streak */}
         <WinStreakBox className="box-2" />
 
             {/* Box 3 - Top Players */}

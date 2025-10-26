@@ -23,13 +23,13 @@ async function updateMatchesWithTournamentNames() {
     console.log(`Processing ${file}...`);
     
     // Collect tournament data from this file
-    const tournamentData = new Map(); // Map of date -> tournament name
+    const tournamentData = new Map(); // Map of (tourney_id, date) -> tournament name
     
     await new Promise((resolve, reject) => {
       fs.createReadStream(`data-source/${file}`)
         .pipe(csv())
         .on('data', (row) => {
-          if (row.tourney_name && row.tourney_name !== 'tourney_name' && row.tourney_date) {
+          if (row.tourney_name && row.tourney_name !== 'tourney_name' && row.tourney_date && row.tourney_id) {
             // Parse the date
             const tourneyDate = row.tourney_date;
             if (tourneyDate && tourneyDate.length === 8) {
@@ -37,9 +37,10 @@ async function updateMatchesWithTournamentNames() {
               const month = tourneyDate.substring(4, 6);
               const day = tourneyDate.substring(6, 8);
               const dateKey = `${year}-${month}-${day}`;
+              const key = `${row.tourney_id}_${dateKey}`;
               
-              if (!tournamentData.has(dateKey)) {
-                tournamentData.set(dateKey, row.tourney_name);
+              if (!tournamentData.has(key)) {
+                tournamentData.set(key, { name: row.tourney_name, date: dateKey });
               }
             }
           }
@@ -49,19 +50,20 @@ async function updateMatchesWithTournamentNames() {
     });
     
     // Update matches in bulk
-    for (const [date, tournamentName] of tournamentData) {
+    for (const [key, data] of tournamentData) {
       try {
+        const [tourneyId] = key.split('_');
         const result = await pool.query(`
           UPDATE matches 
           SET tournament_name = $1
           WHERE tournament_id = $2
             AND match_date::date = $3::date
-            AND tournament_name IS NULL
-        `, [tournamentName, year, date]);
+            AND (tournament_name IS NULL OR tournament_name != $1)
+        `, [data.name, year, data.date]);
         
         totalUpdated += result.rowCount;
       } catch (error) {
-        console.error(`Error updating matches for ${tournamentName}:`, error.message);
+        console.error(`Error updating matches for ${data.name}:`, error.message);
       }
     }
     
