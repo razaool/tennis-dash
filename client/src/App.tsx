@@ -3,6 +3,7 @@ import TopPlayersBox from './components/TopPlayersBox';
 import TotalPlayersBox from './components/TotalPlayersBox';
 import TotalMatchesBox from './components/TotalMatchesBox';
 import TotalTournamentsBox from './components/TotalTournamentsBox';
+import RatingProgressionChart from './components/RatingProgressionChart';
 import './App.css';
 
 // Types
@@ -65,11 +66,8 @@ function App() {
             {/* Box 3 - Top Players */}
             <TopPlayersBox className="box-3" />
 
-        {/* Box 7 - Main Content */}
-        <div className="box-7">
-          <h2>BOX 7 - MAIN CONTENT</h2>
-          <div style={{ fontSize: '0.6rem', color: '#707070' }}>Large content area</div>
-        </div>
+        {/* Box 7 - Rating Progression Chart */}
+        <RatingProgressionChart className="box-7" />
 
         {/* Box 8 - Footer */}
         <div className="box-8">

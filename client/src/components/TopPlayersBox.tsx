@@ -31,10 +31,10 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
       
       let url;
       if (surface && ratingSystem === 'elo') {
-        url = `${API_BASE_URL}/api/rankings/surface/${surface}?ratingType=${ratingSystem}&limit=25&active=true`;
+        url = `${API_BASE_URL}/api/rankings/surface/${surface}?ratingType=${ratingSystem}&limit=50&active=true`;
       } else {
         const params = new URLSearchParams({
-          limit: '25',
+          limit: '50',
           active: 'true'
         });
         url = `${API_BASE_URL}/api/players/top/${ratingSystem}?${params}`;
