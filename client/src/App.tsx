@@ -4,6 +4,7 @@ import TotalPlayersBox from './components/TotalPlayersBox';
 import TotalMatchesBox from './components/TotalMatchesBox';
 import TotalTournamentsBox from './components/TotalTournamentsBox';
 import RatingProgressionChart from './components/RatingProgressionChart';
+import SeasonProgressionChart from './components/SeasonProgressionChart';
 import './App.css';
 
 // Types
@@ -51,11 +52,8 @@ function App() {
         {/* Box 5 - Total Tournaments */}
         <TotalTournamentsBox className="box-5" />
 
-        {/* Box 6 - Top Right 3 */}
-        <div className="box-6">
-          <h3>BOX 6</h3>
-          <div className="stat-number">6</div>
-        </div>
+        {/* Box 6 - Season Progression Chart */}
+        <SeasonProgressionChart className="box-6" />
 
         {/* Box 2 - Middle Left */}
         <div className="box-2">

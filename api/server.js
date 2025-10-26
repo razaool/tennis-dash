@@ -235,6 +235,107 @@ app.get('/api/season/stats', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/season/progression:
+ *   get:
+ *     summary: Get season progression over time
+ *     tags: [Season]
+ *     responses:
+ *       200:
+ *         description: Season progression data
+ */
+app.get('/api/season/progression', async (req, res) => {
+  try {
+    // Get all 2025 tournaments (including December 2024 tournaments)
+    const tournamentsResult = await pool.query(`
+      SELECT start_date
+      FROM tournaments
+      WHERE (EXTRACT(YEAR FROM start_date) = 2025)
+         OR (EXTRACT(YEAR FROM start_date) = 2024 AND EXTRACT(MONTH FROM start_date) = 12)
+      ORDER BY start_date ASC
+    `);
+    
+    const tournaments = tournamentsResult.rows;
+    // Known remaining tournaments not in the database yet
+    const remainingTournaments = [
+      'Erste Bank Open',
+      'Swiss Indoors Basel',
+      'Rolex Paris Masters',
+      'Vanda Pharmaceuticals Hellenic Championship',
+      'Moselle Open',
+      'Nitto ATP Finals',
+      'Next Gen ATP Finals presented by PIF'
+    ];
+    
+    const totalTournaments = tournaments.length + remainingTournaments.length;
+    
+    // Get the latest match date in the database
+    const latestMatchResult = await pool.query(`
+      SELECT MAX(match_date) as latest_match
+      FROM matches
+      WHERE EXTRACT(YEAR FROM match_date) = 2025
+         OR EXTRACT(YEAR FROM match_date) = 2024 AND EXTRACT(MONTH FROM match_date) = 12
+    `);
+    
+    const latestMatchDate = latestMatchResult.rows[0].latest_match
+      ? new Date(latestMatchResult.rows[0].latest_match)
+      : (tournaments.length > 0 ? new Date(tournaments[tournaments.length - 1].start_date) : new Date());
+    
+    const startOfYear = new Date('2025-01-01');
+    
+    // Generate weekly progression data points
+    const progressionData = [];
+    
+    // For each week from start of year to latest match date
+    for (let week = 0; week <= 52; week++) {
+      const weekDate = new Date(startOfYear);
+      weekDate.setDate(weekDate.getDate() + (week * 7));
+      
+      if (weekDate > latestMatchDate) break;
+      
+      // Count tournaments completed by this week (excluding future ones)
+      let completedCount = 0;
+      for (const tournament of tournaments) {
+        const tournamentDate = new Date(tournament.start_date);
+        if (tournamentDate <= weekDate) {
+          completedCount++;
+        }
+      }
+      
+      const progress = (completedCount / totalTournaments) * 100;
+      
+      progressionData.push({
+        date: weekDate.toISOString().split('T')[0],
+        progress: Math.min(progress, 100),
+        completed_tournaments: completedCount,
+        total_tournaments: totalTournaments
+      });
+    }
+    
+    // Add final point with all tournaments completed up to latest match date
+    if (progressionData.length > 0) {
+      const finalCompletedCount = tournaments.length; // All tournaments in database are completed
+      const finalProgress = (finalCompletedCount / totalTournaments) * 100;
+      
+      progressionData.push({
+        date: latestMatchDate.toISOString().split('T')[0],
+        progress: finalProgress,
+        completed_tournaments: finalCompletedCount,
+        total_tournaments: totalTournaments
+      });
+    }
+    
+    res.json({
+      total_tournaments: totalTournaments,
+      progression: progressionData
+    });
+  } catch (error) {
+    console.error('Error fetching season progression:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Top players by rating type
 /**
  * @swagger
