@@ -61,6 +61,12 @@ body, html {
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.box-4::-webkit-scrollbar {
+  display: none;
 }
 
 .box-5 {

@@ -31,8 +31,8 @@ interface HeadToHeadData {
 }
 
 const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
-  const [player1, setPlayer1] = useState('');
-  const [player2, setPlayer2] = useState('');
+  const [player1, setPlayer1] = useState('Novak Djokovic');
+  const [player2, setPlayer2] = useState('Roger Federer');
   const [data, setData] = useState<HeadToHeadData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +43,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
 
   // Filter suggestions for player 1
   useEffect(() => {
-    if (player1) {
+    if (player1 && player1 !== 'Novak Djokovic') {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
@@ -65,7 +65,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
 
   // Filter suggestions for player 2
   useEffect(() => {
-    if (player2) {
+    if (player2 && player2 !== 'Roger Federer') {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
@@ -84,6 +84,14 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
       setShowPlayer2Dropdown(false);
     }
   }, [player2]);
+
+  // Auto-fetch on mount with default players
+  useEffect(() => {
+    if (player1 === 'Novak Djokovic' && player2 === 'Roger Federer') {
+      fetchHeadToHead();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchHeadToHead = async () => {
     if (!player1 || !player2) {

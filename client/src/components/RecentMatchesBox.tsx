@@ -59,7 +59,7 @@ const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className }) => {
   return (
     <div className={className}>
       <h2 style={{ fontSize: '0.8rem', color: '#00ff41', marginBottom: '0.5rem' }}>RECENT MATCHES</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', height: 'calc(100% - 2rem)', overflowY: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', height: 'calc(100% - 2rem)', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {recentMatches.length === 0 ? (
           <div style={{ fontSize: '0.7rem', color: '#707070', textAlign: 'center', marginTop: '1rem' }}>No recent matches</div>
         ) : (
