@@ -26,7 +26,7 @@ body, html {
 .dashboard {
   padding: 0.25rem;
   display: grid;
-  grid-template-columns: 550px 1fr 1fr 1fr;
+  grid-template-columns: 500px 1fr 1fr 1fr;
   grid-template-rows: 120px 90px minmax(0, 1fr) 300px;
   gap: 0.25rem;
   width: 100%;
@@ -90,7 +90,6 @@ body, html {
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
 }

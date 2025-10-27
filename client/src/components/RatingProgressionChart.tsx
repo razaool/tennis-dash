@@ -73,11 +73,11 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
   }
 
   return (
-    <div className={className}>
+    <div className={className} style={{ display: 'flex', flexDirection: 'column' }}>
       <h2>RATING PROGRESSION</h2>
       
       {/* Rating System Toggle */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem' }}>
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem', flexShrink: 0 }}>
         {(['elo', 'glicko2', 'trueskill'] as const).map((system) => (
           <button
             key={system}
@@ -100,7 +100,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
 
       {/* Chart */}
       {data.length > 0 ? (
-        <div style={{ width: '100%', height: '90%', marginTop: '0.25rem' }}>
+        <div style={{ width: '100%', flex: 1, minHeight: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={prepareChartData()}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1a1f1f" />

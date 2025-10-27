@@ -50,7 +50,7 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
   if (!data) {
     return (
       <div className={className}>
-        <h3>HIGHEST ELO BY SURFACE</h3>
+        <h2>HIGHEST ELO BY SURFACE</h2>
         <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
           No data available
         </div>
@@ -60,7 +60,7 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
 
   return (
     <div className={className}>
-      <h3>HIGHEST ELO BY SURFACE</h3>
+      <h2>HIGHEST ELO BY SURFACE</h2>
       <div style={{ padding: '0.5rem', display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: 'calc(100% - 2rem)' }}>
         {data.grass && (
           <div style={{ textAlign: 'center', flex: 1 }}>

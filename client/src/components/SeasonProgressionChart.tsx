@@ -35,7 +35,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
   if (loading) {
     return (
       <div className={className}>
-        <h3>SEASON PROGRESS</h3>
+        <h2>SEASON PROGRESS</h2>
         <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '1rem' }}>
           Loading...
         </div>
@@ -45,7 +45,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
 
   return (
     <div className={className}>
-      <h3 style={{ marginBottom: '0.25rem', marginTop: '0.25rem' }}>SEASON PROGRESS</h3>
+      <h2 style={{ marginBottom: '0' }}>SEASON PROGRESS</h2>
       
       {/* Chart */}
       {data.length > 0 ? (

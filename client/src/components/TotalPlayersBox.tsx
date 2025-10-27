@@ -46,7 +46,7 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className }) => {
 
   return (
     <div className={className}>
-      <h2 style={{ fontSize: '0.8rem', color: '#00ff41', marginBottom: '0.5rem', textAlign: 'center' }}>ATP ANALYTICS DASHBOARD</h2>
+      <h2 style={{ textAlign: 'center' }}>ATP ANALYTICS DASHBOARD</h2>
       <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: 'calc(100% - 2rem)' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2rem', color: '#00ff41', fontWeight: 'bold' }}>{summary.totals.players}</div>
