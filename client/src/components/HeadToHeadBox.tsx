@@ -252,20 +252,20 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
         </div>
       </div>
       
-      <div style={{ fontSize: '0.8rem', width: '100%', boxSizing: 'border-box' }}>
+      <div style={{ fontSize: '0.8rem', width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
         {/* Error message */}
         {error && (
-          <div style={{ color: '#ff6b6b', fontSize: '0.6rem', marginBottom: '0.5rem' }}>
+          <div style={{ color: '#ff6b6b', fontSize: '0.6rem', marginBottom: '0.5rem', flexShrink: 0 }}>
             {error}
           </div>
         )}
 
         {/* Head-to-head results */}
         {data && (
-          <div style={{ fontSize: '0.8rem', color: '#d0d0d0' }}>
-            {/* Summary */}
-            <div style={{ marginBottom: '0.5rem', padding: '0.5rem' }}>
+          <div style={{ fontSize: '0.8rem', color: '#d0d0d0', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            {/* Summary - Fixed at top */}
+            <div style={{ padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #1a1f1f', flexShrink: 0 }}>
               {/* Show only the player with more wins (or player1 if tied) */}
               {data.wins >= data.losses ? (
                 <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem' }}>
@@ -283,9 +283,9 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
 
             {/* Recent matches */}
             {data.matches.length > 0 && (
-              <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                {/* Match Header */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                {/* Match Header - Sticky */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 9, borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
                   <div>Date</div>
                   <div>Tournament</div>
                   <div>Score</div>
