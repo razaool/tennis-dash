@@ -256,17 +256,17 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
 
       {/* Players List */}
       {/* Header Row */}
-      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
         <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'right' }}>Age</div>
         <div style={{ textAlign: 'right' }}>Win%</div>
         <div style={{ textAlign: 'right' }}>Rating</div>
-        <div style={{ textAlign: 'right' }}>{ratingSystem !== 'elo' ? 'RD' : ''}</div>
+        {ratingSystem !== 'elo' && <div style={{ textAlign: 'right' }}>RD</div>}
       </div>
       <div className="players-list">
         {players.map((player, index) => (
-          <div key={player.id} className="player-card">
+          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem' }}>
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
               <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -283,9 +283,9 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
             <div className="player-rating" style={{ minWidth: '3.5rem' }}>
               {Math.round(player.rating_value).toString()}
             </div>
-            <div className="player-rating" style={{ minWidth: '3rem' }}>
-              {ratingSystem !== 'elo' ? `±${Math.round(player.rating_deviation || 0).toString()}` : ''}
-            </div>
+            {ratingSystem !== 'elo' && <div className="player-rating" style={{ minWidth: '3rem' }}>
+              {`±${Math.round(player.rating_deviation || 0).toString()}`}
+            </div>}
           </div>
         ))}
       </div>
