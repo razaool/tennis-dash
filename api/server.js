@@ -73,12 +73,13 @@ app.get('/api/health', (req, res) => {
  * @swagger
  * /api/stats/total-players:
  *   get:
- *     summary: Get total number of players
+ *     summary: Get total number of unique players
+ *     description: Returns count of unique player names (excludes duplicates and empty names)
  *     tags: [Stats]
  */
 app.get('/api/stats/total-players', async (req, res) => {
   try {
-    const result = await pool.query('SELECT COUNT(*) as count FROM players');
+    const result = await pool.query('SELECT COUNT(DISTINCT name) as count FROM players WHERE name IS NOT NULL AND name != \'\'');
     res.json({ count: parseInt(result.rows[0].count) });
   } catch (error) {
     console.error('Error fetching total players:', error);
@@ -990,7 +991,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
   try {
     // Get totals
     const [playersCount, matchesCount, tournamentsCount] = await Promise.all([
-      pool.query('SELECT COUNT(*) as count FROM players'),
+      pool.query('SELECT COUNT(DISTINCT name) as count FROM players WHERE name IS NOT NULL AND name != \'\''),
       pool.query('SELECT COUNT(*) as count FROM matches'),
       pool.query('SELECT COUNT(*) as count FROM tournaments')
     ]);
@@ -1516,7 +1517,12 @@ app.get('/api/analytics/surfaces/strength', async (req, res) => {
   }
 });
 
-// Start server
+// ============================================
+// REMOVED ML PREDICTION ENDPOINTS
+// ============================================
+
+// ML prediction endpoints removed - will be reimplemented later
+
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
 });

@@ -71,10 +71,10 @@ function App() {
         {/* Box 9 - Right side container */}
         <HeadToHeadBox className="box-9" />
 
-        {/* Box 8 - Footer */}
-        <div className="box-8">
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>6</div>
-        </div>
+            {/* Box 8 - Placeholder */}
+            <div className="box-8">
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '3rem', color: '#d0d0d0' }}>8</div>
+            </div>
       </main>
     </div>
   );
