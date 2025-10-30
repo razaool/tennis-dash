@@ -3,7 +3,6 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const { Pool } = require('pg');
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -1518,10 +1517,6 @@ app.get('/api/analytics/surfaces/strength', async (req, res) => {
 });
 
 // ============================================
-// REMOVED ML PREDICTION ENDPOINTS
-// ============================================
-
-// ML prediction endpoints removed - will be reimplemented later
 
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);

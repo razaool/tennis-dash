@@ -1,0 +1,37 @@
+{
+  "features": [
+    "surface_elo_diff",
+    "h2h_surface_advantage",
+    "surface_form_diff",
+    "tournament_level",
+    "age_diff"
+  ],
+  "intercept": 0.002987964524190161,
+  "coefficients": {
+    "surface_elo_diff": 0.0,
+    "h2h_surface_advantage": 0.135169890878783,
+    "surface_form_diff": 0.5585322464816079,
+    "tournament_level": 0.0,
+    "age_diff": -0.0049473178127733665
+  },
+  "scaler_mean": {
+    "surface_elo_diff": 0.0,
+    "h2h_surface_advantage": 4.008256661471919e-05,
+    "surface_form_diff": 0.0002792654116492677,
+    "tournament_level": 1.0,
+    "age_diff": -0.11435709006885404
+  },
+  "scaler_scale": {
+    "surface_elo_diff": 1.0,
+    "h2h_surface_advantage": 0.16810373393768294,
+    "surface_form_diff": 0.21828941627904505,
+    "tournament_level": 1.0,
+    "age_diff": 5.140547239782957
+  },
+  "train_start": "1990-01-01",
+  "train_end": "present",
+  "metrics": {
+    "accuracy": 0.6089746706208372,
+    "brier": 0.23113800350476477
+  }
+}
