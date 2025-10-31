@@ -84,8 +84,8 @@ app.get('/api/health', (req, res) => {
  * @swagger
  * /api/match-prediction:
  *   post:
- *     summary: Predict match outcome between two players
- *     description: Uses surface-aware logistic regression model trained on 102k+ matches (1990-present)
+ *     summary: Predict match outcome between two players (by name)
+ *     description: Uses surface-aware logistic regression model trained on 102k+ matches (1990-present). Enter player names to get match prediction.
  *     tags: [Predictions]
  *     requestBody:
  *       required: true
@@ -94,16 +94,16 @@ app.get('/api/health', (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - player1_id
- *               - player2_id
+ *               - player1_name
+ *               - player2_name
  *               - surface
  *             properties:
- *               player1_id:
- *                 type: integer
- *                 description: Database ID of player 1
- *               player2_id:
- *                 type: integer
- *                 description: Database ID of player 2
+ *               player1_name:
+ *                 type: string
+ *                 description: Name of player 1
+ *               player2_name:
+ *                 type: string
+ *                 description: Name of player 2
  *               surface:
  *                 type: string
  *                 enum: [Hard, Clay, Grass]
@@ -112,11 +112,26 @@ app.get('/api/health', (req, res) => {
  *                 type: integer
  *                 description: Tournament level (1=ATP250, 2=ATP500, 3=Masters, 4=Grand Slam)
  *                 default: 1
+ *           examples:
+ *             sinner_vs_alcaraz:
+ *               summary: Sinner vs Alcaraz on Hard
+ *               value:
+ *                 player1_name: "Jannik Sinner"
+ *                 player2_name: "Carlos Alcaraz"
+ *                 surface: "Hard"
+ *                 tournament_level: 4
+ *             djokovic_vs_nadal:
+ *               summary: Djokovic vs Nadal on Clay
+ *               value:
+ *                 player1_name: "Novak Djokovic"
+ *                 player2_name: "Rafael Nadal"
+ *                 surface: "Clay"
+ *                 tournament_level: 4
  *     responses:
  *       200:
  *         description: Prediction successful
  *       400:
- *         description: Invalid input
+ *         description: Invalid input or player not found
  *       503:
  *         description: Model not loaded
  */
@@ -126,11 +141,33 @@ app.post('/api/match-prediction', async (req, res) => {
       return res.status(503).json({ error: 'Prediction model not available' });
     }
 
-    const { player1_id, player2_id, surface, tournament_level = 1 } = req.body;
+    let { player1_name, player2_name, player1_id, player2_id, surface, tournament_level = 1 } = req.body;
+
+    // Support both name-based and ID-based queries
+    if (player1_name && player2_name) {
+      // Look up player IDs by name
+      const playerLookup = await pool.query(
+        `SELECT id, name FROM players WHERE name ILIKE $1 OR name ILIKE $2 LIMIT 10`,
+        [player1_name, player2_name]
+      );
+
+      const p1 = playerLookup.rows.find(p => p.name.toLowerCase() === player1_name.toLowerCase());
+      const p2 = playerLookup.rows.find(p => p.name.toLowerCase() === player2_name.toLowerCase());
+
+      if (!p1) {
+        return res.status(400).json({ error: `Player not found: ${player1_name}` });
+      }
+      if (!p2) {
+        return res.status(400).json({ error: `Player not found: ${player2_name}` });
+      }
+
+      player1_id = p1.id;
+      player2_id = p2.id;
+    }
 
     // Validate inputs
     if (!player1_id || !player2_id || !surface) {
-      return res.status(400).json({ error: 'Missing required fields: player1_id, player2_id, surface' });
+      return res.status(400).json({ error: 'Missing required fields: (player1_name + player2_name) OR (player1_id + player2_id), and surface' });
     }
 
     if (!['Hard', 'Clay', 'Grass'].includes(surface)) {
