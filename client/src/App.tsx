@@ -9,7 +9,6 @@ import WinStreakBox from './components/WinStreakBox';
 import HighestELOBySurfaceBox from './components/HighestELOBySurfaceBox';
 import HeadToHeadBox from './components/HeadToHeadBox';
 import RecentMatchesBox from './components/RecentMatchesBox';
-import MatchPredictionBox from './components/MatchPredictionBox';
 import './App.css';
 
 // Types
@@ -72,8 +71,10 @@ function App() {
         {/* Box 9 - Right side container */}
         <HeadToHeadBox className="box-9" />
 
-            {/* Box 8 - Match Prediction */}
-            <MatchPredictionBox className="box-8" />
+            {/* Box 8 - Empty Container */}
+            <div className="box-8">
+              <div className="container-number">8</div>
+            </div>
       </main>
     </div>
   );
