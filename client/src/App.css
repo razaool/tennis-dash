@@ -155,10 +155,10 @@ body, html {
   border: 1px solid #1a1f1f;
   padding: 0.5rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Typography */
