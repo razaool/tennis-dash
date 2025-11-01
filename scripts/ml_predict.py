@@ -238,6 +238,10 @@ def predict_match(player1_name, player2_name, surface):
         
         conn.close()
         
+        # Calculate confidence as the margin between probabilities (0-100%)
+        # Higher margin = more confident prediction
+        confidence = abs(float(prediction_proba[1]) - float(prediction_proba[0]))
+        
         # Return result
         return {
             'success': True,
@@ -248,7 +252,7 @@ def predict_match(player1_name, player2_name, surface):
                 'winner': player1_name if prediction == 1 else player2_name,
                 'player1_win_probability': float(prediction_proba[1]),
                 'player2_win_probability': float(prediction_proba[0]),
-                'confidence': float(max(prediction_proba))
+                'confidence': confidence
             },
             'key_factors': {
                 'surface_elo_difference': float(p1_surface_elo - p2_surface_elo),

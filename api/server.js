@@ -262,8 +262,6 @@ app.get('/api/season/progression', async (req, res) => {
     const tournaments = tournamentsResult.rows;
     // Known remaining tournaments not in the database yet
     const remainingTournaments = [
-      'Erste Bank Open',
-      'Swiss Indoors Basel',
       'Rolex Paris Masters',
       'Vanda Pharmaceuticals Hellenic Championship',
       'Moselle Open',
@@ -428,39 +426,57 @@ app.get('/api/players/win-streak', async (req, res) => {
  */
 app.get('/api/players/highest-elo-by-surface', async (req, res) => {
   try {
-    // Get historical peak ELO on each surface for all players (not just active)
+    // Get current highest ELO on each surface for active players only (played since Jan 1, 2025)
     const grassResult = await pool.query(`
-      SELECT p.name, MAX(r.rating_value) as elo_rating, 
-             (SELECT calculated_at FROM ratings WHERE player_id = p.id AND rating_type = 'elo' AND surface = 'Grass' AND rating_value = MAX(r.rating_value) ORDER BY calculated_at DESC LIMIT 1) as achieved_at
+      SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
       FROM ratings r
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = 'elo'
         AND r.surface = 'Grass'
-      GROUP BY p.id, p.name
+        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = 'Grass' GROUP BY player_id)
+        AND p.id IN (
+          SELECT DISTINCT player_id FROM (
+            SELECT player1_id as player_id FROM matches WHERE match_date >= '2025-01-01'
+            UNION
+            SELECT player2_id as player_id FROM matches WHERE match_date >= '2025-01-01'
+          ) active_players
+        )
       ORDER BY elo_rating DESC
       LIMIT 1
     `);
     
     const clayResult = await pool.query(`
-      SELECT p.name, MAX(r.rating_value) as elo_rating,
-             (SELECT calculated_at FROM ratings WHERE player_id = p.id AND rating_type = 'elo' AND surface = 'Clay' AND rating_value = MAX(r.rating_value) ORDER BY calculated_at DESC LIMIT 1) as achieved_at
+      SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
       FROM ratings r
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = 'elo'
         AND r.surface = 'Clay'
-      GROUP BY p.id, p.name
+        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = 'Clay' GROUP BY player_id)
+        AND p.id IN (
+          SELECT DISTINCT player_id FROM (
+            SELECT player1_id as player_id FROM matches WHERE match_date >= '2025-01-01'
+            UNION
+            SELECT player2_id as player_id FROM matches WHERE match_date >= '2025-01-01'
+          ) active_players
+        )
       ORDER BY elo_rating DESC
       LIMIT 1
     `);
     
     const hardResult = await pool.query(`
-      SELECT p.name, MAX(r.rating_value) as elo_rating,
-             (SELECT calculated_at FROM ratings WHERE player_id = p.id AND rating_type = 'elo' AND surface = 'Hard' AND rating_value = MAX(r.rating_value) ORDER BY calculated_at DESC LIMIT 1) as achieved_at
+      SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
       FROM ratings r
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = 'elo'
         AND r.surface = 'Hard'
-      GROUP BY p.id, p.name
+        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = 'Hard' GROUP BY player_id)
+        AND p.id IN (
+          SELECT DISTINCT player_id FROM (
+            SELECT player1_id as player_id FROM matches WHERE match_date >= '2025-01-01'
+            UNION
+            SELECT player2_id as player_id FROM matches WHERE match_date >= '2025-01-01'
+          ) active_players
+        )
       ORDER BY elo_rating DESC
       LIMIT 1
     `);
