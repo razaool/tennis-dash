@@ -49,16 +49,16 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className }) => {
       <h2 style={{ textAlign: 'center' }}>ATP ANALYTICS DASHBOARD</h2>
       <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: 'calc(100% - 2rem)' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.2rem', color: '#00ff41', fontWeight: 'bold' }}>{summary.totals.players}</div>
-          <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase' }}>Players</div>
+          <div style={{ fontSize: '1.6rem', color: '#00ff41', fontWeight: 'bold' }}>{summary.totals.players}</div>
+          <div style={{ fontSize: '0.7rem', color: '#707070', textTransform: 'uppercase' }}>Players</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.2rem', color: '#00d9ff', fontWeight: 'bold' }}>{summary.totals.matches}</div>
-          <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase' }}>Matches</div>
+          <div style={{ fontSize: '1.6rem', color: '#00d9ff', fontWeight: 'bold' }}>{summary.totals.matches}</div>
+          <div style={{ fontSize: '0.7rem', color: '#707070', textTransform: 'uppercase' }}>Matches</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.2rem', color: '#ffaa00', fontWeight: 'bold' }}>{summary.totals.tournaments}</div>
-          <div style={{ fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase' }}>Tournaments</div>
+          <div style={{ fontSize: '1.6rem', color: '#ffaa00', fontWeight: 'bold' }}>{summary.totals.tournaments}</div>
+          <div style={{ fontSize: '0.7rem', color: '#707070', textTransform: 'uppercase' }}>Tournaments</div>
         </div>
       </div>
     </div>

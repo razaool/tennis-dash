@@ -47,7 +47,7 @@
 }
 
 .selected-indicator {
-  color: #00ff88;
+  color: #00ff41;
   margin-left: 0.25rem;
   font-weight: 700;
 }
@@ -70,12 +70,12 @@
 }
 
 .player-search-input:focus {
-  border-color: #00ff88;
+  border-color: #00ff41;
 }
 
 .player-search-input.selected {
-  border-color: #00ff88;
-  background: rgba(0, 255, 136, 0.05);
+  border-color: #00ff41;
+  background: rgba(0, 255, 65, 0.05);
 }
 
 .player-search-input::placeholder {
@@ -88,7 +88,7 @@
   left: 0;
   right: 0;
   background: #0a0e0e;
-  border: 1px solid #00ff88;
+  border: 1px solid #00ff41;
   border-top: none;
   max-height: 200px;
   overflow-y: auto;
@@ -106,14 +106,14 @@
 
 .dropdown-item:hover {
   background: #1a1f1f;
-  color: #00ff88;
+  color: #00ff41;
 }
 
 /* VS Indicator */
 .vs-indicator {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #00ff88;
+  color: #00ff41;
   padding: 0 0.5rem;
   align-self: center;
   margin-bottom: 0.25rem;
@@ -153,20 +153,20 @@
 }
 
 .surface-btn:hover {
-  border-color: #00ff88;
+  border-color: #00ff41;
   color: #d0d0d0;
 }
 
 .surface-btn.active {
-  background: #00ff88;
-  border-color: #00ff88;
+  background: #00ff41;
+  border-color: #00ff41;
   color: #0a0e0e;
 }
 
 /* Predict Button */
 .predict-btn {
   padding: 0.4rem 1.5rem;
-  background: #00ff88;
+  background: #00ff41;
   border: none;
   color: #0a0e0e;
   font-family: 'JetBrains Mono', monospace;
@@ -227,9 +227,9 @@
 
 .winner-badge {
   padding: 0.3rem 0.6rem;
-  background: rgba(0, 255, 136, 0.15);
-  border: 1px solid #00ff88;
-  color: #00ff88;
+  background: rgba(0, 255, 65, 0.15);
+  border: 1px solid #00ff41;
+  color: #00ff41;
   font-size: 0.55rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -280,8 +280,8 @@
 }
 
 .probability-bar.player1 {
-  background: linear-gradient(90deg, rgba(0, 255, 136, 0.3), rgba(0, 255, 136, 0.6));
-  border-right: 2px solid #00ff88;
+  background: linear-gradient(90deg, rgba(0, 255, 65, 0.3), rgba(0, 255, 65, 0.6));
+  border-right: 2px solid #00ff41;
 }
 
 .probability-bar.player2 {
@@ -339,7 +339,7 @@
 }
 
 .factor-value.confidence {
-  color: #00ff88;
+  color: #00ff41;
 }
 
 /* Stats Comparison */
@@ -358,7 +358,7 @@
 
 .stats-column h4 {
   font-size: 0.55rem;
-  color: #00ff88;
+  color: #00ff41;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 0.5rem 0;

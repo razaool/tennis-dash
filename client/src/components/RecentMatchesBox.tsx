@@ -70,16 +70,16 @@ const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className }) => {
               border: '1px solid #1a1f1f',
               fontSize: '0.7rem'
             }}>
-              <div style={{ color: '#d0d0d0', marginBottom: '0.25rem' }}>
+              <div style={{ color: '#d0d0d0', marginBottom: '0.25rem', fontSize: '0.7rem' }}>
                 <span style={{ color: '#00ff41' }}>{match.winner_name}</span>
                 {' def. '}
                 {match.player1_name === match.winner_name ? match.player2_name : match.player1_name}
               </div>
-              <div style={{ color: '#707070', fontSize: '0.6rem' }}>
+              <div style={{ color: '#707070', fontSize: '0.65rem' }}>
                 {match.tournament_name && <span>{match.tournament_name} • </span>}
                 {new Date(match.match_date).toLocaleDateString()}
               </div>
-              <div style={{ color: '#999', fontSize: '0.7rem', marginTop: '0.25rem' }}>
+              <div style={{ color: '#999', fontSize: '0.65rem', marginTop: '0.25rem' }}>
                 {match.score}
               </div>
             </div>

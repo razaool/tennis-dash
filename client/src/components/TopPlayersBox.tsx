@@ -216,7 +216,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
             <button
               onClick={() => setSurface(null)}
               style={{
-                background: surface === null ? '#00d9ff' : 'transparent',
+                background: surface === null ? '#00ff41' : 'transparent',
                 color: surface === null ? '#0a0e0e' : '#d0d0d0',
                 border: 'none',
                 padding: '0.25rem 0.5rem',
@@ -235,7 +235,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
                 key={surf}
                 onClick={() => setSurface(surf)}
                 style={{
-                  background: surface === surf ? '#00d9ff' : 'transparent',
+                  background: surface === surf ? '#00ff41' : 'transparent',
                   color: surface === surf ? '#0a0e0e' : '#d0d0d0',
                   border: 'none',
                   padding: '0.25rem 0.5rem',
@@ -256,7 +256,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
 
       {/* Players List */}
       {/* Header Row */}
-      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.65rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
         <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'right' }}>Age</div>
@@ -269,15 +269,15 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
           <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem' }}>
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
-              <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.85rem', lineHeight: '1' }}>{getCountryFlag(player.country)}</span>
+              <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.75rem', lineHeight: '1' }}>{getCountryFlag(player.country)}</span>
                 {player.name}
               </div>
             </div>
             <div className="player-age" style={{ textAlign: 'right' }}>
               {calculateAge(player.birth_date)}
             </div>
-            <div style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 500, color: player.win_percentage_2025 ? getWinPercentageColor(player.win_percentage_2025) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: player.win_percentage_2025 ? getWinPercentageColor(player.win_percentage_2025) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
               {player.win_percentage_2025 ? `${player.win_percentage_2025}%` : ''}
             </div>
             <div className="player-rating" style={{ minWidth: '3.5rem' }}>

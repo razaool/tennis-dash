@@ -26,7 +26,7 @@ body, html {
 .dashboard {
   padding: 0.25rem;
   display: grid;
-  grid-template-columns: 500px 1fr 1fr 1fr;
+  grid-template-columns: 440px 1fr 1fr 1fr;
   grid-template-rows: 120px 90px minmax(0, 1fr) 300px;
   gap: 0.25rem;
   width: 100%;
@@ -220,13 +220,18 @@ h3 {
   transition: all 0.2s ease;
 }
 
+.player-info {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .player-card:hover {
   background: #171c1c;
   border-color: #00ff41;
 }
 
 .player-rank {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #888888;
   font-variant-numeric: tabular-nums;
@@ -234,21 +239,24 @@ h3 {
 }
 
 .player-name {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: #d0d0d0;
   margin-bottom: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .player-country {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   color: #707070;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .player-age {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: #d0d0d0;
   font-variant-numeric: tabular-nums;
@@ -256,7 +264,7 @@ h3 {
 }
 
 .player-rating {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #00d9ff;
   font-variant-numeric: tabular-nums;

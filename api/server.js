@@ -664,7 +664,7 @@ app.get('/api/players/details', async (req, res) => {
 // Search players
 app.get('/api/players/search', async (req, res) => {
   try {
-    const { q } = req.query;
+    const { q, activeOnly } = req.query;
     
     if (!q) {
       return res.status(400).json({ error: 'Query parameter required' });
@@ -677,7 +677,8 @@ app.get('/api/players/search', async (req, res) => {
     // 4. Any word in name starts with query
     // 5. Contains query anywhere
     // Within each priority, sort by number of matches (more matches = more famous)
-    const result = await pool.query(`
+    
+    let query = `
       SELECT p.id, p.name,
         CASE 
           WHEN LOWER(p.name) = LOWER($1) THEN 1
@@ -689,9 +690,25 @@ app.get('/api/players/search', async (req, res) => {
         (SELECT COUNT(*) FROM matches m WHERE m.player1_id = p.id OR m.player2_id = p.id) as match_count
       FROM players p
       WHERE p.name ILIKE $2
+    `;
+    
+    // Filter to only active players (played since 2025) if activeOnly parameter is set
+    if (activeOnly === 'true') {
+      query += `
+        AND EXISTS (
+          SELECT 1 FROM matches m 
+          WHERE (m.player1_id = p.id OR m.player2_id = p.id)
+          AND m.match_date >= '2025-01-01'
+        )
+      `;
+    }
+    
+    query += `
       ORDER BY match_priority, match_count DESC, p.name
       LIMIT 20
-    `, [q, `%${q}%`]);
+    `;
+    
+    const result = await pool.query(query, [q, `%${q}%`]);
     
     // Remove match_priority and match_count from response
     const players = result.rows.map(({ id, name }) => ({ id, name }));
