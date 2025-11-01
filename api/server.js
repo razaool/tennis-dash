@@ -3,6 +3,7 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const { Pool } = require('pg');
+const { spawn } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -1518,10 +1519,162 @@ app.get('/api/analytics/surfaces/strength', async (req, res) => {
 });
 
 // ============================================
-// REMOVED ML PREDICTION ENDPOINTS
+// ML MATCH PREDICTION ENDPOINT
 // ============================================
 
-// ML prediction endpoints removed - will be reimplemented later
+/**
+ * @swagger
+ * /api/match-prediction:
+ *   post:
+ *     summary: Predict match outcome using ML model
+ *     tags: [ML Prediction]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - player1_name
+ *               - player2_name
+ *               - surface
+ *             properties:
+ *               player1_name:
+ *                 type: string
+ *                 example: "Jannik Sinner"
+ *               player2_name:
+ *                 type: string
+ *                 example: "Carlos Alcaraz"
+ *               surface:
+ *                 type: string
+ *                 enum: [Hard, Clay, Grass]
+ *                 example: "Hard"
+ *     responses:
+ *       200:
+ *         description: Match prediction with probabilities
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 player1:
+ *                   type: string
+ *                 player2:
+ *                   type: string
+ *                 surface:
+ *                   type: string
+ *                 prediction:
+ *                   type: object
+ *                   properties:
+ *                     winner:
+ *                       type: string
+ *                     player1_win_probability:
+ *                       type: number
+ *                     player2_win_probability:
+ *                       type: number
+ *                     confidence:
+ *                       type: number
+ *       400:
+ *         description: Missing required fields
+ *       500:
+ *         description: Prediction error
+ */
+app.post('/api/match-prediction', async (req, res) => {
+  try {
+    const { player1_name, player2_name, surface } = req.body;
+    
+    // Validate input
+    if (!player1_name || !player2_name || !surface) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: player1_name, player2_name, surface'
+      });
+    }
+    
+    // Validate surface
+    if (!['Hard', 'Clay', 'Grass'].includes(surface)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid surface. Must be one of: Hard, Clay, Grass'
+      });
+    }
+    
+    // Call Python prediction script
+    const pythonProcess = spawn('python3', [
+      'scripts/ml_predict.py',
+      player1_name,
+      player2_name,
+      surface
+    ]);
+    
+    let output = '';
+    let errorOutput = '';
+    
+    pythonProcess.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error('Python script error:', errorOutput);
+        return res.status(500).json({
+          success: false,
+          error: 'Prediction failed',
+          details: errorOutput
+        });
+      }
+      
+      try {
+        const result = JSON.parse(output);
+        res.json(result);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Output:', output);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to parse prediction result'
+        });
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in match prediction:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/model/info:
+ *   get:
+ *     summary: Get ML model information
+ *     tags: [ML Prediction]
+ *     responses:
+ *       200:
+ *         description: Model metadata
+ */
+app.get('/api/model/info', async (req, res) => {
+  try {
+    const fs = require('fs');
+    const metadata = JSON.parse(fs.readFileSync('model_metadata.json', 'utf8'));
+    res.json(metadata);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Model metadata not found'
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
