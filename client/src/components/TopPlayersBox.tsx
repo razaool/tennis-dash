@@ -270,14 +270,14 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
               <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.8rem', lineHeight: '1' }}>{getCountryFlag(player.country)}</span>
+                <span style={{ fontSize: '0.85rem', lineHeight: '1' }}>{getCountryFlag(player.country)}</span>
                 {player.name}
               </div>
             </div>
             <div className="player-age" style={{ textAlign: 'right' }}>
               {calculateAge(player.birth_date)}
             </div>
-            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: player.win_percentage_2025 ? getWinPercentageColor(player.win_percentage_2025) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 500, color: player.win_percentage_2025 ? getWinPercentageColor(player.win_percentage_2025) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
               {player.win_percentage_2025 ? `${player.win_percentage_2025}%` : ''}
             </div>
             <div className="player-rating" style={{ minWidth: '3.5rem' }}>

@@ -74,9 +74,8 @@ def get_surface_win_rate(player_id, surface, months, conn):
             COUNT(*) as total,
             COUNT(*) FILTER (WHERE winner_id = %s) as wins
         FROM matches m
-        LEFT JOIN tournaments t ON m.tournament_id = t.id
         WHERE (m.player1_id = %s OR m.player2_id = %s)
-            AND COALESCE(t.surface, 'Hard') = %s
+            AND m.surface = %s
             AND m.match_date >= %s
             AND m.winner_id IS NOT NULL
     """, (player_id, player_id, player_id, surface, cutoff_date))
@@ -118,10 +117,9 @@ def get_h2h(player1_id, player2_id, surface, conn):
             COUNT(*) FILTER (WHERE winner_id = %s) as p1_wins,
             COUNT(*) FILTER (WHERE winner_id = %s) as p2_wins
         FROM matches m
-        LEFT JOIN tournaments t ON m.tournament_id = t.id
         WHERE ((m.player1_id = %s AND m.player2_id = %s) 
             OR (m.player1_id = %s AND m.player2_id = %s))
-            AND COALESCE(t.surface, 'Hard') = %s
+            AND m.surface = %s
             AND m.winner_id IS NOT NULL
     """, (player1_id, player2_id, player1_id, player2_id, player2_id, player1_id, surface))
     

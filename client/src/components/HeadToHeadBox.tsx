@@ -252,7 +252,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
         </div>
       </div>
       
-      <div style={{ fontSize: '0.8rem', width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <div style={{ fontSize: '0.75rem', width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
         {/* Error message */}
         {error && (
@@ -263,7 +263,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
 
         {/* Head-to-head results */}
         {data && (
-          <div style={{ fontSize: '0.8rem', color: '#d0d0d0', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          <div style={{ fontSize: '0.75rem', color: '#d0d0d0', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
             {/* Summary - Fixed at top */}
             <div style={{ padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #1a1f1f', flexShrink: 0 }}>
               {/* Show only the player with more wins (or player1 if tied) */}
@@ -276,8 +276,30 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
                   {data.player2}: {data.losses}-{data.wins}
                 </div>
               )}
-              <div style={{ color: '#d0d0d0', fontSize: '0.6rem' }}>
+              <div style={{ color: '#d0d0d0', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
                 Total: {data.total_matches} matches
+              </div>
+              
+              {/* Surface Breakdown */}
+              <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.7rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #1a1f1f' }}>
+                {['Hard', 'Clay', 'Grass'].map(surface => {
+                  const surfaceMatches = data.matches.filter(m => m.surface === surface);
+                  // Count wins for player1 (the first player in the H2H query)
+                  const surfaceWins = surfaceMatches.filter(m => {
+                    // Check if player1 from H2H data won this match
+                    return (m.player1_name === data.player1 && m.winner_id === m.player1_id) ||
+                           (m.player2_name === data.player1 && m.winner_id === m.player2_id);
+                  }).length;
+                  const surfaceLosses = surfaceMatches.length - surfaceWins;
+                  return (
+                    <div key={surface} style={{ flex: 1 }}>
+                      <div style={{ color: '#707070', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{surface}</div>
+                      <div style={{ color: surfaceMatches.length > 0 ? '#d0d0d0' : '#404040', fontWeight: '600' }}>
+                        {surfaceWins}-{surfaceLosses}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -285,7 +307,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
             {data.matches.length > 0 && (
               <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                 {/* Match Header - Sticky */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 9, borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.6rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 9, borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
                   <div>Date</div>
                   <div>Tournament</div>
                   <div>Score</div>
@@ -297,17 +319,17 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
                     const player1Won = match.winner_id === match.player1_id;
                     return (
                       <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', alignItems: 'center' }}>
-                        <div style={{ color: '#d0d0d0', fontSize: '0.8rem' }}>
+                        <div style={{ color: '#d0d0d0', fontSize: '0.75rem' }}>
                           {new Date(match.match_date).toLocaleDateString()}
                         </div>
-                        <div style={{ color: '#d0d0d0', fontSize: '0.7rem' }}>
+                        <div style={{ color: '#d0d0d0', fontSize: '0.75rem' }}>
                           {match.tournament_name || 'Unknown'}
                           {match.round && <span style={{ color: '#707070' }}> • {match.round}</span>}
                         </div>
-                        <div style={{ color: '#707070', fontSize: '0.7rem' }}>
+                        <div style={{ color: '#707070', fontSize: '0.75rem' }}>
                           {match.score || 'Score not available'}
                         </div>
-                        <div style={{ color: player1Won ? '#00ff41' : '#ff6b6b', textAlign: 'right', fontWeight: '600', fontSize: '0.7rem' }}>
+                        <div style={{ color: player1Won ? '#00ff41' : '#ff6b6b', textAlign: 'right', fontWeight: '600', fontSize: '0.75rem' }}>
                           {player1Won ? match.player1_name : match.player2_name}
                         </div>
                       </div>

@@ -80,7 +80,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
             position: 'absolute',
             top: '10px',
             left: '50%',
-            fontSize: '1.2rem',
+            fontSize: '1.1rem',
             color: '#00ff41',
             fontWeight: 'bold'
           }}>

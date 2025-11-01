@@ -64,23 +64,23 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
       <div style={{ padding: '0.5rem', display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: 'calc(100% - 2rem)' }}>
         {data.grass && (
           <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.7rem' }}>Grass</div>
-            <div style={{ color: '#d0d0d0', fontSize: '0.6rem', marginBottom: '0.125rem' }}>{data.grass.name}</div>
-            <div style={{ color: '#00d9ff', fontSize: '0.9rem', fontWeight: 'bold' }}>{Math.round(data.grass.elo_rating)}</div>
+            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Grass</div>
+            <div style={{ color: '#d0d0d0', fontSize: '0.7rem', marginBottom: '0.125rem' }}>{data.grass.name}</div>
+            <div style={{ color: '#00d9ff', fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.grass.elo_rating)}</div>
           </div>
         )}
         {data.clay && (
           <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.7rem' }}>Clay</div>
-            <div style={{ color: '#d0d0d0', fontSize: '0.6rem', marginBottom: '0.125rem' }}>{data.clay.name}</div>
-            <div style={{ color: '#00d9ff', fontSize: '0.9rem', fontWeight: 'bold' }}>{Math.round(data.clay.elo_rating)}</div>
+            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Clay</div>
+            <div style={{ color: '#d0d0d0', fontSize: '0.7rem', marginBottom: '0.125rem' }}>{data.clay.name}</div>
+            <div style={{ color: '#00d9ff', fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.clay.elo_rating)}</div>
           </div>
         )}
         {data.hard && (
           <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.7rem' }}>Hard</div>
-            <div style={{ color: '#d0d0d0', fontSize: '0.6rem', marginBottom: '0.125rem' }}>{data.hard.name}</div>
-            <div style={{ color: '#00d9ff', fontSize: '0.9rem', fontWeight: 'bold' }}>{Math.round(data.hard.elo_rating)}</div>
+            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Hard</div>
+            <div style={{ color: '#d0d0d0', fontSize: '0.7rem', marginBottom: '0.125rem' }}>{data.hard.name}</div>
+            <div style={{ color: '#00d9ff', fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.hard.elo_rating)}</div>
           </div>
         )}
       </div>

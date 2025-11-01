@@ -147,23 +147,21 @@ body, html {
   box-sizing: border-box;
 }
 
-/* Box 8 - Bottom Footer */
+/* Box 8 - Bottom Footer (ML Prediction) */
 .box-8 {
   grid-column: 2 / -1;
   grid-row: 4;
   background: #0f1414;
   border: 1px solid #1a1f1f;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Typography */
 h2 {
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #d0d0d0;
   text-transform: uppercase;
@@ -175,7 +173,7 @@ h2 {
 
 h3 {
   margin: 0 0 0.25rem 0;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #707070;
   text-transform: uppercase;
@@ -184,9 +182,23 @@ h3 {
 
 /* Stats */
 .stat-number {
-  font-size: 1.5rem;
+  font-size: 2.1rem;
   font-weight: 600;
   color: #00ff41;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-number-large {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #00ff41;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-number-medium {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #00d9ff;
   font-variant-numeric: tabular-nums;
 }
 
@@ -222,21 +234,21 @@ h3 {
 }
 
 .player-name {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #d0d0d0;
   margin-bottom: 0.1rem;
 }
 
 .player-country {
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   color: #707070;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .player-age {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #d0d0d0;
   font-variant-numeric: tabular-nums;
@@ -244,7 +256,7 @@ h3 {
 }
 
 .player-rating {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #00d9ff;
   font-variant-numeric: tabular-nums;

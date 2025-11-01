@@ -58,13 +58,13 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className }) => {
     <div className={className}>
       <h2>WIN STREAK</h2>
       <div style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{ fontSize: '1.2rem', color: '#00ff41', fontWeight: 'bold' }}>
+        <div style={{ fontSize: '1.1rem', color: '#00ff41', fontWeight: 'bold' }}>
           {data.player_name}
         </div>
-        <div style={{ fontSize: '0.8rem', color: '#d0d0d0' }}>
+        <div style={{ fontSize: '0.75rem', color: '#d0d0d0' }}>
           <strong>Streak:</strong> {data.win_streak} matches
         </div>
-        <div style={{ fontSize: '0.8rem', color: '#d0d0d0' }}>
+        <div style={{ fontSize: '0.75rem', color: '#d0d0d0' }}>
           <strong>Last Win:</strong> {data.last_win_date ? new Date(data.last_win_date).toLocaleDateString() : 'N/A'}
         </div>
       </div>

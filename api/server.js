@@ -670,12 +670,33 @@ app.get('/api/players/search', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter required' });
     }
     
-    const result = await pool.query(
-      'SELECT id, name FROM players WHERE name ILIKE $1 LIMIT 20',
-      [`%${q}%`]
-    );
+    // Prioritize matches intelligently:
+    // 1. Exact full name match
+    // 2. Last name starts with query (prioritize by match count for famous players)
+    // 3. First name starts with query
+    // 4. Any word in name starts with query
+    // 5. Contains query anywhere
+    // Within each priority, sort by number of matches (more matches = more famous)
+    const result = await pool.query(`
+      SELECT p.id, p.name,
+        CASE 
+          WHEN LOWER(p.name) = LOWER($1) THEN 1
+          WHEN LOWER(SPLIT_PART(p.name, ' ', 2)) LIKE LOWER($1) || '%' THEN 2
+          WHEN LOWER(p.name) LIKE LOWER($1) || '%' THEN 3
+          WHEN LOWER(p.name) LIKE '% ' || LOWER($1) || '%' THEN 4
+          ELSE 5
+        END as match_priority,
+        (SELECT COUNT(*) FROM matches m WHERE m.player1_id = p.id OR m.player2_id = p.id) as match_count
+      FROM players p
+      WHERE p.name ILIKE $2
+      ORDER BY match_priority, match_count DESC, p.name
+      LIMIT 20
+    `, [q, `%${q}%`]);
     
-    res.json(result.rows);
+    // Remove match_priority and match_count from response
+    const players = result.rows.map(({ id, name }) => ({ id, name }));
+    
+    res.json(players);
   } catch (error) {
     console.error('Error searching players:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -1607,7 +1628,9 @@ app.post('/api/match-prediction', async (req, res) => {
       player1_name,
       player2_name,
       surface
-    ]);
+    ], {
+      cwd: __dirname + '/..'
+    });
     
     let output = '';
     let errorOutput = '';
@@ -1622,11 +1645,13 @@ app.post('/api/match-prediction', async (req, res) => {
     
     pythonProcess.on('close', (code) => {
       if (code !== 0) {
+        console.error('Python script exited with code:', code);
         console.error('Python script error:', errorOutput);
+        console.error('Python script output:', output);
         return res.status(500).json({
           success: false,
           error: 'Prediction failed',
-          details: errorOutput
+          details: errorOutput || `Exit code: ${code}`
         });
       }
       
