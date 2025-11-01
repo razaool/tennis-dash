@@ -1,0 +1,70 @@
+
+Processing 64 players from data-source/2025Oct_players.txt...
+
+❌ "Altmaier D." → NEW PLAYER
+❌ "Arnaldi M." → NEW PLAYER
+❌ "Auger-Aliassime F." → NEW PLAYER
+❌ "Baez S." → NEW PLAYER
+❌ "Bernet H." → NEW PLAYER
+❌ "Berrettini M." → NEW PLAYER
+❌ "Bertola R." → NEW PLAYER
+❌ "Borges N." → NEW PLAYER
+❌ "Brooksby J." → NEW PLAYER
+❌ "Bublik A." → NEW PLAYER
+❌ "Budkov Kjaer N." → NEW PLAYER
+❌ "Cerundolo F." → NEW PLAYER
+❌ "Cilic M." → NEW PLAYER
+❌ "Cobolli F." → NEW PLAYER
+❌ "Collignon R." → NEW PLAYER
+❌ "Darderi L." → NEW PLAYER
+❌ "Davidovich Fokina A." → NEW PLAYER
+❌ "De Minaur A." → NEW PLAYER
+❌ "Diallo G." → NEW PLAYER
+❌ "Dzumhur D." → NEW PLAYER
+❌ "Etcheverry T." → NEW PLAYER
+❌ "Fearnley J." → NEW PLAYER
+❌ "Fonseca J." → NEW PLAYER
+❌ "Fritz T." → NEW PLAYER
+❌ "Giron M." → NEW PLAYER
+❌ "Goffin D." → NEW PLAYER
+❌ "Griekspoor T." → NEW PLAYER
+❌ "Halys Q." → NEW PLAYER
+❌ "Humbert U." → NEW PLAYER
+❌ "Kecmanovic M." → NEW PLAYER
+❌ "Khachanov K." → NEW PLAYER
+❌ "Korda S." → NEW PLAYER
+❌ "Kovacevic A." → NEW PLAYER
+❌ "Lehecka J." → NEW PLAYER
+❌ "Machac T." → NEW PLAYER
+❌ "Majchrzak K." → NEW PLAYER
+❌ "Medjedovic H." → NEW PLAYER
+❌ "Medvedev D." → NEW PLAYER
+❌ "Mensik J." → NEW PLAYER
+❌ "Michelsen A." → NEW PLAYER
+❌ "Misolic F." → NEW PLAYER
+❌ "Moutet C." → NEW PLAYER
+❌ "Mpetshi G." → NEW PLAYER
+❌ "Muller A." → NEW PLAYER
+❌ "Munar J." → NEW PLAYER
+❌ "Musetti L." → NEW PLAYER
+❌ "Nakashima B." → NEW PLAYER
+❌ "Norrie C." → NEW PLAYER
+❌ "Opelka R." → NEW PLAYER
+❌ "Popyrin A." → NEW PLAYER
+❌ "Rodionov J." → NEW PLAYER
+❌ "Royer V." → NEW PLAYER
+❌ "Rublev A." → NEW PLAYER
+❌ "Ruud C." → NEW PLAYER
+❌ "Shapovalov D." → NEW PLAYER
+❌ "Shelton B." → NEW PLAYER
+❌ "Sinner J." → NEW PLAYER
+❌ "Sonego L." → NEW PLAYER
+❌ "Tabilo A." → NEW PLAYER
+❌ "Ugo Carabelli C." → NEW PLAYER
+❌ "Vacherot V." → NEW PLAYER
+❌ "Van De Zandschulp B." → NEW PLAYER
+❌ "Wawrinka S." → NEW PLAYER
+❌ "Zverev A." → NEW PLAYER
+
+📄 Mapping file saved to: data-source/2025Oct_players_mapping.sql
+
