@@ -262,7 +262,6 @@ app.get('/api/season/progression', async (req, res) => {
     const tournaments = tournamentsResult.rows;
     // Known remaining tournaments not in the database yet
     const remainingTournaments = [
-      'Rolex Paris Masters',
       'Vanda Pharmaceuticals Hellenic Championship',
       'Moselle Open',
       'Nitto ATP Finals',
