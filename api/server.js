@@ -528,7 +528,7 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     const { limit = 10, active = false } = req.query;
     
     let query = `
-      SELECT 
+      SELECT DISTINCT ON (p.id)
         p.id,
         p.name,
         p.country,
@@ -554,8 +554,8 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
         ) as win_percentage_2025
       FROM ratings r
       JOIN players p ON r.player_id = p.id
+      JOIN matches m ON r.match_id = m.id
       WHERE r.rating_type = $1 AND r.surface IS NULL
-        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = $1 AND surface IS NULL GROUP BY player_id)
     `;
     
     const params = [ratingType];
@@ -572,7 +572,25 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
       )`;
     }
     
-    query += ` ORDER BY r.rating_value DESC LIMIT $${params.length + 1}`;
+    query += ` ORDER BY p.id, m.match_date DESC, r.id DESC`;
+    
+    // Wrap in subquery to get top players by rating value
+    query = `
+      SELECT 
+        id,
+        name,
+        country,
+        birth_date,
+        rating_value,
+        rating_deviation,
+        calculated_at,
+        win_percentage_2025
+      FROM (
+        ${query}
+      ) latest_ratings
+      ORDER BY rating_value DESC
+      LIMIT $${params.length + 1}
+    `;
     params.push(parseInt(limit));
     
     const result = await pool.query(query, params);
@@ -1151,26 +1169,35 @@ app.get('/api/dashboard/trending', async (req, res) => {
     const { ratingType = 'elo', limit = 10 } = req.query;
     
     // Return top active players only (played a match in 2025)
+    // Use latest match date rating, not MAX(id)
     const result = await pool.query(`
       SELECT 
-        p.id,
-        p.name,
-        r.rating_value,
-        r.rating_deviation
-      FROM ratings r
-      JOIN players p ON r.player_id = p.id
-      WHERE r.rating_type = $1 AND r.surface IS NULL
-        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = $1 AND surface IS NULL GROUP BY player_id)
-        AND p.id IN (
-          SELECT DISTINCT player_id FROM (
-            SELECT winner_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-            UNION
-            SELECT player1_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-            UNION  
-            SELECT player2_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-          ) active_players WHERE player_id IS NOT NULL
-        )
-      ORDER BY r.rating_value DESC
+        id,
+        name,
+        rating_value,
+        rating_deviation
+      FROM (
+        SELECT DISTINCT ON (p.id)
+          p.id,
+          p.name,
+          r.rating_value,
+          r.rating_deviation
+        FROM ratings r
+        JOIN players p ON r.player_id = p.id
+        JOIN matches m ON r.match_id = m.id
+        WHERE r.rating_type = $1 AND r.surface IS NULL
+          AND p.id IN (
+            SELECT DISTINCT player_id FROM (
+              SELECT winner_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+              UNION
+              SELECT player1_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+              UNION  
+              SELECT player2_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+            ) active_players WHERE player_id IS NOT NULL
+          )
+        ORDER BY p.id, m.match_date DESC, r.id DESC
+      ) latest_ratings
+      ORDER BY rating_value DESC
       LIMIT $2
     `, [ratingType, parseInt(limit)]);
     
