@@ -65,16 +65,29 @@ async function getKFactor(playerId, ratingType) {
   return kFactors.established;
 }
 
-async function getCurrentRating(playerId, ratingType, surface = null) {
-  const result = await pool.query(`
-    SELECT rating_value 
-    FROM ratings 
-    WHERE player_id = $1 
-      AND rating_type = $2 
-      AND surface ${surface ? '= $3' : 'IS NULL'}
-    ORDER BY id DESC 
-    LIMIT 1
-  `, surface ? [playerId, ratingType, surface] : [playerId, ratingType]);
+async function getCurrentRating(playerId, ratingType, surface = null, beforeMatchDate = null) {
+  let query = `
+    SELECT r.rating_value 
+    FROM ratings r
+    JOIN matches m ON r.match_id = m.id
+    WHERE r.player_id = $1 
+      AND r.rating_type = $2 
+      AND r.surface ${surface ? '= $3' : 'IS NULL'}
+  `;
+  
+  const params = [playerId, ratingType];
+  if (surface) {
+    params.push(surface);
+  }
+  
+  if (beforeMatchDate) {
+    params.push(beforeMatchDate);
+    query += ` AND m.match_date < $${params.length}`;
+  }
+  
+  query += ` ORDER BY m.match_date DESC, r.id DESC LIMIT 1`;
+  
+  const result = await pool.query(query, params);
   
   return result.rows.length > 0 ? parseFloat(result.rows[0].rating_value) : 1500;
 }
@@ -142,8 +155,8 @@ async function calculateIncrementalELO() {
     const tournamentWeight = getTournamentWeight(tournament_level);
     
     // ===== OVERALL ELO =====
-    const overall1Rating = await getCurrentRating(player1_id, 'elo', null);
-    const overall2Rating = await getCurrentRating(player2_id, 'elo', null);
+    const overall1Rating = await getCurrentRating(player1_id, 'elo', null, match.match_date);
+    const overall2Rating = await getCurrentRating(player2_id, 'elo', null, match.match_date);
     
     const overallK1 = await getKFactor(player1_id, 'elo');
     const overallK2 = await getKFactor(player2_id, 'elo');
@@ -165,8 +178,8 @@ async function calculateIncrementalELO() {
     await saveRating(player2_id, 'elo', newRating2, matchId, null);
     
     // ===== SURFACE-SPECIFIC ELO =====
-    const surface1Rating = await getCurrentRating(player1_id, 'elo', normalizedSurface);
-    const surface2Rating = await getCurrentRating(player2_id, 'elo', normalizedSurface);
+    const surface1Rating = await getCurrentRating(player1_id, 'elo', normalizedSurface, match.match_date);
+    const surface2Rating = await getCurrentRating(player2_id, 'elo', normalizedSurface, match.match_date);
     
     const surfaceK1 = await getKFactor(player1_id, `elo_${normalizedSurface}`);
     const surfaceK2 = await getKFactor(player2_id, `elo_${normalizedSurface}`);
