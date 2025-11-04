@@ -72,6 +72,35 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
     );
   }
 
+  // Calculate dynamic y-axis domain based on actual data
+  const calculateYAxisDomain = () => {
+    const chartData = prepareChartData();
+    if (chartData.length === 0) return [0, 100];
+    
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+    
+    // Find min and max across all player data points
+    chartData.forEach(dataPoint => {
+      data.forEach(player => {
+        const value = parseFloat(dataPoint[player.name]);
+        if (!isNaN(value)) {
+          minValue = Math.min(minValue, value);
+          maxValue = Math.max(maxValue, value);
+        }
+      });
+    });
+    
+    // Add 5% padding to min and max for better visualization
+    const range = maxValue - minValue;
+    const padding = range * 0.05;
+    
+    return [
+      Math.floor(minValue - padding),
+      Math.ceil(maxValue + padding)
+    ];
+  };
+
   return (
     <div className={className} style={{ display: 'flex', flexDirection: 'column' }}>
       <h2>RATING PROGRESSION</h2>
@@ -115,7 +144,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
               <YAxis 
                 stroke="#707070"
                 style={{ fontSize: '0.6rem' }}
-                domain={[1800, 'dataMax']}
+                domain={calculateYAxisDomain()}
               />
               <Tooltip 
                 contentStyle={{ 
