@@ -250,16 +250,22 @@ app.get('/api/season/stats', async (req, res) => {
  */
 app.get('/api/season/progression', async (req, res) => {
   try {
-    // Get all 2025 tournaments (including December 2024 tournaments)
+    // Derive tournaments from matches to ensure imported events are included
     const tournamentsResult = await pool.query(`
-      SELECT start_date
-      FROM tournaments
-      WHERE (EXTRACT(YEAR FROM start_date) = 2025)
-         OR (EXTRACT(YEAR FROM start_date) = 2024 AND EXTRACT(MONTH FROM start_date) = 12)
-      ORDER BY start_date ASC
+      SELECT 
+        tournament_name,
+        MIN(match_date) AS start_date
+      FROM matches
+      WHERE (EXTRACT(YEAR FROM match_date) = 2025)
+         OR (EXTRACT(YEAR FROM match_date) = 2024 AND EXTRACT(MONTH FROM match_date) = 12)
+      GROUP BY tournament_name
+      ORDER BY MIN(match_date) ASC
     `);
     
-    const tournaments = tournamentsResult.rows;
+    const tournaments = tournamentsResult.rows.map(row => ({
+      name: row.tournament_name,
+      start_date: row.start_date
+    }));
     // Known remaining tournaments not in the database yet
     const remainingTournaments = [
       'Nitto ATP Finals',

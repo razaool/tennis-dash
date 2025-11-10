@@ -63,28 +63,6 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
     <div className={className}>
       <h2 style={{ marginBottom: '0' }}>SEASON PROGRESS</h2>
       
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        fontSize: '0.6rem',
-        color: '#d0d0d0',
-        marginTop: '0.35rem',
-        gap: '0.75rem',
-        flexWrap: 'wrap'
-      }}>
-        <div>
-          <strong style={{ color: '#00ff41' }}>{summary.completed}</strong>
-          <span> / {summary.total} tournaments complete</span>
-        </div>
-        <div>
-          <span>Remaining ({summary.remaining.length}): </span>
-          <span style={{ color: '#00d9ff' }}>
-            {summary.remaining.length > 0 ? summary.remaining.join(', ') : 'All done'}
-          </span>
-        </div>
-      </div>
-      
       {/* Chart */}
       {data.length > 0 ? (
         <div style={{ width: '100%', height: '100px', marginTop: '0.25rem', position: 'relative' }}>
