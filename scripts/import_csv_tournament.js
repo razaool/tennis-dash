@@ -99,6 +99,42 @@ function parseDate(dateStr) {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
+// Convert round name to standardized code
+function normalizeRound(round) {
+  if (!round) return null;
+  
+  const value = round.trim().toLowerCase();
+  
+  const roundMap = {
+    '1st round': 'R32',
+    'first round': 'R32',
+    '2nd round': 'R16',
+    'second round': 'R16',
+    '3rd round': 'R16',
+    'third round': 'R16',
+    'round of 32': 'R32',
+    'round of 16': 'R16',
+    'round of 64': 'R64',
+    'round of 128': 'R128',
+    'quarterfinal': 'QF',
+    'quarter-finals': 'QF',
+    'quarterfinals': 'QF',
+    'quarter finals': 'QF',
+    'quarter-final': 'QF',
+    'semifinal': 'SF',
+    'semi-finals': 'SF',
+    'semifinals': 'SF',
+    'semi finals': 'SF',
+    'semi-final': 'SF',
+    'final': 'F',
+    'the final': 'F',
+    'bronze medal match': 'BR',
+    'round robin': 'RR'
+  };
+  
+  return roundMap[value] || round;
+}
+
 // Build score string from set scores
 function buildScore(row) {
   const sets = [];
@@ -243,7 +279,7 @@ async function importTournament(csvFile) {
     const matchDate = parseDate(match.Date);
     const score = buildScore(match);
     const surface = match.Surface === 'Indoor' ? 'Hard' : match.Surface;
-    const round = match.Round;
+    const round = normalizeRound(match.Round);
     const level = match.Series.toLowerCase().replace('atp', 'atp_');
     
     // Determine player1 and player2 (winner is player1)

@@ -262,8 +262,6 @@ app.get('/api/season/progression', async (req, res) => {
     const tournaments = tournamentsResult.rows;
     // Known remaining tournaments not in the database yet
     const remainingTournaments = [
-      'Vanda Pharmaceuticals Hellenic Championship',
-      'Moselle Open',
       'Nitto ATP Finals',
       'Next Gen ATP Finals presented by PIF'
     ];
@@ -328,6 +326,8 @@ app.get('/api/season/progression', async (req, res) => {
     
     res.json({
       total_tournaments: totalTournaments,
+      completed_tournaments: tournaments.length,
+      remaining_tournaments: remainingTournaments,
       progression: progressionData
     });
   } catch (error) {

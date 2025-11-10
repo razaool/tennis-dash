@@ -240,3 +240,5 @@ node api/server.js &
 - `DATA_IMPACT_ANALYSIS.md` - How data affects each dashboard component
 - `DATA_FLOW_DIAGRAM.md` - Visual data flow diagrams
 - `ROUND_CODES.md` - Standardized round name codes
+- `IMPORT_SUMMARY_2025Oct.md` - October 2025 import (Swiss Indoors, Vienna Open, Paris Masters)
+- `IMPORT_SUMMARY_2025Nov.md` - November 2025 import (Athens Hellenic Championship, Open de Moselle)

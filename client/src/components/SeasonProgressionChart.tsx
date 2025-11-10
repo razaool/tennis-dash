@@ -11,6 +11,15 @@ interface SeasonProgressionChartProps {
 const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ className }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<{
+    total: number;
+    completed: number;
+    remaining: string[];
+  }>({
+    total: 0,
+    completed: 0,
+    remaining: []
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,9 +28,16 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
         
         // Fetch season progression data
         const progressionResponse = await axios.get(`${API_BASE_URL}/api/season/progression`);
-        const progressionData = progressionResponse.data.progression;
+        const progressionData = progressionResponse.data.progression || [];
         
         setData(progressionData);
+        setSummary({
+          total: progressionResponse.data.total_tournaments || 0,
+          completed: progressionResponse.data.completed_tournaments || (progressionData.length > 0
+            ? progressionData[progressionData.length - 1].completed_tournaments
+            : 0),
+          remaining: progressionResponse.data.remaining_tournaments || []
+        });
       } catch (err) {
         console.error('Error fetching season progression:', err);
       } finally {
@@ -46,6 +62,28 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
   return (
     <div className={className}>
       <h2 style={{ marginBottom: '0' }}>SEASON PROGRESS</h2>
+      
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        fontSize: '0.6rem',
+        color: '#d0d0d0',
+        marginTop: '0.35rem',
+        gap: '0.75rem',
+        flexWrap: 'wrap'
+      }}>
+        <div>
+          <strong style={{ color: '#00ff41' }}>{summary.completed}</strong>
+          <span> / {summary.total} tournaments complete</span>
+        </div>
+        <div>
+          <span>Remaining ({summary.remaining.length}): </span>
+          <span style={{ color: '#00d9ff' }}>
+            {summary.remaining.length > 0 ? summary.remaining.join(', ') : 'All done'}
+          </span>
+        </div>
+      </div>
       
       {/* Chart */}
       {data.length > 0 ? (
