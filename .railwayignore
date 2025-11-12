@@ -1,0 +1,9 @@
+node_modules/
+*.log
+.DS_Store
+data-source/*.csv
+data-source/atp_*.csv
+temp_*.log
+client/node_modules/
+client/build/
+

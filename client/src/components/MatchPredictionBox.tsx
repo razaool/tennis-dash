@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './MatchPredictionBox.css';
 
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface PredictionResult {
   success: boolean;
@@ -140,7 +140,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className }) =>
     setPrediction(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/match-prediction', {
+      const response = await fetch(`${API_BASE_URL}/api/match-prediction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

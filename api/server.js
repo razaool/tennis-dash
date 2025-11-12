@@ -31,15 +31,20 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true
+}));
 app.use(express.json());
 
 // Database connection
 const pool = new Pool({
-  user: 'razaool',
-  host: 'localhost',
-  database: 'tennis_dash',
-  port: 5432,
+  user: process.env.DB_USER || 'razaool',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'tennis_dash',
+  port: parseInt(process.env.DB_PORT) || 5432,
+  password: process.env.DB_PASSWORD,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 // Test database connection

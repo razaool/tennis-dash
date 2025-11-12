@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface TotalTournamentsBoxProps {
   className?: string;
@@ -14,7 +14,7 @@ const TotalTournamentsBox: React.FC<TotalTournamentsBoxProps> = ({ className }) 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/stats/total-tournaments`);
+        const response = await axios.get(`${API_BASE_URL}/api/stats/total-tournaments`);
         setTotal(response.data.count);
       } catch (err) {
         console.error('Error fetching total tournaments:', err);
