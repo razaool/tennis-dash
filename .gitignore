@@ -2,3 +2,4 @@ node_modules/
 .env
 *.log
 .DS_Store
+tennis_dash_production_backup.sql
