@@ -53,6 +53,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
 
   useEffect(() => {
     fetchPlayers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ratingSystem, surface]);
 
   const calculateAge = (birthDate: string): number => {
@@ -129,14 +130,6 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
     }
     
     return '🏳️'; // Default flag if unknown
-  };
-
-  const formatRating = (value: number, deviation?: number): string => {
-    if (ratingSystem === 'elo') {
-      return Math.round(value).toString();
-    } else {
-      return `${Math.round(value)} ±${Math.round(deviation || 0)}`;
-    }
   };
 
   const getWinPercentageColor = (winPercent: number): string => {

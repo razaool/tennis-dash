@@ -1,8 +1,6 @@
 import React from 'react';
 import TopPlayersBox from './components/TopPlayersBox';
 import TotalPlayersBox from './components/TotalPlayersBox';
-import TotalMatchesBox from './components/TotalMatchesBox';
-import TotalTournamentsBox from './components/TotalTournamentsBox';
 import RatingProgressionChart from './components/RatingProgressionChart';
 import SeasonProgressionChart from './components/SeasonProgressionChart';
 import WinStreakBox from './components/WinStreakBox';
@@ -11,37 +9,6 @@ import HeadToHeadBox from './components/HeadToHeadBox';
 import RecentMatchesBox from './components/RecentMatchesBox';
 import MatchPredictionBox from './components/MatchPredictionBox';
 import './App.css';
-
-// Types
-interface Player {
-  id: number;
-  name: string;
-  country: string;
-  birth_date?: string;
-  height?: number;
-  weight?: number;
-  playing_hand?: string;
-}
-
-interface Match {
-  id: number;
-  player1_name: string;
-  player2_name: string;
-  winner_name: string;
-  score: string;
-  match_date: string;
-  tournament_name?: string;
-}
-
-interface Rating {
-  rating_type: string;
-  rating_value: number;
-  rating_deviation?: number;
-  volatility?: number;
-  mu?: number;
-  sigma?: number;
-  calculated_at: string;
-}
 
 function App() {
 

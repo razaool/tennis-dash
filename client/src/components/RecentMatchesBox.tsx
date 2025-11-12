@@ -17,17 +17,6 @@ interface Match {
   tournament_name?: string;
 }
 
-interface DashboardSummary {
-  totals: {
-    players: number;
-    matches: number;
-    tournaments: number;
-  };
-  recentMatches: Match[];
-  topPlayersElo: any[];
-  surfaceStats: any[];
-}
-
 const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className }) => {
   const [recentMatches, setRecentMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);

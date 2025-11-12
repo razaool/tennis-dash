@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LabelList } from 'recharts';
+import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -11,15 +11,6 @@ interface SeasonProgressionChartProps {
 const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ className }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<{
-    total: number;
-    completed: number;
-    remaining: string[];
-  }>({
-    total: 0,
-    completed: 0,
-    remaining: []
-  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,13 +22,6 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
         const progressionData = progressionResponse.data.progression || [];
         
         setData(progressionData);
-        setSummary({
-          total: progressionResponse.data.total_tournaments || 0,
-          completed: progressionResponse.data.completed_tournaments || (progressionData.length > 0
-            ? progressionData[progressionData.length - 1].completed_tournaments
-            : 0),
-          remaining: progressionResponse.data.remaining_tournaments || []
-        });
       } catch (err) {
         console.error('Error fetching season progression:', err);
       } finally {
