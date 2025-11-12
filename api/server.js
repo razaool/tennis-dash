@@ -544,8 +544,15 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     const { ratingType } = req.params;
     const { limit = 10, active = false } = req.query;
     
+    // Simplified query - get max rating_id per player (latest rating)
     let query = `
-      SELECT DISTINCT ON (p.id)
+      WITH latest_ratings AS (
+        SELECT player_id, MAX(id) as max_rating_id
+        FROM ratings
+        WHERE rating_type = $1 AND surface IS NULL
+        GROUP BY player_id
+      )
+      SELECT 
         p.id,
         p.name,
         p.country,
@@ -556,58 +563,22 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
           ELSE r.rating_deviation
         END as rating_deviation,
         r.calculated_at,
-        (
-          SELECT 
-            CASE 
-              WHEN COUNT(*) = 0 THEN 0
-              ELSE ROUND(
-                COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100, 
-                1
-              )
-            END
-          FROM matches 
-          WHERE EXTRACT(YEAR FROM match_date) = 2025
-            AND (player1_id = p.id OR player2_id = p.id)
-        ) as win_percentage_2025
-      FROM ratings r
-      JOIN players p ON r.player_id = p.id
-      JOIN matches m ON r.match_id = m.id
-      WHERE r.rating_type = $1 AND r.surface IS NULL
+        NULL as win_percentage_2025
+      FROM latest_ratings lr
+      JOIN ratings r ON r.id = lr.max_rating_id
+      JOIN players p ON p.id = lr.player_id
+      WHERE 1=1
     `;
     
     const params = [ratingType];
     
     if (active === 'true') {
       query += ` AND p.id IN (
-        SELECT DISTINCT player_id FROM (
-          SELECT winner_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-          UNION
-          SELECT player1_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-          UNION  
-          SELECT player2_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-        ) active_players WHERE player_id IS NOT NULL
+        SELECT DISTINCT winner_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
       )`;
     }
     
-    query += ` ORDER BY p.id, m.match_date DESC, r.id DESC`;
-    
-    // Wrap in subquery to get top players by rating value
-    query = `
-      SELECT 
-        id,
-        name,
-        country,
-        birth_date,
-        rating_value,
-        rating_deviation,
-        calculated_at,
-        win_percentage_2025
-      FROM (
-        ${query}
-      ) latest_ratings
-      ORDER BY rating_value DESC
-      LIMIT $${params.length + 1}
-    `;
+    query += ` ORDER BY r.rating_value DESC LIMIT $${params.length + 1}`;
     params.push(parseInt(limit));
     
     const result = await pool.query(query, params);
