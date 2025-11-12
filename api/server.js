@@ -38,14 +38,20 @@ app.use(cors({
 app.use(express.json());
 
 // Database connection
-const pool = new Pool({
-  user: process.env.DB_USER || 'razaool',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'tennis_dash',
-  port: parseInt(process.env.DB_PORT) || 5432,
-  password: process.env.DB_PASSWORD,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+// Railway provides DATABASE_URL, otherwise use individual env vars
+const pool = process.env.DATABASE_URL 
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    })
+  : new Pool({
+      user: process.env.DB_USER || 'razaool',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'tennis_dash',
+      port: parseInt(process.env.DB_PORT) || 5432,
+      password: process.env.DB_PASSWORD,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
 
 // Test database connection
 pool.query('SELECT NOW()', (err, res) => {
