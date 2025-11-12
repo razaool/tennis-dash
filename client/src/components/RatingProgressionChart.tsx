@@ -136,10 +136,15 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
               <XAxis 
                 dataKey="date" 
                 stroke="#707070"
-                style={{ fontSize: '0.6rem' }}
-                angle={-45}
+                style={{ fontSize: '0.55rem' }}
+                angle={-30}
                 textAnchor="end"
-                height={80}
+                height={45}
+                interval="preserveStartEnd"
+                tickFormatter={(value) => {
+                  const date = new Date(value);
+                  return `${date.getMonth() + 1}/${date.getDate()}`;
+                }}
               />
               <YAxis 
                 stroke="#707070"
