@@ -627,7 +627,19 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           r.rating_value,
           CASE WHEN $1 = 'elo' THEN NULL ELSE r.rating_deviation END as rating_deviation,
           r.calculated_at,
-          NULL as win_percentage_2025,
+          (
+            SELECT 
+              CASE 
+                WHEN COUNT(*) = 0 THEN 0
+                ELSE ROUND(
+                  COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100, 
+                  1
+                )
+              END
+            FROM matches 
+            WHERE EXTRACT(YEAR FROM match_date) = 2025
+              AND (player1_id = p.id OR player2_id = p.id)
+          ) as win_percentage_2025,
           ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
         FROM ratings r
         JOIN players p ON p.id = r.player_id
