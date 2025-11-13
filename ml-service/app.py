@@ -280,6 +280,28 @@ def predict():
                 'player1_win_probability': float(prediction_proba[1]),
                 'player2_win_probability': float(prediction_proba[0]),
                 'confidence': confidence
+            },
+            'key_factors': {
+                'surface_elo_difference': float(p1_surface_elo - p2_surface_elo),
+                'form_difference': float(p1_form_20 - p2_form_20),
+                'surface_form_difference': float(p1_surface_form_10 - p2_surface_form_10),
+                'h2h_advantage': int(h2h_surface),
+                'player1_surface_wr': float(p1_surface_wr_12mo),
+                'player2_surface_wr': float(p2_surface_wr_12mo)
+            },
+            'player_stats': {
+                'player1': {
+                    'surface_elo': float(p1_surface_elo),
+                    'overall_elo': float(p1_overall_elo),
+                    'recent_form': float(p1_form_20),
+                    'surface_form': float(p1_surface_form_10)
+                },
+                'player2': {
+                    'surface_elo': float(p2_surface_elo),
+                    'overall_elo': float(p2_overall_elo),
+                    'recent_form': float(p2_form_20),
+                    'surface_form': float(p2_surface_form_10)
+                }
             }
         })
         
