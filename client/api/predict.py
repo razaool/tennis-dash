@@ -9,7 +9,6 @@ import numpy as np
 import psycopg2
 from datetime import datetime, timedelta
 import pandas as pd
-from http.server import BaseHTTPRequestHandler
 
 # Database connection using Railway's DATABASE_URL
 def get_db_connection():
@@ -272,65 +271,99 @@ def predict_match(player1_name, player2_name, surface):
             'traceback': traceback.format_exc()
         }
 
-# Vercel serverless handler
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            # Read request body
-            content_length = int(self.headers['Content-Length'])
-            body = self.rfile.read(content_length)
-            data = json.loads(body.decode('utf-8'))
-            
-            # Extract parameters
-            player1_name = data.get('player1_name')
-            player2_name = data.get('player2_name')
-            surface = data.get('surface')
-            
-            # Validate input
-            if not all([player1_name, player2_name, surface]):
-                self.send_response(400)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({
+# Vercel serverless handler - simplified for Vercel's Python runtime
+def handler(request):
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+            },
+            'body': ''
+        }
+    
+    # Only allow POST
+    if request.method != 'POST':
+        return {
+            'statusCode': 405,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            'body': json.dumps({
+                'success': False,
+                'error': 'Method not allowed. Use POST.'
+            })
+        }
+    
+    try:
+        # Parse request body
+        if hasattr(request, 'body'):
+            body = request.body
+        elif hasattr(request, 'get_json'):
+            body = request.get_json()
+        else:
+            body = json.loads(request.data or '{}')
+        
+        # Extract parameters
+        player1_name = body.get('player1_name')
+        player2_name = body.get('player2_name')
+        surface = body.get('surface')
+        
+        # Validate input
+        if not all([player1_name, player2_name, surface]):
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                'body': json.dumps({
                     'success': False,
                     'error': 'Missing required fields: player1_name, player2_name, surface'
-                }).encode())
-                return
-            
-            if surface not in ['Hard', 'Clay', 'Grass']:
-                self.send_response(400)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({
+                })
+            }
+        
+        if surface not in ['Hard', 'Clay', 'Grass']:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                'body': json.dumps({
                     'success': False,
                     'error': 'Invalid surface. Must be one of: Hard, Clay, Grass'
-                }).encode())
-                return
-            
-            # Make prediction
-            result = predict_match(player1_name, player2_name, surface)
-            
-            # Send response
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(json.dumps(result).encode())
-            
-        except Exception as e:
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({
+                })
+            }
+        
+        # Make prediction
+        result = predict_match(player1_name, player2_name, surface)
+        
+        # Return response
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            'body': json.dumps(result)
+        }
+        
+    except Exception as e:
+        import traceback
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            'body': json.dumps({
                 'success': False,
-                'error': str(e)
-            }).encode())
-    
-    def do_OPTIONS(self):
-        # Handle CORS preflight
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.end_headers()
-
+                'error': str(e),
+                'traceback': traceback.format_exc()
+            })
+        }
