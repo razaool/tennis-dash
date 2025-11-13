@@ -1831,7 +1831,9 @@ app.post('/api/match-prediction', async (req, res) => {
     }
     
     // Call Python prediction script
-    const pythonProcess = spawn('python3', [
+    // Use 'python' for production/Railway, 'python3' for local dev
+    const pythonCmd = process.env.NODE_ENV === 'production' ? 'python' : 'python3';
+    const pythonProcess = spawn(pythonCmd, [
       'scripts/ml_predict.py',
       player1_name,
       player2_name,
