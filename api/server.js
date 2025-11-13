@@ -4,6 +4,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const { Pool } = require('pg');
 const { spawn } = require('child_process');
+const redis = require('redis');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -62,6 +63,76 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
+// Redis connection (optional - only if REDIS_URL is provided)
+let redisClient = null;
+if (process.env.REDIS_URL) {
+  redisClient = redis.createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+      reconnectStrategy: (retries) => {
+        if (retries > 10) {
+          console.error('Redis: Too many reconnection attempts');
+          return new Error('Redis reconnection failed');
+        }
+        return Math.min(retries * 100, 3000);
+      }
+    }
+  });
+
+  redisClient.on('error', (err) => console.error('Redis Client Error:', err));
+  redisClient.on('connect', () => console.log('✓ Redis connected'));
+  
+  redisClient.connect().catch(err => {
+    console.error('Redis connection error:', err);
+    redisClient = null; // Disable redis if connection fails
+  });
+} else {
+  console.log('ℹ Redis not configured - caching disabled');
+}
+
+// Cache middleware - wraps endpoints with Redis caching
+function cacheMiddleware(keyPrefix, ttlSeconds = 300) {
+  return async (req, res, next) => {
+    // If Redis not available, skip caching
+    if (!redisClient || !redisClient.isOpen) {
+      return next();
+    }
+
+    try {
+      // Create cache key from route and query params
+      const cacheKey = `${keyPrefix}:${JSON.stringify(req.params)}:${JSON.stringify(req.query)}`;
+      
+      // Try to get cached data
+      const cachedData = await redisClient.get(cacheKey);
+      
+      if (cachedData) {
+        console.log(`✓ Cache HIT: ${keyPrefix}`);
+        return res.json(JSON.parse(cachedData));
+      }
+
+      console.log(`✗ Cache MISS: ${keyPrefix}`);
+      
+      // Store original res.json function
+      const originalJson = res.json.bind(res);
+      
+      // Override res.json to cache the response
+      res.json = (data) => {
+        // Cache the data asynchronously (don't wait)
+        redisClient.setEx(cacheKey, ttlSeconds, JSON.stringify(data))
+          .catch(err => console.error('Redis cache set error:', err));
+        
+        // Send response normally
+        return originalJson(data);
+      };
+
+      next();
+    } catch (error) {
+      console.error('Cache middleware error:', error);
+      next(); // Continue without caching on error
+    }
+  };
+}
+
 // Routes
 /**
  * @swagger
@@ -89,7 +160,7 @@ app.get('/api/health', (req, res) => {
  *     description: Returns count of unique player names (excludes duplicates and empty names)
  *     tags: [Stats]
  */
-app.get('/api/stats/total-players', async (req, res) => {
+app.get('/api/stats/total-players', cacheMiddleware('stats_total_players', 600), async (req, res) => {
   try {
     const result = await pool.query('SELECT COUNT(DISTINCT name) as count FROM players WHERE name IS NOT NULL AND name != \'\'');
     res.json({ count: parseInt(result.rows[0].count) });
@@ -106,7 +177,7 @@ app.get('/api/stats/total-players', async (req, res) => {
  *     summary: Get total number of matches
  *     tags: [Stats]
  */
-app.get('/api/stats/total-matches', async (req, res) => {
+app.get('/api/stats/total-matches', cacheMiddleware('stats_total_matches', 600), async (req, res) => {
   try {
     const result = await pool.query('SELECT COUNT(*) as count FROM matches');
     res.json({ count: parseInt(result.rows[0].count) });
@@ -123,7 +194,7 @@ app.get('/api/stats/total-matches', async (req, res) => {
  *     summary: Get total number of tournaments
  *     tags: [Stats]
  */
-app.get('/api/stats/total-tournaments', async (req, res) => {
+app.get('/api/stats/total-tournaments', cacheMiddleware('stats_total_tournaments', 600), async (req, res) => {
   try {
     const result = await pool.query('SELECT COUNT(*) as count FROM tournaments');
     res.json({ count: parseInt(result.rows[0].count) });
@@ -236,7 +307,7 @@ app.get('/api/players/head-to-head', async (req, res) => {
  *       404:
  *         description: Season stats not found
  */
-app.get('/api/season/stats', async (req, res) => {
+app.get('/api/season/stats', cacheMiddleware('season_stats', 600), async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM season_stats WHERE season_year = 2025');
     if (result.rows.length === 0) {
@@ -259,7 +330,7 @@ app.get('/api/season/stats', async (req, res) => {
  *       200:
  *         description: Season progression data
  */
-app.get('/api/season/progression', async (req, res) => {
+app.get('/api/season/progression', cacheMiddleware('season_progression', 1800), async (req, res) => {
   try {
     // Derive tournaments from matches to ensure imported events are included
     const tournamentsResult = await pool.query(`
@@ -539,35 +610,30 @@ app.get('/api/players/highest-elo-by-surface', async (req, res) => {
  *       200:
  *         description: List of top players
  */
-app.get('/api/players/top/:ratingType', async (req, res) => {
+app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), async (req, res) => {
   try {
     const { ratingType } = req.params;
     const { limit = 10, active = false } = req.query;
     
-    // Simplified query - get max rating_id per player (latest rating)
+    // Extremely simple query - use window function to get latest rating per player
     let query = `
-      WITH latest_ratings AS (
-        SELECT player_id, MAX(id) as max_rating_id
-        FROM ratings
-        WHERE rating_type = $1 AND surface IS NULL
-        GROUP BY player_id
-      )
-      SELECT 
-        p.id,
-        p.name,
-        p.country,
-        p.birth_date,
-        r.rating_value,
-        CASE 
-          WHEN $1 = 'elo' THEN NULL
-          ELSE r.rating_deviation
-        END as rating_deviation,
-        r.calculated_at,
-        NULL as win_percentage_2025
-      FROM latest_ratings lr
-      JOIN ratings r ON r.id = lr.max_rating_id
-      JOIN players p ON p.id = lr.player_id
-      WHERE 1=1
+      SELECT id, name, country, birth_date, rating_value, rating_deviation, calculated_at, win_percentage_2025
+      FROM (
+        SELECT 
+          p.id,
+          p.name,
+          p.country,
+          p.birth_date,
+          r.rating_value,
+          CASE WHEN $1 = 'elo' THEN NULL ELSE r.rating_deviation END as rating_deviation,
+          r.calculated_at,
+          NULL as win_percentage_2025,
+          ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
+        FROM ratings r
+        JOIN players p ON p.id = r.player_id
+        WHERE r.rating_type = $1 AND r.surface IS NULL
+      ) sub
+      WHERE rn = 1
     `;
     
     const params = [ratingType];
@@ -952,7 +1018,7 @@ app.get('/api/players/recent-matches', async (req, res) => {
  *       200:
  *         description: Recent matches
  */
-app.get('/api/matches/recent', async (req, res) => {
+app.get('/api/matches/recent', cacheMiddleware('matches_recent', 600), async (req, res) => {
   try {
     const { limit = 20 } = req.query;
     
@@ -1047,7 +1113,7 @@ app.get('/api/matches/player', async (req, res) => {
  *       200:
  *         description: Dashboard summary
  */
-app.get('/api/dashboard/summary', async (req, res) => {
+app.get('/api/dashboard/summary', cacheMiddleware('dashboard_summary', 300), async (req, res) => {
   try {
     // Get totals
     const [playersCount, matchesCount, tournamentsCount] = await Promise.all([
@@ -1152,7 +1218,7 @@ app.get('/api/dashboard/summary', async (req, res) => {
  *       200:
  *         description: Trending active players
  */
-app.get('/api/dashboard/trending', async (req, res) => {
+app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), async (req, res) => {
   try {
     const { ratingType = 'elo', limit = 10 } = req.query;
     
