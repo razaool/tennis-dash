@@ -1,7 +1,8 @@
 """
-Vercel Serverless Function for ML Match Prediction
+Vercel Serverless Function for ML Match Prediction using Flask
 """
 
+from flask import Flask, request, jsonify
 import json
 import os
 import joblib
@@ -9,6 +10,8 @@ import numpy as np
 import psycopg2
 from datetime import datetime, timedelta
 import pandas as pd
+
+app = Flask(__name__)
 
 # Database connection using Railway's DATABASE_URL
 def get_db_connection():
@@ -271,99 +274,61 @@ def predict_match(player1_name, player2_name, surface):
             'traceback': traceback.format_exc()
         }
 
-# Vercel serverless handler - simplified for Vercel's Python runtime
-def handler(request):
+@app.route('/api/predict', methods=['POST', 'OPTIONS'])
+def handle_predict():
     # Handle CORS preflight
     if request.method == 'OPTIONS':
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
-            },
-            'body': ''
-        }
-    
-    # Only allow POST
-    if request.method != 'POST':
-        return {
-            'statusCode': 405,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            },
-            'body': json.dumps({
-                'success': False,
-                'error': 'Method not allowed. Use POST.'
-            })
-        }
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        return response
     
     try:
         # Parse request body
-        if hasattr(request, 'body'):
-            body = request.body
-        elif hasattr(request, 'get_json'):
-            body = request.get_json()
-        else:
-            body = json.loads(request.data or '{}')
+        data = request.get_json()
         
         # Extract parameters
-        player1_name = body.get('player1_name')
-        player2_name = body.get('player2_name')
-        surface = body.get('surface')
+        player1_name = data.get('player1_name')
+        player2_name = data.get('player2_name')
+        surface = data.get('surface')
         
         # Validate input
         if not all([player1_name, player2_name, surface]):
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                },
-                'body': json.dumps({
-                    'success': False,
-                    'error': 'Missing required fields: player1_name, player2_name, surface'
-                })
-            }
+            response = jsonify({
+                'success': False,
+                'error': 'Missing required fields: player1_name, player2_name, surface'
+            })
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response, 400
         
         if surface not in ['Hard', 'Clay', 'Grass']:
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                },
-                'body': json.dumps({
-                    'success': False,
-                    'error': 'Invalid surface. Must be one of: Hard, Clay, Grass'
-                })
-            }
+            response = jsonify({
+                'success': False,
+                'error': 'Invalid surface. Must be one of: Hard, Clay, Grass'
+            })
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response, 400
         
         # Make prediction
         result = predict_match(player1_name, player2_name, surface)
         
         # Return response
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            },
-            'body': json.dumps(result)
-        }
+        response = jsonify(result)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
         
     except Exception as e:
         import traceback
-        return {
-            'statusCode': 500,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            },
-            'body': json.dumps({
-                'success': False,
-                'error': str(e),
-                'traceback': traceback.format_exc()
-            })
-        }
+        response = jsonify({
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
+
+# For Vercel serverless
+if __name__ != '__main__':
+    # Vercel entry point
+    handler = app
