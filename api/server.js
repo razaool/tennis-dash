@@ -1831,8 +1831,25 @@ app.post('/api/match-prediction', async (req, res) => {
     }
     
     // Call Python prediction script
-    // Use 'python' for production/Railway, 'python3' for local dev
-    const pythonCmd = process.env.NODE_ENV === 'production' ? 'python' : 'python3';
+    // Try to find Python - Railway uses 'python', local dev uses 'python3'
+    const { execSync } = require('child_process');
+    let pythonCmd = 'python3'; // default
+    try {
+      execSync('which python', { stdio: 'ignore' });
+      pythonCmd = 'python';
+    } catch (e) {
+      // python not found, try python3
+      try {
+        execSync('which python3', { stdio: 'ignore' });
+        pythonCmd = 'python3';
+      } catch (e2) {
+        return res.status(500).json({
+          success: false,
+          error: 'Python not found on system'
+        });
+      }
+    }
+    
     const pythonProcess = spawn(pythonCmd, [
       'scripts/ml_predict.py',
       player1_name,
