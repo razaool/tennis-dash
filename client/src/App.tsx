@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import TopPlayersBox from './components/TopPlayersBox';
 import TotalPlayersBox from './components/TotalPlayersBox';
 import RatingProgressionChart from './components/RatingProgressionChart';
@@ -42,6 +43,7 @@ function App() {
             {/* Box 8 - ML Match Prediction */}
             <MatchPredictionBox className="box-8" />
       </main>
+      <Analytics />
     </div>
   );
 }
