@@ -1,8 +1,11 @@
 [phases.setup]
-nixPkgs = ["nodejs_18", "npm-9_x"]
+nixPkgs = ["nodejs_18", "npm-9_x", "python39", "python39Packages.pip"]
 
 [phases.install]
-cmds = ["npm ci --production"]
+cmds = [
+  "npm ci --production",
+  "pip install --no-cache-dir -r requirements.txt"
+]
 
 [phases.build]
 cmds = ["echo 'Skipping frontend build - API only'"]
