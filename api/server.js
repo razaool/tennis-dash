@@ -615,7 +615,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const { ratingType } = req.params;
     const { limit = 10, active = false } = req.query;
     
-    // Extremely simple query - use window function to get latest rating per player
+    // Simple query - get latest rating per player using window function
     let query = `
       SELECT id, name, country, birth_date, rating_value, rating_deviation, calculated_at, win_percentage_2025
       FROM (
@@ -639,12 +639,12 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const params = [ratingType];
     
     if (active === 'true') {
-      query += ` AND p.id IN (
+      query += ` AND id IN (
         SELECT DISTINCT winner_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
       )`;
     }
     
-    query += ` ORDER BY r.rating_value DESC LIMIT $${params.length + 1}`;
+    query += ` ORDER BY rating_value DESC LIMIT $${params.length + 1}`;
     params.push(parseInt(limit));
     
     const result = await pool.query(query, params);
