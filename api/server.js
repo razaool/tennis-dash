@@ -1928,6 +1928,36 @@ app.get('/api/model/info', async (req, res) => {
   }
 });
 
+// Python diagnostic endpoint
+app.get('/api/python-check', (req, res) => {
+  const { execSync } = require('child_process');
+  const result = { pythonAvailable: false, pythonCommand: null, version: null, error: null };
+  
+  // Try python
+  try {
+    execSync('which python', { stdio: 'ignore' });
+    result.pythonCommand = 'python';
+    result.pythonAvailable = true;
+    try {
+      result.version = execSync('python --version 2>&1').toString().trim();
+    } catch (e) {}
+  } catch (e) {
+    // Try python3
+    try {
+      execSync('which python3', { stdio: 'ignore' });
+      result.pythonCommand = 'python3';
+      result.pythonAvailable = true;
+      try {
+        result.version = execSync('python3 --version 2>&1').toString().trim();
+      } catch (e) {}
+    } catch (e2) {
+      result.error = 'Neither python nor python3 found';
+    }
+  }
+  
+  res.json(result);
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
 });
