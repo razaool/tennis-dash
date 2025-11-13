@@ -140,7 +140,8 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className }) =>
     setPrediction(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/match-prediction`, {
+      // Call Vercel serverless function (relative path)
+      const response = await fetch('/api/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

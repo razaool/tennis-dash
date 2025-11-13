@@ -1,0 +1,54 @@
+{
+  "model_type": "XGBoost",
+  "version": "1.0",
+  "trained_at": "2025-11-10T13:25:44.845748",
+  "features": [
+    "surface_elo_diff",
+    "overall_elo_diff",
+    "p1_surface_wr_12mo",
+    "p2_surface_wr_12mo",
+    "surface_wr_diff_12mo",
+    "p1_surface_wr_career",
+    "p2_surface_wr_career",
+    "surface_wr_diff_career",
+    "p1_form_20",
+    "p2_form_20",
+    "form_diff_20",
+    "p1_surface_form_10",
+    "p2_surface_form_10",
+    "surface_form_diff_10",
+    "age_diff",
+    "height_diff",
+    "hand_matchup",
+    "h2h_surface_advantage",
+    "surface"
+  ],
+  "num_features": 19,
+  "training_samples": 52692,
+  "test_samples": 13174,
+  "performance": {
+    "train_accuracy": 0.719824641311774,
+    "test_accuracy": 0.6452861697282526,
+    "train_auc": 0.800333207180671,
+    "test_auc": 0.7030709189043081,
+    "cv_accuracy_mean": 0.6459613580704524,
+    "cv_accuracy_std": 0.0074886287521891024
+  },
+  "hyperparameters": {
+    "objective": "binary:logistic",
+    "eval_metric": [
+      "logloss",
+      "auc",
+      "error"
+    ],
+    "max_depth": 6,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 3,
+    "gamma": 0.1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0
+  }
+}
