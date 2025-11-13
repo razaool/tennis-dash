@@ -998,6 +998,101 @@ app.get('/api/players/recent-matches', async (req, res) => {
   }
 });
 
+// Highest ELO by surface
+app.get('/api/players/highest-elo-by-surface', cacheMiddleware('highest_elo_surface', 300), async (req, res) => {
+  try {
+    const surfaces = ['Grass', 'Clay', 'Hard'];
+    const result = {};
+
+    for (const surface of surfaces) {
+      const surfaceResult = await pool.query(`
+        SELECT 
+          p.name,
+          r.rating_value as elo_rating
+        FROM ratings r
+        JOIN players p ON r.player_id = p.id
+        WHERE r.rating_type = 'elo' AND r.surface = $1
+          AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = $1 GROUP BY player_id)
+        ORDER BY r.rating_value DESC
+        LIMIT 1
+      `, [surface]);
+
+      result[surface.toLowerCase()] = surfaceResult.rows[0] || null;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching highest ELO by surface:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Win streak leader
+app.get('/api/players/win-streak', cacheMiddleware('win_streak', 300), async (req, res) => {
+  try {
+    // Find player with longest current win streak
+    const result = await pool.query(`
+      WITH recent_matches AS (
+        SELECT 
+          CASE 
+            WHEN player1_id = winner_id THEN player1_id
+            WHEN player2_id = winner_id THEN player2_id
+            ELSE NULL
+          END as player_id,
+          winner_id,
+          match_date,
+          tournament_name
+        FROM matches
+        WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+        ORDER BY match_date DESC
+      ),
+      player_streaks AS (
+        SELECT 
+          player_id,
+          COUNT(*) as streak,
+          MAX(match_date) as last_win_date,
+          array_agg(DISTINCT tournament_name ORDER BY tournament_name) as tournaments
+        FROM (
+          SELECT 
+            player_id,
+            match_date,
+            tournament_name,
+            ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY match_date DESC) - 
+            ROW_NUMBER() OVER (PARTITION BY player_id, player_id = winner_id ORDER BY match_date DESC) as grp
+          FROM recent_matches
+          WHERE player_id IS NOT NULL
+        ) grouped
+        WHERE player_id IS NOT NULL
+        GROUP BY player_id, grp
+        HAVING COUNT(*) >= 3
+        ORDER BY streak DESC
+        LIMIT 1
+      )
+      SELECT 
+        p.name as player_name,
+        ps.streak as win_streak,
+        ps.last_win_date,
+        ps.tournaments
+      FROM player_streaks ps
+      JOIN players p ON ps.player_id = p.id
+    `);
+
+    if (result.rows.length === 0) {
+      return res.json({
+        player_name: null,
+        win_streak: 0,
+        last_win_date: null,
+        tournaments: []
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching win streak:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ============================================
 // MATCH DATA ENDPOINTS
 // ============================================
