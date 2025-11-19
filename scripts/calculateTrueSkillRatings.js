@@ -35,46 +35,24 @@ function getTournamentWeight(level) {
   return tournamentWeights[level] || 1.0;
 }
 
-// Player ratings cache
-const playerRatings = new Map(); // Stores { playerId: { overall: { mu, sigma }, hard: { mu, sigma }, ... } }
+// In-memory ratings cache
+const playerRatingsCache = new Map();
 
 function getPlayerRating(playerId, surface = null) {
-  if (!playerRatings.has(playerId)) {
-    playerRatings.set(playerId, {
-      overall: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Hard: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Clay: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Grass: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Carpet: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-    });
+  const key = surface ? `${playerId}_${surface}` : `${playerId}`;
+  if (!playerRatingsCache.has(key)) {
+    playerRatingsCache.set(key, { mu: INITIAL_MU, sigma: INITIAL_SIGMA });
   }
-  const player = playerRatings.get(playerId);
-  return surface ? player[surface] : player.overall;
+  return playerRatingsCache.get(key);
 }
 
 function setPlayerRating(playerId, mu, sigma, surface = null) {
-  if (!playerRatings.has(playerId)) {
-    playerRatings.set(playerId, {
-      overall: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Hard: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Clay: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Grass: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-      Carpet: { mu: INITIAL_MU, sigma: INITIAL_SIGMA },
-    });
-  }
-  const player = playerRatings.get(playerId);
-  if (surface) {
-    player[surface] = { mu, sigma };
-  } else {
-    player.overall = { mu, sigma };
-  }
+  const key = surface ? `${playerId}_${surface}` : `${playerId}`;
+  playerRatingsCache.set(key, { mu, sigma });
 }
 
-// Simplified TrueSkill update function
-function updateTrueSkill(player1, player2, winnerIsPlayer1, tournamentWeight = 1.0) {
-  const weightFactor = Math.sqrt(tournamentWeight);
-  
-  // Calculate performance variance
+function updateTrueSkill(player1, player2, winnerIsPlayer1, weightFactor = 1.0) {
+  // Performance variance for both players
   const perfVar1 = player1.sigma * player1.sigma + BETA * BETA;
   const perfVar2 = player2.sigma * player2.sigma + BETA * BETA;
   
@@ -103,15 +81,31 @@ function updateTrueSkill(player1, player2, winnerIsPlayer1, tournamentWeight = 1
   ];
 }
 
-async function saveTrueSkillRating(playerId, mu, sigma, matchId, surface = null) {
-  // Bounds checking
-  const boundedMu = isNaN(mu) ? INITIAL_MU : Math.max(Math.min(mu, 3000), 0);
-  const boundedSigma = isNaN(sigma) ? INITIAL_SIGMA : Math.max(Math.min(sigma, 1000), 10);
-
-  await pool.query(`
+async function batchInsertRatings(ratings) {
+  if (ratings.length === 0) return;
+  
+  // Build multi-row INSERT
+  const values = ratings.map((r, idx) => {
+    const base = idx * 7;
+    return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7})`;
+  }).join(',');
+  
+  const params = ratings.flatMap(r => [
+    r.playerId,
+    'trueskill',
+    r.mu,
+    r.sigma,
+    0, // volatility (not used in TrueSkill)
+    r.matchId,
+    null // surface (null for overall)
+  ]);
+  
+  const query = `
     INSERT INTO ratings (player_id, rating_type, rating_value, rating_deviation, volatility, match_id, surface)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-  `, [playerId, 'trueskill', boundedMu, boundedSigma, 0, matchId, surface]);
+    VALUES ${values}
+  `;
+  
+  await pool.query(query, params);
 }
 
 async function calculateTrueSkillRatings() {
@@ -136,13 +130,17 @@ async function calculateTrueSkillRatings() {
 
   console.log(`Processing ${matches.rows.length} matches...\n`);
 
+  // Batch insert buffer
+  const ratingsToInsert = [];
+  const BATCH_SIZE = 2000; // Max ~4000 ratings = 28,000 params (under PG limit)
+
   let processed = 0;
   const startTime = Date.now();
   
   // Set up 5-second updates
   const updateInterval = setInterval(() => {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const matchesPerSecond = processed / elapsed;
+    const matchesPerSecond = processed / (elapsed || 1);
     const remaining = matches.rows.length - processed;
     const eta = Math.floor(remaining / matchesPerSecond);
     
@@ -169,34 +167,56 @@ async function calculateTrueSkillRatings() {
     setPlayerRating(player1_id, newPlayer1.mu, newPlayer1.sigma, null);
     setPlayerRating(player2_id, newPlayer2.mu, newPlayer2.sigma, null);
 
-    await saveTrueSkillRating(player1_id, newPlayer1.mu, newPlayer1.sigma, matchId, null);
-    await saveTrueSkillRating(player2_id, newPlayer2.mu, newPlayer2.sigma, matchId, null);
+    // Add to batch buffer
+    const boundedMu1 = Math.max(Math.min(newPlayer1.mu, 3000), 0);
+    const boundedSigma1 = Math.max(Math.min(newPlayer1.sigma, 1000), 10);
+    const boundedMu2 = Math.max(Math.min(newPlayer2.mu, 3000), 0);
+    const boundedSigma2 = Math.max(Math.min(newPlayer2.sigma, 1000), 10);
+
+    ratingsToInsert.push({
+      playerId: player1_id,
+      mu: boundedMu1,
+      sigma: boundedSigma1,
+      matchId: matchId
+    });
+
+    ratingsToInsert.push({
+      playerId: player2_id,
+      mu: boundedMu2,
+      sigma: boundedSigma2,
+      matchId: matchId
+    });
 
     processed++;
+
+    // Batch insert every BATCH_SIZE matches
+    if (ratingsToInsert.length >= BATCH_SIZE * 2) {
+      await batchInsertRatings(ratingsToInsert);
+      ratingsToInsert.length = 0; // Clear buffer
+    }
   }
   
+  // Insert remaining ratings
+  if (ratingsToInsert.length > 0) {
+    await batchInsertRatings(ratingsToInsert);
+  }
+
   clearInterval(updateInterval);
 
   console.log('\n✓ Successfully calculated TrueSkill ratings for all matches\n');
 
   // Summary statistics
-  const summary = await pool.query(`
-    SELECT 
-      COUNT(*) as count,
-      AVG(rating_value) as avg_rating,
-      AVG(rating_deviation) as avg_deviation,
-      MAX(rating_value) as max_rating,
-      MIN(rating_value) as min_rating
-    FROM ratings
-    WHERE rating_type = 'trueskill' AND surface IS NULL
-  `);
+  const ratingValues = Array.from(playerRatingsCache.values()).map(r => r.mu);
+  const avgRating = Math.round(ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length);
+  const avgDeviation = Math.round(Array.from(playerRatingsCache.values()).map(r => r.sigma).reduce((a, b) => a + b, 0) / playerRatingsCache.size);
+  const minRating = Math.round(Math.min(...ratingValues));
+  const maxRating = Math.round(Math.max(...ratingValues));
 
   console.log('TrueSkill Rating Summary:');
-  const row = summary.rows[0];
-  console.log(`  Overall: ${row.count} ratings`);
-  console.log(`    Avg Rating: ${Math.round(row.avg_rating)}`);
-  console.log(`    Avg Deviation: ${Math.round(row.avg_deviation)}`);
-  console.log(`    Range: ${Math.round(row.min_rating)} - ${Math.round(row.max_rating)}`);
+  console.log(`  Overall: ${ratingsToInsert.length} ratings`);
+  console.log(`    Avg Rating: ${avgRating}`);
+  console.log(`    Avg Deviation: ${avgDeviation}`);
+  console.log(`    Range: ${minRating} - ${maxRating}`);
   console.log('');
 
   console.log('✓ TrueSkill calculation complete!\n');
