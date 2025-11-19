@@ -1,13 +1,18 @@
 // Calculate Glicko2 Ratings: Overall (tournament-weighted)
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'tennis_dash',
-  password: process.env.DB_PASSWORD || '',
-  port: process.env.DB_PORT || 5432,
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    })
+  : new Pool({
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'tennis_dash',
+      password: process.env.DB_PASSWORD || '',
+      port: process.env.DB_PORT || 5432,
+    });
 
 // Glicko2 constants
 const INITIAL_RATING = 1500;

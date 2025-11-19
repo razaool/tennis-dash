@@ -1,11 +1,17 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  user: 'razaool',
-  host: 'localhost',
-  database: 'tennis_dash',
-  port: 5432,
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    })
+  : new Pool({
+      user: process.env.DB_USER || 'razaool',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'tennis_dash',
+      password: process.env.DB_PASSWORD || '',
+      port: process.env.DB_PORT || 5432,
+    });
 
 // TrueSkill configuration
 const INITIAL_MU = 1500;
