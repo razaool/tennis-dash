@@ -349,10 +349,8 @@ app.get('/api/season/progression', cacheMiddleware('season_progression', 1800), 
       start_date: row.start_date
     }));
     // Known remaining tournaments not in the database yet
-    const remainingTournaments = [
-      'Nitto ATP Finals',
-      'Next Gen ATP Finals presented by PIF'
-    ];
+    // Season complete as of Nov 16, 2025 (ATP Finals)
+    const remainingTournaments = [];
     
     const totalTournaments = tournaments.length + remainingTournaments.length;
     
