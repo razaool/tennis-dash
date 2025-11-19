@@ -330,7 +330,7 @@ app.get('/api/season/stats', cacheMiddleware('season_stats', 600), async (req, r
  *       200:
  *         description: Season progression data
  */
-app.get('/api/season/progression', cacheMiddleware('season_progression', 1800), async (req, res) => {
+app.get('/api/season/progression', async (req, res) => {
   try {
     // Derive tournaments from matches to ensure imported events are included
     const tournamentsResult = await pool.query(`
