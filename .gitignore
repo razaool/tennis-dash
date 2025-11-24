@@ -2,4 +2,25 @@ node_modules/
 .env
 *.log
 .DS_Store
+
+# Backups
+backups/
 tennis_dash_production_backup.sql
+
+# Logs (keep directory, ignore contents)
+logs/
+
+# ML Models (only in ml-service/)
+/model_metadata.json
+/scaler.pkl
+/xgboost_model.pkl
+
+# Railway/Vercel configs (only needed in specific directories)
+/Procfile
+/railway.json
+/nixpacks.toml
+/requirements.txt
+
+# Data files (keep in data-source/)
+/*.csv
+ml_features.csv
