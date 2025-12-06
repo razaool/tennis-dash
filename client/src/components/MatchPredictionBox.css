@@ -428,3 +428,204 @@
   }
 }
 
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .match-prediction-box {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .match-prediction-box h2 {
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .prediction-controls {
+    gap: 0.75rem;
+  }
+  
+  .player-select-wrapper {
+    min-width: 100%;
+  }
+  
+  .player-select-wrapper label {
+    font-size: 0.6rem;
+    margin-bottom: 0.35rem;
+  }
+  
+  .player-search-input {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.7rem;
+    min-height: 44px; /* Touch-friendly */
+  }
+  
+  .dropdown-list {
+    max-height: 150px;
+  }
+  
+  .dropdown-item {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.7rem;
+    min-height: 44px; /* Touch-friendly */
+    display: flex;
+    align-items: center;
+  }
+  
+  .vs-indicator {
+    font-size: 0.8rem;
+    padding: 0.5rem 0;
+  }
+  
+  .surface-select-wrapper {
+    width: 100%;
+  }
+  
+  .surface-select-wrapper label {
+    font-size: 0.6rem;
+    margin-bottom: 0.35rem;
+  }
+  
+  .surface-buttons {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .surface-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.65rem;
+    min-height: 44px; /* Touch-friendly */
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .predict-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.7rem;
+    min-height: 48px; /* Touch-friendly */
+    width: 100%;
+    align-self: stretch;
+  }
+  
+  .error-message {
+    font-size: 0.65rem;
+    padding: 0.75rem;
+  }
+  
+  .prediction-results {
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 1rem;
+  }
+  
+  .prediction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .matchup {
+    font-size: 0.7rem;
+  }
+  
+  .winner-badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.65rem;
+  }
+  
+  .probability-section {
+    gap: 0.75rem;
+  }
+  
+  .probability-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+  
+  .player-name {
+    flex: none;
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .probability-bar-container {
+    height: 32px; /* Larger on mobile */
+  }
+  
+  .probability-text {
+    font-size: 0.7rem;
+  }
+  
+  .key-factors {
+    padding: 0.75rem;
+  }
+  
+  .key-factors h3 {
+    font-size: 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .factors-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .factor-item {
+    gap: 0.25rem;
+  }
+  
+  .factor-label {
+    font-size: 0.6rem;
+  }
+  
+  .factor-value {
+    font-size: 0.75rem;
+  }
+  
+  .stats-comparison {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stats-column {
+    padding: 0.75rem;
+  }
+  
+  .stats-column h4 {
+    font-size: 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .stat-row {
+    padding: 0.35rem 0;
+    font-size: 0.65rem;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 479px) {
+  .match-prediction-box {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .match-prediction-box h2 {
+    font-size: 0.7rem;
+  }
+  
+  .player-search-input {
+    font-size: 0.65rem;
+    padding: 0.5rem 0.6rem;
+  }
+  
+  .surface-btn {
+    font-size: 0.6rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .predict-btn {
+    font-size: 0.65rem;
+    padding: 0.65rem 1.25rem;
+  }
+}
+
