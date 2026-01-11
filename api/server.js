@@ -334,12 +334,12 @@ app.get('/api/season/progression', async (req, res) => {
   try {
     // Derive tournaments from matches to ensure imported events are included
     const tournamentsResult = await pool.query(`
-      SELECT 
+      SELECT
         tournament_name,
         MIN(match_date) AS start_date
       FROM matches
-      WHERE (EXTRACT(YEAR FROM match_date) = 2025)
-         OR (EXTRACT(YEAR FROM match_date) = 2024 AND EXTRACT(MONTH FROM match_date) = 12)
+      WHERE EXTRACT(YEAR FROM match_date) = 2026
+         OR (EXTRACT(YEAR FROM match_date) = 2025 AND EXTRACT(MONTH FROM match_date) = 12)
       GROUP BY tournament_name
       ORDER BY MIN(match_date) ASC
     `);
@@ -349,8 +349,52 @@ app.get('/api/season/progression', async (req, res) => {
       start_date: row.start_date
     }));
     // Known remaining tournaments not in the database yet
-    // Season complete as of Nov 16, 2025 (ATP Finals)
-    const remainingTournaments = [];
+    const remainingTournaments = [
+      'Australian Open',
+      'Copenhagen',
+      'Doha',
+      'Montpellier',
+      'Auckland',
+      'Buenos Aires',
+      'Delray Beach',
+      'Los Cabos',
+      'Rotterdam',
+      'Qatar ExxonMobil Open',
+      'ATP 500 Dallas',
+      'Rio Open',
+      'ATP 500 Acapulco',
+      'Indian Wells',
+      'Miami Open',
+      'Monte Carlo Masters',
+      'Barcelona Open',
+      'BMW Open',
+      'Madrid Open',
+      'Internazionali BNL d Italia',
+      'Lyon Open',
+      'Roland Garros',
+      'BOSS Open',
+      'Gerry Weber Open',
+      'Queen\'s Club Championships',
+      'Halle Open',
+      'Wimbledon',
+      'Swiss Open Gstaad',
+      'ATP 500 Hamburg',
+      'Nordic Open',
+      'Citi Open',
+      'National Bank Open',
+      'Western & Southern Open',
+      'US Open',
+      'Moselle Open',
+      'ATP 500 Chengdu',
+      'China Open',
+      'Japan Open',
+      'Shanghai Masters',
+      'European Open',
+      'Stockholm Open',
+      'Erste Bank Open',
+      'Paris Masters',
+      'ATP Finals'
+    ];
     
     const totalTournaments = tournaments.length + remainingTournaments.length;
     
@@ -358,15 +402,15 @@ app.get('/api/season/progression', async (req, res) => {
     const latestMatchResult = await pool.query(`
       SELECT MAX(match_date) as latest_match
       FROM matches
-      WHERE EXTRACT(YEAR FROM match_date) = 2025
-         OR EXTRACT(YEAR FROM match_date) = 2024 AND EXTRACT(MONTH FROM match_date) = 12
+      WHERE EXTRACT(YEAR FROM match_date) = 2026
+         OR EXTRACT(YEAR FROM match_date) = 2025 AND EXTRACT(MONTH FROM match_date) = 12
     `);
-    
+
     const latestMatchDate = latestMatchResult.rows[0].latest_match
       ? new Date(latestMatchResult.rows[0].latest_match)
       : (tournaments.length > 0 ? new Date(tournaments[tournaments.length - 1].start_date) : new Date());
-    
-    const startOfYear = new Date('2025-01-01');
+
+    const startOfYear = new Date('2026-01-01');
     
     // Generate weekly progression data points
     const progressionData = [];
