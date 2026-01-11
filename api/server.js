@@ -309,7 +309,7 @@ app.get('/api/players/head-to-head', async (req, res) => {
  */
 app.get('/api/season/stats', cacheMiddleware('season_stats', 600), async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM season_stats WHERE season_year = 2025');
+    const result = await pool.query('SELECT * FROM season_stats WHERE season_year = 2026');
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Season stats not found' });
     }
