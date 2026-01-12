@@ -65,18 +65,43 @@ async function findPlayerByAbbreviatedName(abbrevName) {
     firstInitial = parts[parts.length - 1].replace('.', '');
   }
   
-  // Try multiple search patterns
+  // Try multiple search patterns, prioritizing active players
   const queries = [
-    // Pattern 1: First initial + last name (e.g., "J% Sinner")
-    `SELECT id, name FROM players WHERE name ILIKE '${firstInitial}% ${lastName}' LIMIT 1`,
-    // Pattern 2: Last name + first initial (e.g., "Sinner J%")
-    `SELECT id, name FROM players WHERE name ILIKE '% ${lastName}' AND name ILIKE '${firstInitial}%' LIMIT 1`,
-    // Pattern 3: Last name only (e.g., "% Sinner")
-    `SELECT id, name FROM players WHERE name ILIKE '% ${lastName}' OR name ILIKE '${lastName} %' LIMIT 1`,
-    // Pattern 4: Contains last name parts
-    `SELECT id, name FROM players WHERE name ILIKE '%${lastName.split(' ')[0]}%' AND name ILIKE '%${lastName.split(' ').pop()}%' LIMIT 1`,
-    // Pattern 5: Exact match
-    `SELECT id, name FROM players WHERE name ILIKE '${abbrevName}' LIMIT 1`
+    // Pattern 1: First initial + last name (e.g., "J% Sinner") - prioritize recently active
+    `SELECT p.id, p.name FROM players p
+     LEFT JOIN matches m ON (p.id = m.player1_id OR p.id = m.player2_id)
+     WHERE p.name ILIKE '${firstInitial}% ${lastName}'
+     GROUP BY p.id, p.name
+     ORDER BY MAX(m.match_date) DESC NULLS LAST
+     LIMIT 1`,
+    // Pattern 2: Last name + first initial (e.g., "Sinner J%") - prioritize recently active
+    `SELECT p.id, p.name FROM players p
+     LEFT JOIN matches m ON (p.id = m.player1_id OR p.id = m.player2_id)
+     WHERE p.name ILIKE '% ${lastName}' AND p.name ILIKE '${firstInitial}%'
+     GROUP BY p.id, p.name
+     ORDER BY MAX(m.match_date) DESC NULLS LAST
+     LIMIT 1`,
+    // Pattern 3: Last name only (e.g., "% Sinner") - prioritize recently active
+    `SELECT p.id, p.name FROM players p
+     LEFT JOIN matches m ON (p.id = m.player1_id OR p.id = m.player2_id)
+     WHERE p.name ILIKE '% ${lastName}' OR p.name ILIKE '${lastName} %'
+     GROUP BY p.id, p.name
+     ORDER BY MAX(m.match_date) DESC NULLS LAST
+     LIMIT 1`,
+    // Pattern 4: Contains last name parts - prioritize recently active
+    `SELECT p.id, p.name FROM players p
+     LEFT JOIN matches m ON (p.id = m.player1_id OR p.id = m.player2_id)
+     WHERE p.name ILIKE '%${lastName.split(' ')[0]}%' AND p.name ILIKE '%${lastName.split(' ').pop()}%'
+     GROUP BY p.id, p.name
+     ORDER BY MAX(m.match_date) DESC NULLS LAST
+     LIMIT 1`,
+    // Pattern 5: Exact match - prioritize recently active
+    `SELECT p.id, p.name FROM players p
+     LEFT JOIN matches m ON (p.id = m.player1_id OR p.id = m.player2_id)
+     WHERE p.name ILIKE '${abbrevName}'
+     GROUP BY p.id, p.name
+     ORDER BY MAX(m.match_date) DESC NULLS LAST
+     LIMIT 1`
   ];
   
   for (const query of queries) {
