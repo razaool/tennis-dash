@@ -1,12 +1,14 @@
 [phases.setup]
-nixPkgs = ["nodejs_18", "npm-9_x"]
-
-[phases.install]
-cmds = ["npm ci --production"]
+nixPkgs = ["python39", "nodejs-20_x", "gcc", "gfortran"]
 
 [phases.build]
-cmds = ["echo 'Skipping frontend build - API only'"]
+cmds = ["npm install"]
+
+[phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install xgboost pandas psycopg2-binary numpy scikit-learn"
+]
 
 [start]
 cmd = "node api/server.js"
-
