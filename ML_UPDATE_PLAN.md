@@ -17,7 +17,7 @@
 ### Phase 1: Extract Features from Updated Database
 **Command:**
 ```bash
-DATABASE_URL="postgres://postgres:dVgspSOBlBoNVQzWRkSeydRWPhZUaXvS@metro.proxy.rlwy.net:44222/railway" python scripts/ml_extract_features.py
+DATABASE_URL="your_production_database_url" python scripts/ml_extract_features.py
 ```
 
 **What it does:**

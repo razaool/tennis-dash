@@ -24,3 +24,6 @@ logs/
 # Data files (keep in data-source/)
 /*.csv
 ml_features.csv
+
+# Claude Code settings (may contain sensitive data)
+.claude/
