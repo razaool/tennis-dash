@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python39", "nodejs-20_x", "gcc", "gfortran"]
+nixPkgs = ["python39", "nodejs-20_x", "gcc"]
 
 [phases.build]
 cmds = ["npm install"]
