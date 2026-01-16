@@ -67,9 +67,11 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
                 stroke="#707070"
                 style={{ fontSize: '0.45rem' }}
                 tickFormatter={formatDate}
-                ticks={axisTicks.map(index => data[index]?.date).filter(Boolean)}
+                ticks={['2026-01-01', '2026-04-01', '2026-07-01', '2026-10-01', '2026-12-31']}
                 interval={0}
                 height={25}
+                domain={['2026-01-01', '2026-12-31']}
+                type="category"
               />
               <YAxis
                 stroke="#707070"

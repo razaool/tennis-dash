@@ -424,6 +424,9 @@ app.get('/api/season/progression', async (req, res) => {
       // Stop if we've gone past the end of year
       if (weekDate > endOfYear) break;
 
+      // Only show progress up to the current/latest match date (don't extend line to future)
+      if (weekDate > latestMatchDate) break;
+
       // Count tournaments completed by this week
       let completedCount = 0;
       for (const tournament of tournaments) {
