@@ -38,6 +38,17 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
     return date.toLocaleDateString('en-US', { month: 'short' });
   };
 
+  // Convert data to use day-of-year as X-axis value
+  const chartData = data.map(item => {
+    const date = new Date(item.date);
+    const startOfYear = new Date('2026-01-01');
+    const dayOfYear = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+    return {
+      ...item,
+      dayOfYear
+    };
+  });
+
   if (loading) {
     return (
       <div className={className}>
@@ -54,21 +65,26 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
       <h2 style={{ marginBottom: '0' }}>SEASON PROGRESS</h2>
 
       {/* Chart */}
-      {data.length > 0 ? (
+      {chartData.length > 0 ? (
         <div style={{ width: '100%', height: '120px', marginTop: '0.25rem', position: 'relative' }}>
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+            <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1a1f1f" />
               <XAxis
-                dataKey="date"
+                dataKey="dayOfYear"
                 stroke="#707070"
                 style={{ fontSize: '0.45rem' }}
-                tickFormatter={formatDate}
-                ticks={['2026-01-01', '2026-04-01', '2026-07-01', '2026-10-01', '2026-12-31']}
+                tickFormatter={(value) => {
+                  const date = new Date('2026-01-01');
+                  date.setDate(date.getDate() + value);
+                  return formatDate(date.toISOString().split('T')[0]);
+                }}
+                ticks={[0, 91, 182, 273, 364]}
                 interval={0}
                 height={25}
-                domain={['2026-01-01', '2026-12-31']}
-                type="category"
+                domain={[0, 364]}
+                type="number"
+                scale="linear"
               />
               <YAxis
                 stroke="#707070"
@@ -84,8 +100,9 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
                   borderRadius: '4px',
                   fontSize: '0.5rem'
                 }}
-                labelFormatter={(label) => {
-                  const date = new Date(label);
+                labelFormatter={(value) => {
+                  const date = new Date('2026-01-01');
+                  date.setDate(date.getDate() + value);
                   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 }}
                 formatter={(value: number) => [`${value.toFixed(1)}%`, 'Progress']}
@@ -109,7 +126,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
             color: '#00ff41',
             fontWeight: 'bold'
           }}>
-            {`${Math.round(data[data.length - 1].progress)}%`}
+            {`${Math.round(chartData[chartData.length - 1].progress)}%`}
           </div>
         </div>
       ) : (
