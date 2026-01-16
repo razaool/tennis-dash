@@ -38,9 +38,6 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
     return date.toLocaleDateString('en-US', { month: 'short' });
   };
 
-  // Custom tick formatter to show months sparingly
-  const axisTicks = [0, 12, 24, 36, 48]; // Show every 12th week (quarterly)
-
   if (loading) {
     return (
       <div className={className}>
