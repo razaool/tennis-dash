@@ -411,18 +411,20 @@ app.get('/api/season/progression', async (req, res) => {
       : (tournaments.length > 0 ? new Date(tournaments[tournaments.length - 1].start_date) : new Date());
 
     const startOfYear = new Date('2026-01-01');
-    
-    // Generate weekly progression data points
+    const endOfYear = new Date('2026-12-31');
+
+    // Generate weekly progression data points for the entire year
     const progressionData = [];
-    
-    // For each week from start of year to latest match date
+
+    // For each week of the year (0 to 52)
     for (let week = 0; week <= 52; week++) {
       const weekDate = new Date(startOfYear);
       weekDate.setDate(weekDate.getDate() + (week * 7));
-      
-      if (weekDate > latestMatchDate) break;
-      
-      // Count tournaments completed by this week (excluding future ones)
+
+      // Stop if we've gone past the end of year
+      if (weekDate > endOfYear) break;
+
+      // Count tournaments completed by this week
       let completedCount = 0;
       for (const tournament of tournaments) {
         const tournamentDate = new Date(tournament.start_date);
@@ -430,26 +432,14 @@ app.get('/api/season/progression', async (req, res) => {
           completedCount++;
         }
       }
-      
+
+      // Calculate progress percentage
       const progress = (completedCount / totalTournaments) * 100;
-      
+
       progressionData.push({
         date: weekDate.toISOString().split('T')[0],
-        progress: Math.min(progress, 100),
+        progress: progress,
         completed_tournaments: completedCount,
-        total_tournaments: totalTournaments
-      });
-    }
-    
-    // Add final point with all tournaments completed up to latest match date
-    if (progressionData.length > 0) {
-      const finalCompletedCount = tournaments.length; // All tournaments in database are completed
-      const finalProgress = (finalCompletedCount / totalTournaments) * 100;
-      
-      progressionData.push({
-        date: latestMatchDate.toISOString().split('T')[0],
-        progress: finalProgress,
-        completed_tournaments: finalCompletedCount,
         total_tournaments: totalTournaments
       });
     }
