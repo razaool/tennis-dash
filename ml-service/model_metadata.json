@@ -1,7 +1,7 @@
 {
   "model_type": "XGBoost",
   "version": "1.0",
-  "trained_at": "2026-01-12T11:35:47.785062",
+  "trained_at": "2026-01-19T14:38:32.268802",
   "features": [
     "surface_elo_diff",
     "overall_elo_diff",
@@ -24,15 +24,15 @@
     "surface"
   ],
   "num_features": 19,
-  "training_samples": 52751,
-  "test_samples": 13188,
+  "training_samples": 52794,
+  "test_samples": 13199,
   "performance": {
-    "train_accuracy": 0.7200811359026369,
-    "test_accuracy": 0.6454352441613588,
-    "train_auc": 0.8013213774054222,
-    "test_auc": 0.7038114634053001,
-    "cv_accuracy_mean": 0.6454473918377046,
-    "cv_accuracy_std": 0.0038384085213570237
+    "train_accuracy": 0.7174868356252605,
+    "test_accuracy": 0.6444427608152132,
+    "train_auc": 0.7978093978948493,
+    "test_auc": 0.6989526214255636,
+    "cv_accuracy_mean": 0.6490699092898667,
+    "cv_accuracy_std": 0.0029175265899919335
   },
   "hyperparameters": {
     "objective": "binary:logistic",
