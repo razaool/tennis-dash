@@ -18,5 +18,5 @@ COPY . .
 # Expose port
 EXPOSE 5000
 
-# Run gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT", "--workers", "2", "--timeout", "120"]
+# Run gunicorn with shell variable substitution
+CMD gunicorn app:app --bind 0.0.0.0:${PORT} --workers 2 --timeout 120
