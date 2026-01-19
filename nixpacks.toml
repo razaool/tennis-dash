@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python39", "nodejs-20_x", "gcc"]
+nixPkgs = ["python39", "nodejs", "gcc"]
 
 [phases.build]
 cmds = ["npm install"]
