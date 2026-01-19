@@ -1904,35 +1904,18 @@ app.post('/api/match-prediction', async (req, res) => {
     }
 
     // Call Python prediction script
-    // Try to find Python - try multiple variants
-    const { execSync } = require('child_process');
-    const pythonVariants = ['python', 'python3', 'python3.9'];
-    let pythonCmd = null;
+    // On Railway with nixpkgs, python is available via shell
+    // Use shell: true to ensure PATH is set correctly
+    const pythonCmd = 'python3 || python3.9 || python';
 
-    for (const variant of pythonVariants) {
-      try {
-        execSync(`which ${variant}`, { stdio: 'ignore' });
-        pythonCmd = variant;
-        break;
-      } catch (e) {
-        // Try next variant
-      }
-    }
-
-    if (!pythonCmd) {
-      return res.status(500).json({
-        success: false,
-        error: 'Python not found on system'
-      });
-    }
-    
     const pythonProcess = spawn(pythonCmd, [
       'scripts/ml_predict.py',
       player1_name,
       player2_name,
       surface
     ], {
-      cwd: __dirname + '/..'
+      cwd: __dirname + '/..',
+      shell: true
     });
     
     let output = '';
