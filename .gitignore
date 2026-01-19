@@ -17,6 +17,8 @@ logs/
 
 # Railway/Vercel configs (only needed in specific directories)
 /Procfile
+/railway.json
+/nixpacks.toml
 /requirements.txt
 
 # Data files (keep in data-source/)

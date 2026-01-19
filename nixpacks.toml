@@ -1,5 +1,14 @@
+[phases.setup]
+nixPkgs = ["python39", "nodejs-20_x", "gcc"]
+
 [phases.build]
-cmd = "npm install --production --ignore-scripts"
+cmds = ["npm install"]
+
+[phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install xgboost pandas psycopg2-binary numpy scikit-learn"
+]
 
 [start]
 cmd = "node api/server.js"
