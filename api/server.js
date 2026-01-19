@@ -3,7 +3,6 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const { Pool } = require('pg');
-const { spawn } = require('child_process');
 const redis = require('redis');
 
 const app = express();
@@ -1886,7 +1885,7 @@ app.get('/api/analytics/surfaces/strength', async (req, res) => {
 app.post('/api/match-prediction', async (req, res) => {
   try {
     const { player1_name, player2_name, surface } = req.body;
-    
+
     // Validate input
     if (!player1_name || !player2_name || !surface) {
       return res.status(400).json({
@@ -1894,7 +1893,7 @@ app.post('/api/match-prediction', async (req, res) => {
         error: 'Missing required fields: player1_name, player2_name, surface'
       });
     }
-    
+
     // Validate surface
     if (!['Hard', 'Clay', 'Grass'].includes(surface)) {
       return res.status(400).json({
@@ -1903,51 +1902,39 @@ app.post('/api/match-prediction', async (req, res) => {
       });
     }
 
-    // Call Python prediction script
-    // Find any python3 executable in nix store
-    const pythonCmd = `PYTHON=$(find /nix/store -type f -name "python3*" 2>/dev/null | grep -E "/python3[^/]*$" | head -1) && [ -n "$PYTHON" ] && "$PYTHON" scripts/ml_predict.py "${player1_name}" "${player2_name}" "${surface}"`;
+    // Call external ML prediction service
+    const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5000';
 
-    const pythonProcess = spawn(pythonCmd, [], {
-      cwd: __dirname + '/..',
-      shell: true
-    });
-    
-    let output = '';
-    let errorOutput = '';
-    
-    pythonProcess.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    pythonProcess.stderr.on('data', (data) => {
-      errorOutput += data.toString();
-    });
-    
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        console.error('Python script exited with code:', code);
-        console.error('Python script error:', errorOutput);
-        console.error('Python script output:', output);
-        return res.status(500).json({
-          success: false,
-          error: 'Prediction failed',
-          details: errorOutput || `Exit code: ${code}`
-        });
+    try {
+      const response = await fetch(`${ML_SERVICE_URL}/predict`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          player1_name,
+          player2_name,
+          surface
+        }),
+      });
+
+      const data = await response.json();
+
+      // Forward the ML service response
+      if (response.ok) {
+        res.json(data);
+      } else {
+        res.status(response.status).json(data);
       }
-      
-      try {
-        const result = JSON.parse(output);
-        res.json(result);
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        console.error('Output:', output);
-        res.status(500).json({
-          success: false,
-          error: 'Failed to parse prediction result'
-        });
-      }
-    });
-    
+    } catch (fetchError) {
+      console.error('ML service unavailable:', fetchError.message);
+      res.status(503).json({
+        success: false,
+        error: 'ML prediction service unavailable',
+        details: `Unable to reach ML service at ${ML_SERVICE_URL}`
+      });
+    }
+
   } catch (error) {
     console.error('Error in match prediction:', error);
     res.status(500).json({
