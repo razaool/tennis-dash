@@ -1902,25 +1902,28 @@ app.post('/api/match-prediction', async (req, res) => {
         error: 'Invalid surface. Must be one of: Hard, Clay, Grass'
       });
     }
-    
+
     // Call Python prediction script
-    // Try to find Python - Railway uses 'python', local dev uses 'python3'
+    // Try to find Python - try multiple variants
     const { execSync } = require('child_process');
-    let pythonCmd = 'python3'; // default
-    try {
-      execSync('which python', { stdio: 'ignore' });
-      pythonCmd = 'python';
-    } catch (e) {
-      // python not found, try python3
+    const pythonVariants = ['python', 'python3', 'python3.9'];
+    let pythonCmd = null;
+
+    for (const variant of pythonVariants) {
       try {
-        execSync('which python3', { stdio: 'ignore' });
-        pythonCmd = 'python3';
-      } catch (e2) {
-        return res.status(500).json({
-          success: false,
-          error: 'Python not found on system'
-        });
+        execSync(`which ${variant}`, { stdio: 'ignore' });
+        pythonCmd = variant;
+        break;
+      } catch (e) {
+        // Try next variant
       }
+    }
+
+    if (!pythonCmd) {
+      return res.status(500).json({
+        success: false,
+        error: 'Python not found on system'
+      });
     }
     
     const pythonProcess = spawn(pythonCmd, [
