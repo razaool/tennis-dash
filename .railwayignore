@@ -5,4 +5,9 @@ data-source/*.csv
 data-source/atp_*.csv
 temp_*.log
 client/
+ml-service/
+backups/
+logs/
+data-export/
+*.dump
 

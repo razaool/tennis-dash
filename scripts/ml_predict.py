@@ -6,6 +6,7 @@ Takes player names and surface, returns prediction with probabilities
 
 import sys
 import json
+import os
 import joblib
 import numpy as np
 import psycopg2
@@ -13,6 +14,11 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 def get_db_connection():
+    """Get database connection using Railway DATABASE_URL or fallback to local config"""
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        return psycopg2.connect(database_url, sslmode='require')
+    # Fallback to local development
     return psycopg2.connect(
         dbname="tennis_dash",
         user="razaool",
