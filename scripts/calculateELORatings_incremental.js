@@ -218,6 +218,14 @@ async function calculateIncrementalELO() {
   console.log('\n');
   console.log(`✅ Successfully calculated ELO ratings for ${processed} matches`);
   console.log(`⏱️  Time elapsed: ${Math.floor((Date.now() - startTime) / 1000)}s\n`);
+
+  // Create ranking snapshots for ELO (overall + surfaces)
+  console.log('Creating ranking snapshots for ELO...');
+  const surfaces = [null, 'Hard', 'Clay', 'Grass'];
+  for (const surface of surfaces) {
+    await pool.query('SELECT create_ranking_snapshot($1, $2)', ['elo', surface]);
+  }
+  console.log('✓ Created ranking snapshots for ELO\n');
 }
 
 async function main() {

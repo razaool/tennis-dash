@@ -220,6 +220,11 @@ async function calculateTrueSkillRatings() {
   console.log('');
 
   console.log('✓ TrueSkill calculation complete!\n');
+
+  // Create ranking snapshot for TrueSkill
+  console.log('Creating ranking snapshot for TrueSkill...');
+  await pool.query('SELECT create_ranking_snapshot($1, $2)', ['trueskill', null]);
+  console.log('✓ Created ranking snapshot for TrueSkill\n');
 }
 
 async function main() {

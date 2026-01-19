@@ -212,8 +212,13 @@ async function calculateGlicko2Ratings() {
   console.log(`    Avg Deviation: ${avgDeviation}`);
   console.log(`    Avg Volatility: ${avgVolatility}`);
   console.log(`    Range: ${minRating} - ${maxRating}\n`);
-  
+
   console.log('✓ Glicko2 calculation complete!\n');
+
+  // Create ranking snapshot for Glicko2
+  console.log('Creating ranking snapshot for Glicko2...');
+  await pool.query('SELECT create_ranking_snapshot($1, $2)', ['glicko2', null]);
+  console.log('✓ Created ranking snapshot for Glicko2\n');
 }
 
 async function batchInsertRatings(ratings) {

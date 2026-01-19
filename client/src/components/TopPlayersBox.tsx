@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import MovementIndicator from './MovementIndicator';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -11,6 +12,9 @@ interface Player {
   rating_value: number;
   rating_deviation?: number;
   win_percentage_2025?: number;
+  current_rank?: number;
+  rank_change?: number;
+  baseline_date?: string;
 }
 
 interface TopPlayersBoxProps {
@@ -146,6 +150,26 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
     return `rgb(${red}, ${green}, 0)`;
   };
 
+  const formatBaselineDate = (dateString: string | undefined): string => {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Updated: Today';
+    if (diffDays === 1) return 'Updated: Yesterday';
+    if (diffDays < 7) return `Updated: ${diffDays} days ago`;
+
+    // Format as "Jan 12, 2026"
+    return `Updated: ${date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })}`;
+  };
+
   if (loading) {
     return (
       <div className={className}>
@@ -247,19 +271,27 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
         )}
       </div>
 
+      {/* Baseline Timestamp */}
+      {players.length > 0 && players[0].baseline_date && (
+        <div className="baseline-timestamp" style={{ fontSize: '0.7rem', color: '#888', marginTop: '0.25rem', fontWeight: 500 }}>
+          {formatBaselineDate(players[0].baseline_date)}
+        </div>
+      )}
+
       {/* Players List */}
       {/* Header Row */}
-      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.65rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 3rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.65rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
         <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'right' }}>Age</div>
         <div style={{ textAlign: 'right' }}>Win%</div>
         <div style={{ textAlign: 'right' }}>Rating</div>
         {ratingSystem !== 'elo' && <div style={{ textAlign: 'right' }}>RD</div>}
+        <div style={{ textAlign: 'center' }}>Move</div>
       </div>
       <div className="players-list">
         {players.map((player, index) => (
-          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem' }}>
+          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 3rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem 3rem' }}>
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
               <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -279,6 +311,9 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
             {ratingSystem !== 'elo' && <div className="player-rating" style={{ minWidth: '3rem' }}>
               {`±${Math.round(player.rating_deviation || 0).toString()}`}
             </div>}
+            <div className="player-movement" style={{ textAlign: 'center' }}>
+              <MovementIndicator change={player.rank_change} />
+            </div>
           </div>
         ))}
       </div>
