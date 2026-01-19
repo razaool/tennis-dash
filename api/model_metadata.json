@@ -1,7 +1,7 @@
 {
   "model_type": "XGBoost",
   "version": "1.0",
-  "trained_at": "2026-01-12T11:35:47.785062",
+  "trained_at": "2026-01-19T00:14:31.637835",
   "features": [
     "surface_elo_diff",
     "overall_elo_diff",

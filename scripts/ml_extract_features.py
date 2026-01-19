@@ -11,9 +11,29 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import time
 import sys
+import os
 
 # Database connection
 def get_db_connection():
+    # Use DATABASE_URL if available (Railway production), otherwise localhost
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        # Parse DATABASE_URL format: postgresql://user:password@host:port/dbname
+        import re
+        match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)', database_url)
+        if match:
+            user, password, host, port, dbname = match.groups()
+            return psycopg2.connect(
+                dbname=dbname,
+                user=user,
+                password=password,
+                host=host,
+                port=int(port)
+            )
+        # If parsing fails, try direct connection
+        return psycopg2.connect(database_url)
+
+    # Fallback to localhost
     return psycopg2.connect(
         dbname="tennis_dash",
         user="razaool",
