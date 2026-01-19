@@ -1904,14 +1904,12 @@ app.post('/api/match-prediction', async (req, res) => {
     }
 
     // Call Python prediction script
-    // Python is symlinked to /usr/local/bin/python3 during build
-    const pythonProcess = spawn('python3', [
-      'scripts/ml_predict.py',
-      player1_name,
-      player2_name,
-      surface
-    ], {
-      cwd: __dirname + '/..'
+    // Find any python3 executable in nix store
+    const pythonCmd = `PYTHON=$(find /nix/store -type f -name "python3*" 2>/dev/null | grep -E "/python3[^/]*$" | head -1) && [ -n "$PYTHON" ] && "$PYTHON" scripts/ml_predict.py "${player1_name}" "${player2_name}" "${surface}"`;
+
+    const pythonProcess = spawn(pythonCmd, [], {
+      cwd: __dirname + '/..',
+      shell: true
     });
     
     let output = '';
