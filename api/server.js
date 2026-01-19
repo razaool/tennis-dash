@@ -664,14 +664,14 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           (
             SELECT
               CASE
-                WHEN COUNT(*) = 0 THEN 0
+                WHEN COUNT(*) = 0 THEN NULL
                 ELSE ROUND(
                   COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100,
                   1
                 )
               END
             FROM matches
-            WHERE EXTRACT(YEAR FROM match_date) = 2026
+            WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
               AND (player1_id = p.id OR player2_id = p.id)
           ) as win_percentage_2025,
           ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn,
