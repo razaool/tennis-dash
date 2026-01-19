@@ -1904,8 +1904,8 @@ app.post('/api/match-prediction', async (req, res) => {
     }
 
     // Call Python prediction script
-    // Find Python in nix store and call script explicitly (not via shebang)
-    const pythonCmd = `PYTHON=$(find /nix/store -name "python3.9" -type f 2>/dev/null | head -1) && "$PYTHON" scripts/ml_predict.py "${player1_name}" "${player2_name}" "${surface}"`;
+    // Find any python3 executable in nix store
+    const pythonCmd = `PYTHON=$(find /nix/store -type f -name "python3*" 2>/dev/null | grep -E "/python3[^/]*$" | head -1) && [ -n "$PYTHON" ] && "$PYTHON" scripts/ml_predict.py "${player1_name}" "${player2_name}" "${surface}"`;
 
     const pythonProcess = spawn(pythonCmd, [], {
       cwd: __dirname + '/..',
