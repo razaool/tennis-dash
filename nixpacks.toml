@@ -2,7 +2,10 @@
 nixPkgs = ["python39", "nodejs", "gcc"]
 
 [phases.build]
-cmds = ["npm install"]
+cmds = [
+    "npm install",
+    "ln -sf $(find /nix/store -name python3.9 -type f 2>/dev/null | head -1) /usr/local/bin/python3 || true"
+]
 
 [phases.install]
 cmds = [
