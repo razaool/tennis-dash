@@ -1,8 +1,5 @@
-[build]
-cmd = "npm install --production"
+[phases.build]
+cmd = "npm install --production --ignore-scripts"
 
 [start]
 cmd = "node api/server.js"
-
-[variables]
-NODE_ENV = "production"
