@@ -1904,8 +1904,8 @@ app.post('/api/match-prediction', async (req, res) => {
     }
 
     // Call Python prediction script
-    // Use shell to find Python in nix store and set up PATH
-    const pythonCmd = `export PATH="/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && $(find /nix/store -name "python3.9" -type f 2>/dev/null | head -1) scripts/ml_predict.py "${player1_name}" "${player2_name}" "${surface}"`;
+    // Find Python in nix store and call script explicitly (not via shebang)
+    const pythonCmd = `PYTHON=$(find /nix/store -name "python3.9" -type f 2>/dev/null | head -1) && "$PYTHON" scripts/ml_predict.py "${player1_name}" "${player2_name}" "${surface}"`;
 
     const pythonProcess = spawn(pythonCmd, [], {
       cwd: __dirname + '/..',
