@@ -140,9 +140,8 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className }) =>
     setPrediction(null);
 
     try {
-      // Call ML prediction service (Railway Python service)
-      const ML_API_URL = process.env.REACT_APP_ML_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${ML_API_URL}/predict`, {
+      // Call Express API ML prediction endpoint
+      const response = await fetch(`${API_BASE_URL}/api/match-prediction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
