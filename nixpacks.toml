@@ -1,14 +1,8 @@
 [phases.setup]
-nixPkgs = ["python39", "nodejs", "gcc"]
+nixPkgs = ["nodejs", "gcc"]
 
 [phases.build]
 cmds = ["npm install"]
-
-[phases.install]
-cmds = [
-    "pip install --upgrade pip",
-    "pip install xgboost pandas psycopg2-binary numpy scikit-learn joblib"
-]
 
 [start]
 cmd = "node api/server.js"

@@ -9,10 +9,24 @@ import HighestELOBySurfaceBox from './components/HighestELOBySurfaceBox';
 import HeadToHeadBox from './components/HeadToHeadBox';
 import RecentMatchesBox from './components/RecentMatchesBox';
 import MatchPredictionBox from './components/MatchPredictionBox';
+import MobileDashboard from './components/mobile/MobileDashboard';
+import { useIsMobile } from './hooks/useMediaQuery';
 import './App.css';
 
 function App() {
+  const isMobile = useIsMobile();
 
+  // Mobile view with tabbed interface
+  if (isMobile) {
+    return (
+      <div className="App">
+        <MobileDashboard />
+        <Analytics />
+      </div>
+    );
+  }
+
+  // Desktop view with grid layout (unchanged)
   return (
     <div className="App">
       <main className="dashboard">

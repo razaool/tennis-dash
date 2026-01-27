@@ -1,0 +1,32 @@
+.mobile-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mobile-dashboard__content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 70px; /* Space for tab bar */
+}
+
+.mobile-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.mobile-tab-content > div {
+  min-height: fit-content;
+}
+
+/* Hide on desktop */
+@media (min-width: 769px) {
+  .mobile-dashboard {
+    display: none;
+  }
+}

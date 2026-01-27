@@ -459,18 +459,23 @@ h3 {
 
 /* Mobile screens (< 768px) */
 @media (max-width: 767px) {
+  /* Hide desktop dashboard - use MobileDashboard component instead */
+  .dashboard {
+    display: none;
+  }
+
   body, html {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y pinch-zoom; /* Better touch scrolling */
   }
-  
+
   .App {
     overflow: auto;
     height: auto;
     min-height: 100vh;
   }
-  
+
   .dashboard {
     padding: 0.5rem;
     gap: 0.75rem;

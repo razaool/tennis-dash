@@ -1,0 +1,64 @@
+.mobile-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  background: rgba(18, 18, 18, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+.mobile-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mobile-tab:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.mobile-tab__label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.mobile-tab--active {
+  color: #00d4aa;
+}
+
+.mobile-tab--active .mobile-tab__label {
+  font-weight: 600;
+}
+
+/* Add subtle glow effect for active tab */
+.mobile-tab--active {
+  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+}
+
+/* Hide on desktop */
+@media (min-width: 769px) {
+  .mobile-tab-bar {
+    display: none;
+  }
+}
