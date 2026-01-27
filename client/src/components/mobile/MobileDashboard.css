@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  font-size: 1.1rem; /* Base font size for mobile */
+  font-size: 1.4rem; /* Base font size for mobile - larger for iPhone */
 }
 
 .mobile-dashboard__content {
@@ -25,37 +25,75 @@
   min-height: fit-content;
 }
 
+/* Ensure chart containers have proper height on mobile */
+.mobile-tab-content > div:has(.recharts-wrapper) {
+  min-height: 280px;
+}
+
+.mobile-tab-content .recharts-wrapper {
+  min-height: 250px !important;
+}
+
 /* Scale up headings for mobile */
 .mobile-dashboard h2 {
-  font-size: 1.1rem !important;
+  font-size: 1.3rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .mobile-dashboard h3 {
-  font-size: 1rem !important;
+  font-size: 1.15rem !important;
 }
 
-/* Scale up text content for mobile */
+/* Scale up all text content for mobile - larger for iPhone readability */
 .mobile-dashboard .player-name,
 .mobile-dashboard .player-country,
 .mobile-dashboard .player-rating,
 .mobile-dashboard .player-age,
-.mobile-dashboard .player-rank {
-  font-size: 0.95rem !important;
+.mobile-dashboard .player-rank,
+.mobile-dashboard .winner,
+.mobile-dashboard .vs {
+  font-size: 1.2rem !important;
 }
 
 .mobile-dashboard .match-players,
 .mobile-dashboard .match-score,
 .mobile-dashboard .match-date,
 .mobile-dashboard .match-tournament {
-  font-size: 0.9rem !important;
+  font-size: 1.15rem !important;
 }
 
 .mobile-dashboard .stat-number {
-  font-size: 2.2rem !important;
+  font-size: 2.8rem !important;
 }
 
 .mobile-dashboard .stat-number-medium {
-  font-size: 1.2rem !important;
+  font-size: 1.5rem !important;
+}
+
+.mobile-dashboard .stat-number-large {
+  font-size: 3rem !important;
+}
+
+/* Scale up button and input text */
+.mobile-dashboard button,
+.mobile-dashboard select,
+.mobile-dashboard input {
+  font-size: 1.1rem !important;
+  min-height: 48px !important;
+}
+
+/* Scale up surface card text */
+.mobile-dashboard .surface-name {
+  font-size: 1.1rem !important;
+}
+
+.mobile-dashboard .surface-count {
+  font-size: 1.4rem !important;
+}
+
+/* Scale up chart text */
+.mobile-dashboard .recharts-text {
+  font-size: 1rem !important;
 }
 
 /* Hide on desktop */

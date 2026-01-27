@@ -6,14 +6,13 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 60px;
-  background: rgba(18, 18, 18, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  height: 65px;
+  background: #0f1414;
+  border-top: 1px solid #1a1f1f;
   z-index: 1000;
   padding: 0 8px;
   padding-bottom: env(safe-area-inset-bottom, 8px);
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
 .mobile-tab {
@@ -27,8 +26,9 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 44px;
-  color: rgba(255, 255, 255, 0.5);
+  min-height: 48px;
+  color: #707070;
+  font-family: inherit;
 }
 
 .mobile-tab:active {
@@ -37,14 +37,15 @@
 }
 
 .mobile-tab__label {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
+  font-family: inherit;
 }
 
 .mobile-tab--active {
-  color: #00d4aa;
+  color: #00ff41;
 }
 
 .mobile-tab--active .mobile-tab__label {
@@ -53,7 +54,7 @@
 
 /* Add subtle glow effect for active tab */
 .mobile-tab--active {
-  text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
 }
 
 /* Hide on desktop */
