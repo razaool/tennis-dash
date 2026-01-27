@@ -42,8 +42,9 @@ export function useMediaQuery(query: string): boolean {
 }
 
 /**
- * Convenience hook that returns true if the viewport is mobile-sized (≤768px)
+ * Convenience hook that returns true if the viewport is mobile-sized (≤900px)
+ * Covers phones in landscape mode and small tablets
  */
 export function useIsMobile(): boolean {
-  return useMediaQuery('(max-width: 768px)');
+  return useMediaQuery('(max-width: 900px)');
 }

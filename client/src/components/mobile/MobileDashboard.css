@@ -25,7 +25,7 @@
 }
 
 /* Hide on desktop */
-@media (min-width: 769px) {
+@media (min-width: 901px) {
   .mobile-dashboard {
     display: none;
   }
