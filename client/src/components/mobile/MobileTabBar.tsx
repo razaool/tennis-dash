@@ -1,7 +1,7 @@
 import React from 'react';
 import './MobileTabBar.css';
 
-export type TabId = 'dashboard' | 'players' | 'charts' | 'predict' | 'matches';
+export type TabId = 'home' | 'players' | 'charts' | 'predict';
 
 export interface Tab {
   id: TabId;
@@ -10,11 +10,10 @@ export interface Tab {
 }
 
 const TABS: Tab[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: '' },
+  { id: 'home', label: 'Home', icon: '' },
   { id: 'players', label: 'Players', icon: '' },
   { id: 'charts', label: 'Charts', icon: '' },
   { id: 'predict', label: 'Predict', icon: '' },
-  { id: 'matches', label: 'Matches', icon: '' },
 ];
 
 interface MobileTabBarProps {

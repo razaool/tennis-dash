@@ -3,6 +3,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  font-size: 1.1rem; /* Base font size for mobile */
 }
 
 .mobile-dashboard__content {
@@ -22,6 +23,39 @@
 
 .mobile-tab-content > div {
   min-height: fit-content;
+}
+
+/* Scale up headings for mobile */
+.mobile-dashboard h2 {
+  font-size: 1.1rem !important;
+}
+
+.mobile-dashboard h3 {
+  font-size: 1rem !important;
+}
+
+/* Scale up text content for mobile */
+.mobile-dashboard .player-name,
+.mobile-dashboard .player-country,
+.mobile-dashboard .player-rating,
+.mobile-dashboard .player-age,
+.mobile-dashboard .player-rank {
+  font-size: 0.95rem !important;
+}
+
+.mobile-dashboard .match-players,
+.mobile-dashboard .match-score,
+.mobile-dashboard .match-date,
+.mobile-dashboard .match-tournament {
+  font-size: 0.9rem !important;
+}
+
+.mobile-dashboard .stat-number {
+  font-size: 2.2rem !important;
+}
+
+.mobile-dashboard .stat-number-medium {
+  font-size: 1.2rem !important;
 }
 
 /* Hide on desktop */

@@ -1291,7 +1291,7 @@ app.get('/api/dashboard/summary', cacheMiddleware('dashboard_summary', 300), asy
     
     // Get recent matches
     const recentMatches = await pool.query(`
-      SELECT 
+      SELECT
         m.id,
         m.score,
         m.match_date,
@@ -1305,7 +1305,7 @@ app.get('/api/dashboard/summary', cacheMiddleware('dashboard_summary', 300), asy
       JOIN players p2 ON m.player2_id = p2.id
       JOIN players winner ON m.winner_id = winner.id
       ORDER BY m.match_date DESC
-      LIMIT 10
+      LIMIT 50
     `);
     
     // Get top players by ELO

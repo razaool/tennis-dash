@@ -12,16 +12,17 @@ import { MobileTabBar, TabId } from './MobileTabBar';
 import './MobileDashboard.css';
 
 const MobileDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabId>('home');
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case 'home':
         return (
           <div className="mobile-tab-content">
             <TotalPlayersBox />
             <WinStreakBox />
             <HighestELOBySurfaceBox />
+            <RecentMatchesBox />
           </div>
         );
 
@@ -45,13 +46,6 @@ const MobileDashboard: React.FC = () => {
         return (
           <div className="mobile-tab-content">
             <MatchPredictionBox />
-          </div>
-        );
-
-      case 'matches':
-        return (
-          <div className="mobile-tab-content">
-            <RecentMatchesBox />
           </div>
         );
 
