@@ -24,12 +24,13 @@ interface MobileTabBarProps {
 
 export const MobileTabBar: React.FC<MobileTabBarProps> = ({ activeTab, onTabChange }) => {
   return (
-    <nav className="mobile-tab-bar">
+    <nav className="mobile-tab-bar" role="tablist">
       {TABS.map((tab) => (
         <button
           key={tab.id}
           className={`mobile-tab ${activeTab === tab.id ? 'mobile-tab--active' : ''}`}
           onClick={() => onTabChange(tab.id)}
+          role="tab"
           aria-label={tab.label}
           aria-selected={activeTab === tab.id}
         >

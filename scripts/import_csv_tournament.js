@@ -274,46 +274,74 @@ async function importTournament(csvFile) {
   
   // Generate SQL
   console.log(`\n📝 Generating SQL import file...\n`);
-  
+
   let sql = `-- Tournament Import from ${path.basename(csvFile)}\n`;
   sql += `-- Generated: ${new Date().toISOString()}\n\n`;
   sql += `BEGIN;\n\n`;
-  
-  // Skip tournament inserts - we'll just use tournament_name in matches
-  sql += `-- Tournaments (stored in tournament_name field of matches):\n`;
+
+  // Insert tournaments with idempotent logic
+  sql += `-- Insert Tournaments (if they don't already exist)\n`;
+  sql += `-- Uses INSERT ... WHERE NOT EXISTS to avoid duplicates\n\n`;
+
+  const tournamentInserts = {};
+  let tIndex = 0;
   for (const t of Object.values(tournaments)) {
-    sql += `--   ${t.name} (${t.location}): ${t.startDate} to ${t.endDate}\n`;
+    tIndex++;
+    const level = t.level === 'atp_250' ? '250' :
+                  t.level === 'atp_500' ? '500' :
+                  t.level === 'atp_1000' ? '1000' :
+                  t.level === 'grand_slam' ? 'G' :
+                  t.level.toUpperCase().replace('ATP_', '');
+
+    sql += `-- ${t.name} (${t.location}): ${t.startDate} to ${t.endDate}\n`;
+    sql += `INSERT INTO tournaments (name, type, surface, level, location, start_date, end_date)\n`;
+    sql += `SELECT '${t.name.replace(/'/g, "''")}', 'singles', '${t.surface}', '${level}', '${t.location.replace(/'/g, "''")}', '${t.startDate}', '${t.endDate}'\n`;
+    sql += `WHERE NOT EXISTS (\n`;
+    sql += `  SELECT 1 FROM tournaments\n`;
+    sql += `  WHERE name = '${t.name.replace(/'/g, "''")}'\n`;
+    sql += `    AND start_date = '${t.startDate}'\n`;
+    sql += `    AND end_date = '${t.endDate}'\n`;
+    sql += `);\n\n`;
+
+    tournamentInserts[t.name] = t;
   }
   sql += `\n`;
   
   // Insert matches
-  sql += `-- Insert Matches\n`;
+  sql += `-- Insert Matches (linked to tournaments)\n`;
   let skipped = 0;
   let inserted = 0;
-  
+
   for (const match of matches) {
     const winner = playerMapping[match.Winner];
     const loser = playerMapping[match.Loser];
-    
+
     if (!winner || !loser) {
       skipped++;
       sql += `-- SKIPPED: ${match.Winner} vs ${match.Loser} (player not found)\n`;
       continue;
     }
-    
+
     const matchDate = parseDate(match.Date);
     const score = buildScore(match);
     const surface = match.Surface === 'Indoor' ? 'Hard' : match.Surface;
     const round = normalizeRound(match.Round);
-    const level = match.Series.toLowerCase().replace('atp', 'atp_');
-    
+
     // Determine player1 and player2 (winner is player1)
     const player1Id = winner.id;
     const player2Id = loser.id;
     const winnerId = winner.id;
-    
-    sql += `INSERT INTO matches (player1_id, player2_id, winner_id, score, match_date, round, surface, tournament_name)\n`;
-    sql += `VALUES (${player1Id}, ${player2Id}, ${winnerId}, '${score}', '${matchDate}', '${round}', '${surface}', '${match.Tournament}');\n`;
+
+    // Get tournament info
+    const tourneyKey = `${match.Tournament}_${match.Location}`;
+    const tourney = tournaments[tourneyKey];
+
+    // Link match to tournament by subquery (handles newly inserted or existing tournaments)
+    sql += `INSERT INTO matches (player1_id, player2_id, winner_id, score, match_date, round, surface, tournament_id, tournament_name)\n`;
+    sql += `VALUES (${player1Id}, ${player2Id}, ${winnerId}, '${score}', '${matchDate}', '${round}', '${surface}',\n`;
+    sql += `  (SELECT id FROM tournaments WHERE name = '${match.Tournament.replace(/'/g, "''")}' AND start_date = '${tourney.startDate}' LIMIT 1),\n`;
+    sql += `  '${match.Tournament.replace(/'/g, "''")}'\n`;
+    sql += `);\n`;
     inserted++;
   }
   
