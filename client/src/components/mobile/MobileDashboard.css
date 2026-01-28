@@ -4,6 +4,7 @@
   height: 100vh;
   overflow: hidden;
   font-size: 1.4rem; /* Base font size for mobile - larger for iPhone */
+  background: #0a0e0e;
 }
 
 .mobile-dashboard__content {
@@ -27,11 +28,19 @@
 
 /* Ensure chart containers have proper height on mobile */
 .mobile-tab-content > div:has(.recharts-wrapper) {
-  min-height: 280px;
+  min-height: 280px !important;
+  height: auto !important;
 }
 
 .mobile-tab-content .recharts-wrapper {
   min-height: 250px !important;
+  position: relative !important;
+}
+
+/* Ensure ResponsiveContainer has dimensions */
+.mobile-tab-content .recharts-surface {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Scale up headings for mobile */
