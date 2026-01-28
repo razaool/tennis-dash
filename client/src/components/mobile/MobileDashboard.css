@@ -53,24 +53,29 @@
   font-size: 1.15rem !important;
 }
 
-/* Scale up all text content for mobile - larger for iPhone readability */
+/* Standardize all text content to match Top Players tab */
 .mobile-dashboard .player-name,
 .mobile-dashboard .player-country,
 .mobile-dashboard .player-rating,
 .mobile-dashboard .player-age,
 .mobile-dashboard .player-rank,
 .mobile-dashboard .winner,
-.mobile-dashboard .vs {
-  font-size: 1.2rem !important;
-}
-
+.mobile-dashboard .vs,
 .mobile-dashboard .match-players,
 .mobile-dashboard .match-score,
 .mobile-dashboard .match-date,
-.mobile-dashboard .match-tournament {
-  font-size: 1.15rem !important;
+.mobile-dashboard .match-tournament,
+.mobile-dashboard .surface-name,
+.mobile-dashboard .surface-count,
+.mobile-dashboard .header-row,
+.mobile-dashboard .player-info,
+.mobile-dashboard .player-movement,
+.mobile-dashboard .movement-indicator,
+.mobile-dashboard .baseline-timestamp {
+  font-size: 1.2rem !important;
 }
 
+/* Stat numbers - larger but proportional */
 .mobile-dashboard .stat-number {
   font-size: 2.8rem !important;
 }
@@ -83,24 +88,15 @@
   font-size: 3rem !important;
 }
 
-/* Scale up button and input text */
+/* Buttons and inputs */
 .mobile-dashboard button,
 .mobile-dashboard select,
 .mobile-dashboard input {
-  font-size: 1.1rem !important;
+  font-size: 1.15rem !important;
   min-height: 48px !important;
 }
 
-/* Scale up surface card text */
-.mobile-dashboard .surface-name {
-  font-size: 1.1rem !important;
-}
-
-.mobile-dashboard .surface-count {
-  font-size: 1.4rem !important;
-}
-
-/* Scale up chart text */
+/* Chart text - smaller than body text */
 .mobile-dashboard .recharts-text {
   font-size: 1rem !important;
 }
