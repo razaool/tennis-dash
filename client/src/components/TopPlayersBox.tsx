@@ -15,7 +15,6 @@ interface Player {
   current_rank?: number;
   rank_change?: number;
   baseline_date?: string;
-  last_updated?: string;
 }
 
 interface TopPlayersBoxProps {
@@ -273,9 +272,9 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
       </div>
 
       {/* Baseline Timestamp */}
-      {players.length > 0 && players[0].last_updated && (
+      {players.length > 0 && players[0].baseline_date && (
         <div className="baseline-timestamp" style={{ fontSize: '0.7rem', color: '#888', marginTop: '0.25rem', fontWeight: 500 }}>
-          {formatBaselineDate(players[0].last_updated)}
+          {formatBaselineDate(players[0].baseline_date)}
         </div>
       )}
 
