@@ -749,29 +749,39 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
     }
     
     const playerId = parseInt(playerResult.rows[0].id);
-    
+
+    // Get the most recent match date for this player
+    const maxDateQuery = surface
+      ? `SELECT MAX(m.match_date) as max_date FROM ratings r JOIN matches m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface = $3`
+      : `SELECT MAX(m.match_date) as max_date FROM ratings r JOIN matches m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface IS NULL`;
+
+    const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
+    const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
+    const maxDate = maxDateResult.rows[0]?.max_date;
+    const minDate = maxDate ? new Date(new Date(maxDate).getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
+
     let query = `
-      SELECT 
+      SELECT
         r.rating_value,
         r.rating_deviation,
         m.match_date,
         m.surface
       FROM ratings r
       JOIN matches m ON r.match_id = m.id
-      WHERE r.player_id = $1 AND r.rating_type = $2
+      WHERE r.player_id = $1 AND r.rating_type = $2 AND m.match_date >= $3
     `;
-    
-    const params = [playerId, ratingType];
-    
+
+    const params = [playerId, ratingType, minDate];
+
     if (surface) {
-      query += ` AND r.surface = $3`;
+      query += ` AND r.surface = $4`;
       params.push(surface);
     } else {
       query += ` AND r.surface IS NULL`;
     }
-    
+
     query += ` ORDER BY m.match_date ASC`;
-    
+
     const result = await pool.query(query, params);
     res.json({
       player: playerResult.rows[0].name,
