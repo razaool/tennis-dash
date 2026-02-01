@@ -684,7 +684,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         FROM ranking_snapshots
         WHERE rating_type = $1 AND surface IS NULL
         ORDER BY snapshot_date DESC
-        LIMIT 1
+        LIMIT 1 OFFSET 1
       )
       SELECT
         cr.id,
