@@ -1590,11 +1590,11 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         r.rating_value,
         r.rating_deviation,
         (
-          SELECT 
-            CASE 
-              WHEN COUNT(*) = 0 THEN 0
+          SELECT
+            CASE
+              WHEN COUNT(*) = 0 THEN NULL
               ELSE ROUND(
-                COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100, 
+                COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100,
                 1
               )
             END
