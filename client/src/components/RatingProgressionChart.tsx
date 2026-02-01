@@ -25,23 +25,19 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
         
         const topPlayers = topPlayersResponse.data;
         
-        // Fetch rating progression for each player in 2025
+        // Fetch rating progression for each player (last 12 months)
         const progressionPromises = topPlayers.map(async (player: any) => {
           try {
             const progressionResponse = await axios.get(
               `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}`
             );
-            
-            // Filter data to only 2025 matches
-            const progression2025 = progressionResponse.data.progression.filter((item: any) => {
-              if (!item.match_date) return false;
-              const year = new Date(item.match_date).getFullYear();
-              return year === 2025;
-            });
-            
+
+            // API already filters to last 12 months, use all returned data
+            const progressionData = progressionResponse.data.progression;
+
             return {
               name: player.name,
-              data: progression2025
+              data: progressionData
             };
           } catch (err) {
             console.error(`Error fetching progression for ${player.name}:`, err);
