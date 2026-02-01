@@ -673,11 +673,17 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
             WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
               AND (player1_id = p.id OR player2_id = p.id)
           ) as win_percentage_2025,
-          ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn,
-          RANK() OVER (ORDER BY r.rating_value DESC) as current_rank
+          ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
         FROM ratings r
         JOIN players p ON p.id = r.player_id
         WHERE r.rating_type = $1 AND r.surface IS NULL
+      ),
+      ranked_players AS (
+        SELECT
+          cr.*,
+          RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
+        FROM current_rankings cr
+        WHERE cr.rn = 1
       ),
       latest_snapshot AS (
         SELECT rankings, snapshot_date
@@ -687,36 +693,35 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         LIMIT 1 OFFSET 1
       )
       SELECT
-        cr.id,
-        cr.name,
-        cr.country,
-        cr.birth_date,
-        cr.rating_value,
-        cr.rating_deviation,
-        cr.win_percentage_2025,
-        cr.current_rank,
+        rp.id,
+        rp.name,
+        rp.country,
+        rp.birth_date,
+        rp.rating_value,
+        rp.rating_deviation,
+        rp.win_percentage_2025,
+        rp.current_rank,
         ls.snapshot_date as baseline_date,
         CASE
           WHEN ls.rankings IS NULL THEN 0
           ELSE COALESCE((
-            SELECT cr.current_rank - (ls.rankings->>'player_' || cr.id)::int
-            WHERE (ls.rankings->>'player_' || cr.id) IS NOT NULL
+            SELECT rp.current_rank - (ls.rankings->>'player_' || rp.id)::int
+            WHERE (ls.rankings->>'player_' || rp.id) IS NOT NULL
           ), 0)
         END as rank_change
-      FROM current_rankings cr
+      FROM ranked_players rp
       LEFT JOIN LATERAL (SELECT * FROM latest_snapshot) ls ON true
-      WHERE cr.rn = 1
     `;
 
     const params = [ratingType];
 
     if (active === 'true') {
-      query += ` AND cr.id IN (
+      query += ` WHERE rp.id IN (
         SELECT DISTINCT winner_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
       )`;
     }
 
-    query += ` ORDER BY cr.rating_value DESC LIMIT $${params.length + 1}`;
+    query += ` ORDER BY rp.rating_value DESC LIMIT $${params.length + 1}`;
     params.push(parseInt(limit));
 
     const result = await pool.query(query, params);
