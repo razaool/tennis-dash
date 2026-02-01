@@ -1598,8 +1598,8 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
                 1
               )
             END
-          FROM matches 
-          WHERE EXTRACT(YEAR FROM match_date) = 2025
+          FROM matches
+          WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
             AND surface = $2
             AND (player1_id = p.id OR player2_id = p.id)
         ) as win_percentage_2025
