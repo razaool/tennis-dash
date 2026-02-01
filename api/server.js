@@ -758,7 +758,7 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
     const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
     const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
     const maxDate = maxDateResult.rows[0]?.max_date;
-    const minDate = maxDate ? new Date(new Date(maxDate).getTime() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
+    const minDate = maxDate ? new Date(new Date(maxDate).getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
 
     let query = `
       SELECT
