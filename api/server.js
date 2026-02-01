@@ -691,6 +691,11 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         WHERE rating_type = $1 AND surface IS NULL
         ORDER BY snapshot_date DESC
         LIMIT 1 OFFSET 1
+      ),
+      max_rating_date AS (
+        SELECT MAX(cr.calculated_at) as last_updated
+        FROM current_rankings cr
+        WHERE cr.rn = 1
       )
       SELECT
         rp.id,
@@ -702,6 +707,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.win_percentage_2025,
         rp.current_rank,
         ls.snapshot_date as baseline_date,
+        md.last_updated,
         CASE
           WHEN ls.rankings IS NULL THEN 0
           ELSE COALESCE((
@@ -711,6 +717,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         END as rank_change
       FROM ranked_players rp
       LEFT JOIN LATERAL (SELECT * FROM latest_snapshot) ls ON true
+      CROSS JOIN max_rating_date md
     `;
 
     const params = [ratingType];
@@ -749,9 +756,22 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
     }
     
     const playerId = parseInt(playerResult.rows[0].id);
-    
+
+    // First, get the most recent match date for this player
+    const maxDateResult = await pool.query(
+      `SELECT MAX(m.match_date) as max_date
+       FROM ratings r
+       JOIN matches m ON r.match_id = m.id
+       WHERE r.player_id = $1 AND r.rating_type = $2
+         AND ($3::text = 'overall' OR r.surface = $3 OR (r.surface IS NULL AND $3::text = 'overall'))`,
+      [playerId, ratingType, surface || 'overall']
+    );
+
+    const maxDate = maxDateResult.rows[0]?.max_date;
+    const minDate = maxDate ? new Date(new Date(maxDate).getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
+
     let query = `
-      SELECT 
+      SELECT
         r.rating_value,
         r.rating_deviation,
         m.match_date,
@@ -759,19 +779,20 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
       FROM ratings r
       JOIN matches m ON r.match_id = m.id
       WHERE r.player_id = $1 AND r.rating_type = $2
+        AND m.match_date >= $3
     `;
-    
-    const params = [playerId, ratingType];
-    
+
+    const params = [playerId, ratingType, minDate];
+
     if (surface) {
-      query += ` AND r.surface = $3`;
+      query += ` AND r.surface = $4`;
       params.push(surface);
     } else {
       query += ` AND r.surface IS NULL`;
     }
-    
+
     query += ` ORDER BY m.match_date ASC`;
-    
+
     const result = await pool.query(query, params);
     res.json({
       player: playerResult.rows[0].name,
