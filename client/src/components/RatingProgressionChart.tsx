@@ -25,7 +25,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
         
         const topPlayers = topPlayersResponse.data;
         
-        // Fetch rating progression for each player (last 12 months)
+        // Fetch rating progression for each player (last 6 months)
         const progressionPromises = topPlayers.map(async (player: any) => {
           try {
             const progressionResponse = await axios.get(
