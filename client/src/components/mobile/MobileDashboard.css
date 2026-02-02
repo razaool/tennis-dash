@@ -101,6 +101,12 @@
   font-size: 1rem !important;
 }
 
+/* Season Progress chart needs more height on mobile */
+.mobile-dashboard h2 + div > div[style*="height: 250px"] {
+  min-height: 320px !important;
+  height: 320px !important;
+}
+
 /* Hide on desktop */
 @media (min-width: 901px) {
   .mobile-dashboard {
