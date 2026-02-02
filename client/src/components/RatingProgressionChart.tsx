@@ -12,6 +12,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRatingType, setSelectedRatingType] = useState<'elo' | 'glicko2' | 'trueskill'>('elo');
+  const [timeRange, setTimeRange] = useState<'12m' | '1m'>('12m');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,14 +26,14 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
         
         const topPlayers = topPlayersResponse.data;
         
-        // Fetch rating progression for each player (last 12 months)
+        // Fetch rating progression for each player
         const progressionPromises = topPlayers.map(async (player: any) => {
           try {
+            const months = timeRange === '12m' ? 12 : 1;
             const progressionResponse = await axios.get(
-              `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}`
+              `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}&months=${months}`
             );
 
-            // API already filters to last 12 months, use all returned data
             const progressionData = progressionResponse.data.progression;
 
             return {
@@ -55,7 +56,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
     };
     
     fetchData();
-  }, [selectedRatingType]);
+  }, [selectedRatingType, timeRange]);
 
   if (loading) {
     return (
@@ -122,6 +123,42 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
           </button>
         ))}
       </div>
+
+      {/* Time Range Toggle (ELO only) */}
+      {selectedRatingType === 'elo' && (
+        <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem', flexShrink: 0 }}>
+          <button
+            onClick={() => setTimeRange('12m')}
+            style={{
+              background: timeRange === '12m' ? '#00ff41' : '#131818',
+              color: timeRange === '12m' ? '#0a0e0e' : '#d0d0d0',
+              border: '1px solid #1a1f1f',
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.6rem',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              fontFamily: 'inherit'
+            }}
+          >
+            12M
+          </button>
+          <button
+            onClick={() => setTimeRange('1m')}
+            style={{
+              background: timeRange === '1m' ? '#00ff41' : '#131818',
+              color: timeRange === '1m' ? '#0a0e0e' : '#d0d0d0',
+              border: '1px solid #1a1f1f',
+              padding: '0.25rem 0.5rem',
+              fontSize: '0.6rem',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              fontFamily: 'inherit'
+            }}
+          >
+            1M
+          </button>
+        </div>
+      )}
 
       {/* Chart */}
       {data.length > 0 ? (

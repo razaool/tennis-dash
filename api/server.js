@@ -736,18 +736,18 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
 app.get('/api/players/ratings/:ratingType', async (req, res) => {
   try {
     const { ratingType } = req.params;
-    const { player, surface } = req.query;
-    
+    const { player, surface, months = 12 } = req.query;
+
     if (!player) {
       return res.status(400).json({ error: 'player parameter required' });
     }
-    
+
     // Get player ID
     const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
     if (playerResult.rows.length === 0) {
       return res.status(404).json({ error: `Player "${player}" not found` });
     }
-    
+
     const playerId = parseInt(playerResult.rows[0].id);
 
     // Get the most recent match date for this player
@@ -757,8 +757,9 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 
     const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
     const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
-    const maxDate = maxDateResult.rows[0]?.max_date;
-    const minDate = maxDate ? new Date(new Date(maxDate).getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
+    const maxDate = maxDateResult.rows[0]?.maxDate;
+    const daysToSubtract = parseInt(months) * 30;
+    const minDate = maxDate ? new Date(new Date(maxDate).getTime() - daysToSubtract * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
 
     let query = `
       SELECT
