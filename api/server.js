@@ -757,7 +757,7 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 
     const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
     const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
-    const maxDate = maxDateResult.rows[0]?.maxDate;
+    const maxDate = maxDateResult.rows[0]?.max_date;
     const daysToSubtract = parseInt(months) * 30;
     const minDate = maxDate ? new Date(new Date(maxDate).getTime() - daysToSubtract * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
 
