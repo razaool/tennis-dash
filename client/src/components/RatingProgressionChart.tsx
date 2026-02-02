@@ -29,9 +29,11 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
         // Fetch rating progression for each player
         const progressionPromises = topPlayers.map(async (player: any) => {
           try {
-            const months = timeRange === '12m' ? 12 : 1;
+            // Only apply time range filter for ELO; Glicko2 and TrueSkill always use 12 months
+            const months = selectedRatingType === 'elo' ? (timeRange === '12m' ? 12 : 1) : undefined;
+            const url = `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}`;
             const progressionResponse = await axios.get(
-              `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}&months=${months}`
+              months ? `${url}&months=${months}` : url
             );
 
             const progressionData = progressionResponse.data.progression;
