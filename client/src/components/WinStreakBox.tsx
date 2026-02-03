@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface WinStreakBoxProps {
   className?: string;
+  tour?: TourType;
 }
 
 interface WinStreakData {
@@ -14,7 +16,7 @@ interface WinStreakData {
   tournaments: string[];
 }
 
-const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className }) => {
+const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) => {
   const [data, setData] = useState<WinStreakData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,9 +31,22 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className }) => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className}>
+        <h2>WIN STREAK</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

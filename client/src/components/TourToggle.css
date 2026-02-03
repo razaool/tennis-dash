@@ -1,0 +1,60 @@
+.tour-toggle {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.tour-toggle-button {
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border: 1px solid #1a1f1f;
+  background: #131818;
+  color: #707070;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.tour-toggle-button:hover {
+  background: #1a1f1f;
+  color: #d0d0d0;
+}
+
+.tour-toggle-button.active {
+  background: #00ff41;
+  color: #0a0e0e;
+  border-color: #00ff41;
+}
+
+/* WTA Theme */
+.App.wta .tour-toggle-button {
+  border-color: #d0d0d0;
+  background: #f5f5f0;
+  color: #707070;
+}
+
+.App.wta .tour-toggle-button:hover {
+  background: #e8e8e0;
+  color: #2a2a2a;
+}
+
+.App.wta .tour-toggle-button.active {
+  background: #ff6b9d;
+  color: #ffffff;
+  border-color: #ff6b9d;
+}
+
+/* Mobile */
+.mobile-dashboard .tour-toggle {
+  gap: 0.5rem;
+}
+
+.mobile-dashboard .tour-toggle-button {
+  padding: 0.6rem 1.5rem;
+  font-size: 1.2rem;
+  border-radius: 4px;
+}

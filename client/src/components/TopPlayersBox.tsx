@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MovementIndicator from './MovementIndicator';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -20,9 +21,10 @@ interface Player {
 
 interface TopPlayersBoxProps {
   className?: string;
+  tour?: TourType;
 }
 
-const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
+const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +179,19 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className }) => {
         <h2>TOP PLAYERS</h2>
         <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
           Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className}>
+        <h2>TOP PLAYERS</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
         </div>
       </div>
     );

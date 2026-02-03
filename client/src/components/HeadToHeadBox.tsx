@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface HeadToHeadBoxProps {
   className?: string;
+  tour?: TourType;
 }
 
 interface MatchData {
@@ -30,7 +32,7 @@ interface HeadToHeadData {
   matches: MatchData[];
 }
 
-const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
+const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }) => {
   const [player1, setPlayer1] = useState('Novak Djokovic');
   const [player2, setPlayer2] = useState('Roger Federer');
   const [data, setData] = useState<HeadToHeadData | null>(null);
@@ -123,6 +125,19 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className }) => {
     setPlayer2(name);
     setShowPlayer2Dropdown(false);
   };
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className}>
+        <h2>HEAD TO HEAD</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>

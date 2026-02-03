@@ -71,6 +71,19 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
     );
   }
 
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className} style={{ display: 'flex', flexDirection: 'column' }}>
+        <h2>RATING PROGRESSION</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate dynamic y-axis domain based on actual data
   const calculateYAxisDomain = () => {
     const chartData = prepareChartData();

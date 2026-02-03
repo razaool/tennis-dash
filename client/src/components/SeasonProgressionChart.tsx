@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface SeasonProgressionChartProps {
   className?: string;
+  tour?: TourType;
 }
 
-const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ className }) => {
+const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ className, tour = 'atp' }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +57,19 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
         <h2>SEASON PROGRESS</h2>
         <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '1rem' }}>
           Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className}>
+        <h2 style={{ marginBottom: '0' }}>SEASON PROGRESS</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
         </div>
       </div>
     );

@@ -465,3 +465,157 @@ h3 {
   margin-top: 0.25rem;
   font-weight: 500;
 }
+
+/* ========================================
+   WTA LIGHT THEME
+   ======================================== */
+
+.App.wta {
+  background: #f5f5f0;
+  color: #2a2a2a;
+}
+
+.App.wta .dashboard {
+  background: #f5f5f0;
+}
+
+.App.wta .box-1,
+.App.wta .box-2,
+.App.wta .box-3,
+.App.wta .box-4,
+.App.wta .box-5,
+.App.wta .box-6,
+.App.wta .box-7,
+.App.wta .box-8,
+.App.wta .box-9 {
+  background: #ffffff;
+  border-color: #d0d0d0;
+}
+
+.App.wta h2 {
+  color: #2a2a2a;
+  border-color: #e0e0e0;
+}
+
+.App.wta h3 {
+  color: #888;
+}
+
+.App.wta .stat-number,
+.App.wta .stat-number-large {
+  color: #ff6b9d;
+}
+
+.App.wta .stat-number-medium {
+  color: #9c27b0;
+}
+
+.App.wta .player-card {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+.App.wta .player-card:hover {
+  background: #f0f0f0;
+  border-color: #ff6b9d;
+}
+
+.App.wta .player-name {
+  color: #2a2a2a;
+}
+
+.App.wta .player-country {
+  color: #888;
+}
+
+.App.wta .player-age {
+  color: #2a2a2a;
+}
+
+.App.wta .player-rating {
+  color: #9c27b0;
+}
+
+.App.wta .match-card {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+.App.wta .match-card:hover {
+  background: #f0f0f0;
+  border-color: #e0e0e0;
+}
+
+.App.wta .winner {
+  color: #ff6b9d;
+}
+
+.App.wta .vs {
+  color: #888;
+}
+
+.App.wta .match-score {
+  color: #2a2a2a;
+}
+
+.App.wta .match-date,
+.App.wta .match-tournament {
+  color: #888;
+}
+
+.App.wta .surface-card {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+.App.wta .surface-card:hover {
+  background: #f0f0f0;
+  border-color: #ff6b9d;
+}
+
+.App.wta .surface-name {
+  color: #2a2a2a;
+}
+
+.App.wta .surface-count {
+  color: #ff6b9d;
+}
+
+.App.wta .loading,
+.App.wta .error {
+  color: #2a2a2a;
+}
+
+.App.wta .error {
+  color: #e91e63;
+}
+
+.App.wta .movement-indicator.up {
+  color: #ff6b9d;
+}
+
+.App.wta .movement-indicator.down {
+  color: #e91e63;
+}
+
+.App.wta .movement-indicator.neutral {
+  color: #888;
+}
+
+.App.wta .baseline-timestamp {
+  color: #888;
+}
+
+/* WTA Empty State */
+.App.wta .empty-state {
+  color: #888;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.App.wta .empty-state-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}

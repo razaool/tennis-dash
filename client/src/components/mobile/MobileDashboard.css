@@ -7,6 +7,26 @@
   background: #0a0e0e;
 }
 
+/* Mobile header with tour toggle */
+.mobile-dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #0f1414;
+  border-bottom: 1px solid #1a1f1f;
+  flex-shrink: 0;
+}
+
+.mobile-dashboard__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #d0d0d0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .mobile-dashboard__content {
   flex: 1;
   overflow-y: auto;
@@ -20,6 +40,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 12px;
+  padding-top: 8px; /* Less top padding since header is above */
 }
 
 .mobile-tab-content > div {
@@ -112,4 +133,92 @@
   .mobile-dashboard {
     display: none;
   }
+}
+
+/* ========================================
+   WTA MOBILE THEME
+   ======================================== */
+
+.mobile-dashboard.wta {
+  background: #f5f5f0;
+}
+
+.mobile-dashboard.wta .mobile-dashboard__header {
+  background: #ffffff;
+  border-bottom-color: #d0d0d0;
+}
+
+.mobile-dashboard.wta .mobile-dashboard__title {
+  color: #2a2a2a;
+}
+
+.mobile-dashboard.wta .empty-state {
+  color: #888;
+}
+
+.mobile-dashboard.wta .empty-state-icon {
+  opacity: 0.5;
+}
+
+.mobile-dashboard.wta h2 {
+  color: #2a2a2a !important;
+  border-color: #e0e0e0 !important;
+}
+
+.mobile-dashboard.wta h3 {
+  color: #888 !important;
+}
+
+.mobile-dashboard.wta .player-name {
+  color: #2a2a2a !important;
+}
+
+.mobile-dashboard.wta .player-country {
+  color: #888 !important;
+}
+
+.mobile-dashboard.wta .player-age {
+  color: #2a2a2a !important;
+}
+
+.mobile-dashboard.wta .player-rating {
+  color: #9c27b0 !important;
+}
+
+.mobile-dashboard.wta .winner {
+  color: #ff6b9d !important;
+}
+
+.mobile-dashboard.wta .match-score {
+  color: #2a2a2a !important;
+}
+
+.mobile-dashboard.wta .match-date,
+.mobile-dashboard.wta .match-tournament {
+  color: #888 !important;
+}
+
+.mobile-dashboard.wta .stat-number,
+.mobile-dashboard.wta .stat-number-large {
+  color: #ff6b9d !important;
+}
+
+.mobile-dashboard.wta .stat-number-medium {
+  color: #9c27b0 !important;
+}
+
+.mobile-dashboard.wta .surface-count {
+  color: #ff6b9d !important;
+}
+
+.mobile-dashboard.wta .movement-indicator.up {
+  color: #ff6b9d !important;
+}
+
+.mobile-dashboard.wta .movement-indicator.down {
+  color: #e91e63 !important;
+}
+
+.mobile-dashboard.wta .baseline-timestamp {
+  color: #888 !important;
 }

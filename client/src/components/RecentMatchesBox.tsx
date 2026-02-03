@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface RecentMatchesBoxProps {
   className?: string;
+  tour?: TourType;
 }
 
 interface Match {
@@ -17,7 +19,7 @@ interface Match {
   tournament_name?: string;
 }
 
-const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className }) => {
+const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className, tour = 'atp' }) => {
   const [recentMatches, setRecentMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +36,19 @@ const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className }) => {
     };
     fetchData();
   }, []);
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className}>
+        <h2>RECENT MATCHES</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -53,9 +68,9 @@ const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className }) => {
           <div style={{ fontSize: '0.7rem', color: '#707070', textAlign: 'center', marginTop: '1rem' }}>No recent matches</div>
         ) : (
           recentMatches.map((match) => (
-            <div key={match.id} style={{ 
-              padding: '0.5rem', 
-              backgroundColor: '#131818', 
+            <div key={match.id} style={{
+              padding: '0.5rem',
+              backgroundColor: '#131818',
               border: '1px solid #1a1f1f',
               fontSize: '0.7rem'
             }}>

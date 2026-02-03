@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface TotalPlayersBoxProps {
   className?: string;
+  tour?: TourType;
 }
 
 interface DashboardSummary {
@@ -18,7 +20,7 @@ interface DashboardSummary {
   surfaceStats: any[];
 }
 
-const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className }) => {
+const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className, tour = 'atp' }) => {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,6 +37,19 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className }) => {
     };
     fetchData();
   }, []);
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={className}>
+        <h2 style={{ textAlign: 'center' }}>WTA ANALYTICS DASHBOARD</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !summary) {
     return (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { TourType } from '../contexts/TourContext';
 import './MatchPredictionBox.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -42,9 +43,10 @@ interface PredictionResult {
 
 interface MatchPredictionBoxProps {
   className?: string;
+  tour?: TourType;
 }
 
-const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className }) => {
+const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour = 'atp' }) => {
   const [player1, setPlayer1] = useState<string>('Carlos Alcaraz');
   const [player2, setPlayer2] = useState<string>('Novak Djokovic');
   const [surface, setSurface] = useState<string>('Grass');
@@ -166,6 +168,19 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className }) =>
       setLoading(false);
     }
   };
+
+  // WTA empty state
+  if (tour === 'wta') {
+    return (
+      <div className={`match-prediction-box ${className}`}>
+        <h2>⚡ ML MATCH PREDICTION</h2>
+        <div className="empty-state">
+          <div className="empty-state-icon">🎾</div>
+          <div>WTA data coming soon</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`match-prediction-box ${className}`}>
