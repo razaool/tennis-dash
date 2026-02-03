@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { TourType } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 interface RatingProgressionChartProps {
   className?: string;
+  tour?: TourType;
 }
 
-const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ className }) => {
+const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ className, tour = 'atp' }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRatingType, setSelectedRatingType] = useState<'elo' | 'glicko2' | 'trueskill'>('elo');
