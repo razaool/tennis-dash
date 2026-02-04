@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TourType } from '../contexts/TourContext';
+import { useTour } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -41,6 +42,7 @@ const getDefaultPlayers = (tour: TourType) => {
 };
 
 const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }) => {
+  const { theme } = useTour();
   const defaults = getDefaultPlayers(tour);
   const [player1, setPlayer1] = useState(defaults.player1);
   const [player2, setPlayer2] = useState(defaults.player2);
@@ -160,9 +162,9 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
               style={{
                 width: '100%',
                 padding: '0.25rem 0.5rem',
-                backgroundColor: '#131818',
-                border: '1px solid #1a1f1f',
-                color: '#d0d0d0',
+                backgroundColor: theme.backgroundColor,
+                border: `1px solid ${theme.borderColor}`,
+                color: theme.textPrimary,
                 fontSize: '0.6rem',
                 boxSizing: 'border-box'
               }}
@@ -173,8 +175,8 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
                 top: '100%',
                 left: 0,
                 right: 0,
-                backgroundColor: '#131818',
-                border: '1px solid #1a1f1f',
+                backgroundColor: theme.backgroundColor,
+                border: `1px solid ${theme.borderColor}`,
                 borderTop: 'none',
                 maxHeight: '200px',
                 overflowY: 'auto',
@@ -187,13 +189,13 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
                     onClick={() => selectPlayer1(suggestion)}
                     style={{
                       padding: '0.25rem 0.5rem',
-                      color: '#d0d0d0',
+                      color: theme.textPrimary,
                       fontSize: '0.6rem',
                       cursor: 'pointer',
-                      borderBottom: '1px solid #1a1f1f'
+                      borderBottom: `1px solid ${theme.borderColor}`
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1a1f1f'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#131818'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = theme.borderColor; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = theme.backgroundColor; }}
                   >
                     {suggestion}
                   </div>
@@ -211,9 +213,9 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
               style={{
                 width: '100%',
                 padding: '0.25rem 0.5rem',
-                backgroundColor: '#131818',
-                border: '1px solid #1a1f1f',
-                color: '#d0d0d0',
+                backgroundColor: theme.backgroundColor,
+                border: `1px solid ${theme.borderColor}`,
+                color: theme.textPrimary,
                 fontSize: '0.6rem',
                 boxSizing: 'border-box'
               }}
@@ -224,8 +226,8 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
                 top: '100%',
                 left: 0,
                 right: 0,
-                backgroundColor: '#131818',
-                border: '1px solid #1a1f1f',
+                backgroundColor: theme.backgroundColor,
+                border: `1px solid ${theme.borderColor}`,
                 borderTop: 'none',
                 maxHeight: '200px',
                 overflowY: 'auto',
@@ -238,13 +240,13 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
                     onClick={() => selectPlayer2(suggestion)}
                     style={{
                       padding: '0.25rem 0.5rem',
-                      color: '#d0d0d0',
+                      color: theme.textPrimary,
                       fontSize: '0.6rem',
                       cursor: 'pointer',
-                      borderBottom: '1px solid #1a1f1f'
+                      borderBottom: `1px solid ${theme.borderColor}`
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1a1f1f'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#131818'; }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = theme.borderColor; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = theme.backgroundColor; }}
                   >
                     {suggestion}
                   </div>
@@ -257,9 +259,9 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
             disabled={loading}
             style={{
               padding: '0.25rem 0.5rem',
-              backgroundColor: loading ? '#1a1f1f' : '#00ff41',
-              color: loading ? '#707070' : '#0a0e0e',
-              border: '1px solid #1a1f1f',
+              backgroundColor: loading ? theme.borderColor : theme.primaryColor,
+              color: loading ? theme.textSecondary : theme.headerBgColor,
+              border: `1px solid ${theme.borderColor}`,
               fontSize: '0.6rem',
               textTransform: 'uppercase',
               fontWeight: 'bold',
@@ -276,32 +278,32 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
 
         {/* Error message */}
         {error && (
-          <div style={{ color: '#ff6b6b', fontSize: '0.6rem', marginBottom: '0.5rem', flexShrink: 0 }}>
+          <div style={{ color: theme.primaryColor, fontSize: '0.6rem', marginBottom: '0.5rem', flexShrink: 0 }}>
             {error}
           </div>
         )}
 
         {/* Head-to-head results */}
         {data && (
-          <div style={{ fontSize: '0.75rem', color: '#d0d0d0', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          <div style={{ fontSize: '0.75rem', color: theme.textPrimary, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
             {/* Summary - Fixed at top */}
-            <div style={{ padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #1a1f1f', flexShrink: 0 }}>
+            <div style={{ padding: '0.5rem', backgroundColor: theme.headerBgColor, position: 'sticky', top: 0, zIndex: 10, borderBottom: `1px solid ${theme.borderColor}`, flexShrink: 0 }}>
               {/* Show only the player with more wins (or player1 if tied) */}
               {data.wins >= data.losses ? (
-                <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+                <div style={{ color: theme.primaryColor, fontWeight: 'bold', marginBottom: '0.25rem' }}>
                   {data.player1}: {data.wins}-{data.losses}
                 </div>
               ) : (
-                <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+                <div style={{ color: theme.primaryColor, fontWeight: 'bold', marginBottom: '0.25rem' }}>
                   {data.player2}: {data.losses}-{data.wins}
                 </div>
               )}
-              <div style={{ color: '#d0d0d0', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{ color: theme.textPrimary, fontSize: '0.75rem', marginBottom: '0.5rem' }}>
                 Total: {data.total_matches} matches
               </div>
-              
+
               {/* Surface Breakdown */}
-              <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.7rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #1a1f1f' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.7rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: `1px solid ${theme.borderColor}` }}>
                 {['Hard', 'Clay', 'Grass'].map(surface => {
                   const surfaceMatches = data.matches.filter(m => m.surface === surface);
                   // Count wins for player1 (the first player in the H2H query)
@@ -313,8 +315,8 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
                   const surfaceLosses = surfaceMatches.length - surfaceWins;
                   return (
                     <div key={surface} style={{ flex: 1 }}>
-                      <div style={{ color: '#707070', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{surface}</div>
-                      <div style={{ color: surfaceMatches.length > 0 ? '#d0d0d0' : '#404040', fontWeight: '600' }}>
+                      <div style={{ color: theme.textSecondary, textTransform: 'uppercase', marginBottom: '0.15rem' }}>{surface}</div>
+                      <div style={{ color: surfaceMatches.length > 0 ? theme.textPrimary : theme.textTertiary, fontWeight: '600' }}>
                         {surfaceWins}-{surfaceLosses}
                       </div>
                     </div>
@@ -327,7 +329,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
             {data.matches.length > 0 && (
               <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                 {/* Match Header - Sticky */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', backgroundColor: '#0a0e0e', position: 'sticky', top: 0, zIndex: 9, borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.75rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', backgroundColor: theme.headerBgColor, position: 'sticky', top: 0, zIndex: 9, borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.75rem', color: theme.textSecondary, textTransform: 'uppercase', alignItems: 'center' }}>
                   <div>Date</div>
                   <div>Tournament</div>
                   <div>Score</div>
@@ -338,18 +340,18 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
                   {data.matches.map((match, idx) => {
                     const player1Won = match.winner_id === match.player1_id;
                     return (
-                      <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', alignItems: 'center' }}>
-                        <div style={{ color: '#d0d0d0', fontSize: '0.75rem' }}>
+                      <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', borderBottom: `1px solid ${theme.borderColor}`, alignItems: 'center' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.75rem' }}>
                           {new Date(match.match_date).toLocaleDateString()}
                         </div>
-                        <div style={{ color: '#d0d0d0', fontSize: '0.75rem' }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.75rem' }}>
                           {match.tournament_name || 'Unknown'}
-                          {match.round && <span style={{ color: '#707070' }}> • {match.round}</span>}
+                          {match.round && <span style={{ color: theme.textSecondary }}> • {match.round}</span>}
                         </div>
-                        <div style={{ color: '#707070', fontSize: '0.75rem' }}>
+                        <div style={{ color: theme.textSecondary, fontSize: '0.75rem' }}>
                           {match.score || 'Score not available'}
                         </div>
-                        <div style={{ color: player1Won ? '#00ff41' : '#ff6b6b', textAlign: 'right', fontWeight: '600', fontSize: '0.75rem' }}>
+                        <div style={{ color: player1Won ? theme.primaryColor : theme.textPrimary, textAlign: 'right', fontWeight: '600', fontSize: '0.75rem' }}>
                           {player1Won ? match.player1_name : match.player2_name}
                         </div>
                       </div>
