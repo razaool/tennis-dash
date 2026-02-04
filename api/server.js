@@ -1101,18 +1101,20 @@ app.get('/api/players/recent-matches', async (req, res) => {
 // Highest ELO by surface
 app.get('/api/players/highest-elo-by-surface', cacheMiddleware('highest_elo_surface', 300), async (req, res) => {
   try {
+    const { tour } = req.query;
+    const tables = getTourTables(tour);
     const surfaces = ['Grass', 'Clay', 'Hard'];
     const result = {};
 
     for (const surface of surfaces) {
       const surfaceResult = await pool.query(`
-        SELECT 
+        SELECT
           p.name,
           r.rating_value as elo_rating
-        FROM ratings r
-        JOIN players p ON r.player_id = p.id
+        FROM ${tables.ratings} r
+        JOIN ${tables.players} p ON r.player_id = p.id
         WHERE r.rating_type = 'elo' AND r.surface = $1
-          AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = $1 GROUP BY player_id)
+          AND r.id IN (SELECT MAX(id) FROM ${tables.ratings} WHERE rating_type = 'elo' AND surface = $1 GROUP BY player_id)
         ORDER BY r.rating_value DESC
         LIMIT 1
       `, [surface]);

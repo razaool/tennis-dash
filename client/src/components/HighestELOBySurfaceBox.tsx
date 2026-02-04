@@ -27,7 +27,7 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/players/highest-elo-by-surface`);
+        const response = await axios.get(`${API_BASE_URL}/api/players/highest-elo-by-surface?tour=${tour}`);
         setData(response.data);
       } catch (err) {
         console.error('Error fetching highest ELO by surface:', err);
@@ -37,20 +37,8 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
     };
 
     fetchData();
-  }, []);
+  }, [tour]);
 
-  // WTA empty state - ratings not yet calculated for WTA
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2>HIGHEST RATED BY SURFACE</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA player ratings coming soon</div>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

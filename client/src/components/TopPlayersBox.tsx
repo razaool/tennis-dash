@@ -36,18 +36,19 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     try {
       setLoading(true);
       setError(null);
-      
+
       let url;
       if (surface && ratingSystem === 'elo') {
-        url = `${API_BASE_URL}/api/rankings/surface/${surface}?ratingType=${ratingSystem}&limit=50&active=true`;
+        url = `${API_BASE_URL}/api/rankings/surface/${surface}?ratingType=${ratingSystem}&limit=50&active=true&tour=${tour}`;
       } else {
         const params = new URLSearchParams({
           limit: '50',
-          active: 'true'
+          active: 'true',
+          tour: tour
         });
         url = `${API_BASE_URL}/api/players/top/${ratingSystem}?${params}`;
       }
-      
+
       const response = await axios.get(url);
       
       setPlayers(response.data);
@@ -185,18 +186,6 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     );
   }
 
-  // WTA empty state - ratings not yet calculated for WTA
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2>TOP PLAYERS</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA player ratings coming soon</div>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (

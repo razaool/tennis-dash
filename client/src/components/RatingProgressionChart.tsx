@@ -25,7 +25,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
         
         // Get top 5 players
         const topPlayersResponse = await axios.get(
-          `${API_BASE_URL}/api/players/top/${selectedRatingType}?limit=5&active=true`
+          `${API_BASE_URL}/api/players/top/${selectedRatingType}?limit=5&active=true&tour=${tour}`
         );
         
         const topPlayers = topPlayersResponse.data;
@@ -35,7 +35,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
           try {
             // Only apply time range filter for ELO; Glicko2 and TrueSkill always use 12 months
             const months = selectedRatingType === 'elo' ? (timeRange === '12m' ? 12 : 1) : undefined;
-            const url = `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}`;
+            const url = `${API_BASE_URL}/api/players/ratings/${selectedRatingType}?player=${encodeURIComponent(player.name)}&tour=${tour}`;
             const progressionResponse = await axios.get(
               months ? `${url}&months=${months}` : url
             );
@@ -75,18 +75,6 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
     );
   }
 
-  // WTA empty state - ratings not yet calculated for WTA
-  if (tour === 'wta') {
-    return (
-      <div className={className} style={{ display: 'flex', flexDirection: 'column' }}>
-        <h2>RATING PROGRESSION</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA player ratings coming soon</div>
-        </div>
-      </div>
-    );
-  }
 
   // Calculate dynamic y-axis domain based on actual data
   const calculateYAxisDomain = () => {
