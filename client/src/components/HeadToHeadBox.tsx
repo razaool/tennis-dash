@@ -43,7 +43,7 @@ const getDefaultPlayers = (tour: TourType) => {
 const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }) => {
   const defaults = getDefaultPlayers(tour);
   const [player1, setPlayer1] = useState(defaults.player1);
-  const [player2, setPlayer2] = useState(getDefaultPlayers().player2);
+  const [player2, setPlayer2] = useState(defaults.player2);
   const [data, setData] = useState<HeadToHeadData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
