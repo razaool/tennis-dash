@@ -690,7 +690,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
                 )
               END
             FROM ${tables.matches}
-            WHERE EXTRACT(YEAR FROM match_date) = $3
+            WHERE EXTRACT(YEAR FROM match_date) = $2
               AND (player1_id = p.id OR player2_id = p.id)
           ) as win_percentage,
           ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
