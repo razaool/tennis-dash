@@ -33,8 +33,16 @@ interface HeadToHeadData {
 }
 
 const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }) => {
-  const [player1, setPlayer1] = useState('Novak Djokovic');
-  const [player2, setPlayer2] = useState('Roger Federer');
+  // Set default players based on tour
+  const getDefaultPlayers = () => {
+    if (tour === 'wta') {
+      return { player1: 'Serena Williams', player2: 'Venus Williams' };
+    }
+    return { player1: 'Novak Djokovic', player2: 'Roger Federer' };
+  };
+
+  const [player1, setPlayer1] = useState(getDefaultPlayers().player1);
+  const [player2, setPlayer2] = useState(getDefaultPlayers().player2);
   const [data, setData] = useState<HeadToHeadData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,13 +51,21 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
   const [showPlayer1Dropdown, setShowPlayer1Dropdown] = useState(false);
   const [showPlayer2Dropdown, setShowPlayer2Dropdown] = useState(false);
 
+  // Update default players when tour changes
+  useEffect(() => {
+    const defaults = getDefaultPlayers();
+    setPlayer1(defaults.player1);
+    setPlayer2(defaults.player2);
+    setData(null);
+  }, [tour]);
+
   // Filter suggestions for player 1
   useEffect(() => {
-    if (player1 && player1 !== 'Novak Djokovic') {
+    if (player1 && player1 !== getDefaultPlayers().player1) {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
-            params: { q: player1 }
+            params: { q: player1, tour }
           });
           const names = response.data.map((p: any) => p.name);
           setPlayer1Suggestions(names);
@@ -63,15 +79,15 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
       setPlayer1Suggestions([]);
       setShowPlayer1Dropdown(false);
     }
-  }, [player1]);
+  }, [player1, tour]);
 
   // Filter suggestions for player 2
   useEffect(() => {
-    if (player2 && player2 !== 'Roger Federer') {
+    if (player2 && player2 !== getDefaultPlayers().player2) {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
-            params: { q: player2 }
+            params: { q: player2, tour }
           });
           const names = response.data.map((p: any) => p.name);
           setPlayer2Suggestions(names);
@@ -85,15 +101,16 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
       setPlayer2Suggestions([]);
       setShowPlayer2Dropdown(false);
     }
-  }, [player2]);
+  }, [player2, tour]);
 
   // Auto-fetch on mount with default players
   useEffect(() => {
-    if (player1 === 'Novak Djokovic' && player2 === 'Roger Federer') {
+    const defaults = getDefaultPlayers();
+    if (player1 === defaults.player1 && player2 === defaults.player2) {
       fetchHeadToHead();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [tour]);
 
   const fetchHeadToHead = async () => {
     if (!player1 || !player2) {
@@ -105,7 +122,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
       setLoading(true);
       setError(null);
       const response = await axios.get(`${API_BASE_URL}/api/players/head-to-head`, {
-        params: { player1, player2 }
+        params: { player1, player2, tour }
       });
       setData(response.data);
     } catch (err: any) {
@@ -125,19 +142,6 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
     setPlayer2(name);
     setShowPlayer2Dropdown(false);
   };
-
-  // WTA empty state
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2>HEAD TO HEAD</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={className}>

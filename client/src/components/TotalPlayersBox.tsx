@@ -27,7 +27,9 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className, tour = 'at
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/dashboard/summary`);
+        const response = await axios.get(`${API_BASE_URL}/api/dashboard/summary`, {
+          params: { tour }
+        });
         setSummary(response.data);
       } catch (err) {
         console.error('Error fetching dashboard summary:', err);
@@ -36,20 +38,7 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className, tour = 'at
       }
     };
     fetchData();
-  }, []);
-
-  // WTA empty state
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2 style={{ textAlign: 'center' }}>WTA ANALYTICS DASHBOARD</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
-        </div>
-      </div>
-    );
-  }
+  }, [tour]);
 
   if (loading || !summary) {
     return (
@@ -61,7 +50,7 @@ const TotalPlayersBox: React.FC<TotalPlayersBoxProps> = ({ className, tour = 'at
 
   return (
     <div className={className}>
-      <h2 style={{ textAlign: 'center' }}>ATP ANALYTICS DASHBOARD</h2>
+      <h2 style={{ textAlign: 'center' }}>{tour === 'wta' ? 'WTA' : 'ATP'} ANALYTICS DASHBOARD</h2>
       <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: 'calc(100% - 2rem)' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '1.6rem', color: '#00ff41', fontWeight: 'bold' }}>{summary.totals.players}</div>

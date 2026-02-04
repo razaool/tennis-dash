@@ -23,7 +23,9 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/players/win-streak`);
+        const response = await axios.get(`${API_BASE_URL}/api/players/win-streak`, {
+          params: { tour }
+        });
         setData(response.data);
       } catch (err) {
         console.error('Error fetching win streak:', err);
@@ -33,20 +35,7 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) 
     };
 
     fetchData();
-  }, []);
-
-  // WTA empty state
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2>WIN STREAK</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
-        </div>
-      </div>
-    );
-  }
+  }, [tour]);
 
   if (loading) {
     return (

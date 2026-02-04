@@ -184,14 +184,14 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     );
   }
 
-  // WTA empty state
+  // WTA empty state - ratings not yet calculated for WTA
   if (tour === 'wta') {
     return (
       <div className={className}>
         <h2>TOP PLAYERS</h2>
         <div className="empty-state">
           <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
+          <div>WTA player ratings coming soon</div>
         </div>
       </div>
     );

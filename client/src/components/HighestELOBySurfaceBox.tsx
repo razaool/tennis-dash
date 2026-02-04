@@ -39,14 +39,14 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
     fetchData();
   }, []);
 
-  // WTA empty state
+  // WTA empty state - ratings not yet calculated for WTA
   if (tour === 'wta') {
     return (
       <div className={className}>
-        <h2>HIGHEST ELO BY SURFACE</h2>
+        <h2>HIGHEST RATED BY SURFACE</h2>
         <div className="empty-state">
           <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
+          <div>WTA player ratings coming soon</div>
         </div>
       </div>
     );

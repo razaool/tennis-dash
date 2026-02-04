@@ -169,14 +169,14 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
     }
   };
 
-  // WTA empty state
+  // WTA empty state - ML predictions rely on ratings which aren't calculated for WTA yet
   if (tour === 'wta') {
     return (
       <div className={`match-prediction-box ${className}`}>
         <h2>⚡ ML MATCH PREDICTION</h2>
         <div className="empty-state">
           <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
+          <div>WTA predictions coming soon</div>
         </div>
       </div>
     );

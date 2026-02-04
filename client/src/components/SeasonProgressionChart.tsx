@@ -20,7 +20,9 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
         setLoading(true);
 
         // Fetch season progression data
-        const progressionResponse = await axios.get(`${API_BASE_URL}/api/season/progression`);
+        const progressionResponse = await axios.get(`${API_BASE_URL}/api/season/progression`, {
+          params: { tour }
+        });
         const progressionData = progressionResponse.data.progression || [];
 
         setData(progressionData);
@@ -32,7 +34,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
     };
 
     fetchData();
-  }, []);
+  }, [tour]);
 
   // Format date to show month abbreviation
   const formatDate = (dateStr: string) => {
@@ -57,19 +59,6 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
         <h2>SEASON PROGRESS</h2>
         <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '1rem' }}>
           Loading...
-        </div>
-      </div>
-    );
-  }
-
-  // WTA empty state
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2 style={{ marginBottom: '0' }}>SEASON PROGRESS</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
         </div>
       </div>
     );

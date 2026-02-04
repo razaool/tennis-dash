@@ -26,7 +26,9 @@ const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className, tour = '
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/dashboard/summary`);
+        const response = await axios.get(`${API_BASE_URL}/api/dashboard/summary`, {
+          params: { tour }
+        });
         setRecentMatches(response.data.recentMatches);
       } catch (err) {
         console.error('Error fetching recent matches:', err);
@@ -35,20 +37,7 @@ const RecentMatchesBox: React.FC<RecentMatchesBoxProps> = ({ className, tour = '
       }
     };
     fetchData();
-  }, []);
-
-  // WTA empty state
-  if (tour === 'wta') {
-    return (
-      <div className={className}>
-        <h2>RECENT MATCHES</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA data coming soon</div>
-        </div>
-      </div>
-    );
-  }
+  }, [tour]);
 
   if (loading) {
     return (
