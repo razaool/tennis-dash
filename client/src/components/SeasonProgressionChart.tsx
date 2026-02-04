@@ -72,8 +72,8 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
 
       {/* Chart */}
       {chartData.length > 0 ? (
-        <div style={{ width: '100%', height: '250px', marginTop: '0.25rem', position: 'relative' }}>
-          <ResponsiveContainer width="100%" height="100%">
+        <div style={{ width: '100%', height: '250px', marginTop: '0.25rem', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ResponsiveContainer width="95%" height="95%">
             <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={`${theme.borderColor}`} />
               <XAxis
