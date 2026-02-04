@@ -12,10 +12,10 @@ interface Player {
   birth_date: string;
   rating_value: number;
   rating_deviation?: number;
-  win_percentage_2025?: number;
+  win_percentage?: number;
   current_rank?: number;
   rank_change?: number;
-  baseline_date?: string;
+  calculated_at?: string;
   last_updated?: string;
 }
 
@@ -308,8 +308,8 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
             <div className="player-age" style={{ textAlign: 'right' }}>
               {player.birth_date ? calculateAge(player.birth_date) : '-'}
             </div>
-            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: player.win_percentage_2025 != null ? getWinPercentageColor(player.win_percentage_2025) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
-              {player.win_percentage_2025 != null ? `${player.win_percentage_2025}%` : '-'}
+            <div style={{ textAlign: 'right', fontSize: '0.7rem', fontWeight: 500, color: player.win_percentage != null ? getWinPercentageColor(player.win_percentage) : '#d0d0d0', fontVariantNumeric: 'tabular-nums' }}>
+              {player.win_percentage != null ? `${player.win_percentage}%` : '-'}
             </div>
             <div className="player-rating" style={{ minWidth: '3.5rem' }}>
               {Math.round(player.rating_value).toString()}

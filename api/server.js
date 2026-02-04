@@ -668,8 +668,9 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
 
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
+    const snapshotsTable = tour === 'wta' ? 'wta_ranking_snapshots' : 'ranking_snapshots';
 
-    // Query with movement indicators
+    // Query with movement indicators from snapshots
     let query = `
       WITH current_rankings AS (
         SELECT
@@ -704,6 +705,13 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
+      ),
+      most_recent_snapshot AS (
+        SELECT rankings, snapshot_date
+        FROM ${snapshotsTable}
+        WHERE rating_type = $1 AND surface IS NULL
+        ORDER BY snapshot_date DESC
+        LIMIT 1
       )
       SELECT
         rp.id,
@@ -715,8 +723,12 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.win_percentage,
         rp.current_rank,
         rp.calculated_at,
-        0 as rank_change
+        COALESCE(
+          (rp.current_rank::int - (mrs.rankings->>'player_'||rp.id)::int),
+          0
+        ) as rank_change
       FROM ranked_players rp
+      CROSS JOIN most_recent_snapshot mrs
     `;
 
     const params = [ratingType, currentYear];
