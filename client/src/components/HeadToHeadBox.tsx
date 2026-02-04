@@ -106,15 +106,20 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
     }
   }, [player2, tour]);
 
-  // Auto-fetch on mount with default players
+  // Auto-fetch on mount and when tour changes
   const hasFetched = useRef(false);
+  useEffect(() => {
+    hasFetched.current = false; // Reset when tour changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tour]);
+
   useEffect(() => {
     if (!hasFetched.current && player1 && player2) {
       hasFetched.current = true;
       fetchHeadToHead();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour]);
+  }, [tour, player1, player2]);
 
   const fetchHeadToHead = async () => {
     if (!player1 || !player2) {
