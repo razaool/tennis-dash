@@ -32,16 +32,17 @@ interface HeadToHeadData {
   matches: MatchData[];
 }
 
-const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }) => {
-  // Set default players based on tour
-  const getDefaultPlayers = () => {
-    if (tour === 'wta') {
-      return { player1: 'Serena Williams', player2: 'Venus Williams' };
-    }
-    return { player1: 'Novak Djokovic', player2: 'Roger Federer' };
-  };
+// Get default players based on tour
+const getDefaultPlayers = (tour: TourType) => {
+  if (tour === 'wta') {
+    return { player1: 'Serena Williams', player2: 'Venus Williams' };
+  }
+  return { player1: 'Novak Djokovic', player2: 'Roger Federer' };
+};
 
-  const [player1, setPlayer1] = useState(getDefaultPlayers().player1);
+const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }) => {
+  const defaults = getDefaultPlayers(tour);
+  const [player1, setPlayer1] = useState(defaults.player1);
   const [player2, setPlayer2] = useState(getDefaultPlayers().player2);
   const [data, setData] = useState<HeadToHeadData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
 
   // Update default players when tour changes
   useEffect(() => {
-    const defaults = getDefaultPlayers();
+    const defaults = getDefaultPlayers(tour);
     setPlayer1(defaults.player1);
     setPlayer2(defaults.player2);
     setData(null);
@@ -61,7 +62,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
 
   // Filter suggestions for player 1
   useEffect(() => {
-    if (player1 && player1 !== getDefaultPlayers().player1) {
+    if (player1 && player1 !== getDefaultPlayers(tour).player1) {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
@@ -83,7 +84,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
 
   // Filter suggestions for player 2
   useEffect(() => {
-    if (player2 && player2 !== getDefaultPlayers().player2) {
+    if (player2 && player2 !== getDefaultPlayers(tour).player2) {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
@@ -105,7 +106,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
 
   // Auto-fetch on mount with default players
   useEffect(() => {
-    const defaults = getDefaultPlayers();
+    const defaults = getDefaultPlayers(tour);
     if (player1 === defaults.player1 && player2 === defaults.player2) {
       fetchHeadToHead();
     }
