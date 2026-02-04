@@ -148,7 +148,7 @@ function getTourTables(tour = 'atp') {
       players: 'wta_players',
       matches: 'wta_matches',
       tournaments: 'wta_tournaments',
-      ratings: null // WTA doesn't have ratings yet
+      ratings: 'wta_ratings'
     };
   }
   return {
@@ -595,66 +595,35 @@ app.get('/api/players/win-streak', async (req, res) => {
  */
 app.get('/api/players/highest-elo-by-surface', async (req, res) => {
   try {
+    const { tour } = req.query;
+    const tables = getTourTables(tour);
+
     // Get current highest ELO on each surface for active players only (played since Jan 1, 2025)
-    const grassResult = await pool.query(`
-      SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
-      FROM ratings r
-      JOIN players p ON r.player_id = p.id
-      WHERE r.rating_type = 'elo'
-        AND r.surface = 'Grass'
-        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = 'Grass' GROUP BY player_id)
-        AND p.id IN (
-          SELECT DISTINCT player_id FROM (
-            SELECT player1_id as player_id FROM matches WHERE match_date >= '2025-01-01'
-            UNION
-            SELECT player2_id as player_id FROM matches WHERE match_date >= '2025-01-01'
-          ) active_players
-        )
-      ORDER BY elo_rating DESC
-      LIMIT 1
-    `);
-    
-    const clayResult = await pool.query(`
-      SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
-      FROM ratings r
-      JOIN players p ON r.player_id = p.id
-      WHERE r.rating_type = 'elo'
-        AND r.surface = 'Clay'
-        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = 'Clay' GROUP BY player_id)
-        AND p.id IN (
-          SELECT DISTINCT player_id FROM (
-            SELECT player1_id as player_id FROM matches WHERE match_date >= '2025-01-01'
-            UNION
-            SELECT player2_id as player_id FROM matches WHERE match_date >= '2025-01-01'
-          ) active_players
-        )
-      ORDER BY elo_rating DESC
-      LIMIT 1
-    `);
-    
-    const hardResult = await pool.query(`
-      SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
-      FROM ratings r
-      JOIN players p ON r.player_id = p.id
-      WHERE r.rating_type = 'elo'
-        AND r.surface = 'Hard'
-        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface = 'Hard' GROUP BY player_id)
-        AND p.id IN (
-          SELECT DISTINCT player_id FROM (
-            SELECT player1_id as player_id FROM matches WHERE match_date >= '2025-01-01'
-            UNION
-            SELECT player2_id as player_id FROM matches WHERE match_date >= '2025-01-01'
-          ) active_players
-        )
-      ORDER BY elo_rating DESC
-      LIMIT 1
-    `);
-    
-    res.json({
-      grass: grassResult.rows[0] || null,
-      clay: clayResult.rows[0] || null,
-      hard: hardResult.rows[0] || null
-    });
+    const surfaces = ['Grass', 'Clay', 'Hard'];
+    const results = {};
+
+    for (const surface of surfaces) {
+      const result = await pool.query(`
+        SELECT p.name, r.rating_value as elo_rating, r.calculated_at as achieved_at
+        FROM ${tables.ratings} r
+        JOIN ${tables.players} p ON r.player_id = p.id
+        WHERE r.rating_type = 'elo'
+          AND r.surface = $1
+          AND r.id IN (SELECT MAX(id) FROM ${tables.ratings} WHERE rating_type = 'elo' AND surface = $1 GROUP BY player_id)
+          AND p.id IN (
+            SELECT DISTINCT player_id FROM (
+              SELECT player1_id as player_id FROM ${tables.matches} WHERE match_date >= '2025-01-01'
+              UNION
+              SELECT player2_id as player_id FROM ${tables.matches} WHERE match_date >= '2025-01-01'
+            ) active_players
+          )
+        ORDER BY elo_rating DESC
+        LIMIT 1
+      `, [surface]);
+      results[surface.toLowerCase()] = result.rows[0] || null;
+    }
+
+    res.json(results);
   } catch (error) {
     console.error('Error fetching highest ELO by surface:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -695,7 +664,10 @@ app.get('/api/players/highest-elo-by-surface', async (req, res) => {
 app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), async (req, res) => {
   try {
     const { ratingType } = req.params;
-    const { limit = 10, active = false } = req.query;
+    const { limit = 10, active = false, tour } = req.query;
+
+    const tables = getTourTables(tour);
+    const currentYear = new Date().getFullYear();
 
     // Query with movement indicators
     let query = `
@@ -717,13 +689,13 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
                   1
                 )
               END
-            FROM matches
-            WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+            FROM ${tables.matches}
+            WHERE EXTRACT(YEAR FROM match_date) = $3
               AND (player1_id = p.id OR player2_id = p.id)
-          ) as win_percentage_2025,
+          ) as win_percentage,
           ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
-        FROM ratings r
-        JOIN players p ON p.id = r.player_id
+        FROM ${tables.ratings} r
+        JOIN ${tables.players} p ON p.id = r.player_id
         WHERE r.rating_type = $1 AND r.surface IS NULL
       ),
       ranked_players AS (
@@ -732,13 +704,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
-      ),
-      latest_snapshot AS (
-        SELECT rankings, snapshot_date
-        FROM ranking_snapshots
-        WHERE rating_type = $1 AND surface IS NULL
-        ORDER BY snapshot_date DESC
-        LIMIT 1 OFFSET 1
       )
       SELECT
         rp.id,
@@ -747,25 +712,16 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.birth_date,
         rp.rating_value,
         rp.rating_deviation,
-        rp.win_percentage_2025,
-        rp.current_rank,
-        ls.snapshot_date as baseline_date,
-        CASE
-          WHEN ls.rankings IS NULL THEN 0
-          ELSE COALESCE((
-            SELECT rp.current_rank - (ls.rankings->>'player_' || rp.id)::int
-            WHERE (ls.rankings->>'player_' || rp.id) IS NOT NULL
-          ), 0)
-        END as rank_change
+        rp.win_percentage,
+        rp.current_rank
       FROM ranked_players rp
-      LEFT JOIN LATERAL (SELECT * FROM latest_snapshot) ls ON true
     `;
 
-    const params = [ratingType];
+    const params = [ratingType, tables.matches, currentYear];
 
     if (active === 'true') {
       query += ` WHERE rp.id IN (
-        SELECT DISTINCT winner_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+        SELECT DISTINCT winner_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
       )`;
     }
 
@@ -784,14 +740,16 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
 app.get('/api/players/ratings/:ratingType', async (req, res) => {
   try {
     const { ratingType } = req.params;
-    const { player, surface, months = 12 } = req.query;
+    const { player, surface, months = 12, tour } = req.query;
+
+    const tables = getTourTables(tour);
 
     if (!player) {
       return res.status(400).json({ error: 'player parameter required' });
     }
 
     // Get player ID
-    const playerResult = await pool.query('SELECT id, name FROM players WHERE name ILIKE $1', [`%${player}%`]);
+    const playerResult = await pool.query(`SELECT id, name FROM ${tables.players} WHERE name ILIKE $1`, [`%${player}%`]);
     if (playerResult.rows.length === 0) {
       return res.status(404).json({ error: `Player "${player}" not found` });
     }
@@ -800,8 +758,8 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 
     // Get the most recent match date for this player
     const maxDateQuery = surface
-      ? `SELECT MAX(m.match_date) as max_date FROM ratings r JOIN matches m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface = $3`
-      : `SELECT MAX(m.match_date) as max_date FROM ratings r JOIN matches m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface IS NULL`;
+      ? `SELECT MAX(m.match_date) as max_date FROM ${tables.ratings} r JOIN ${tables.matches} m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface = $3`
+      : `SELECT MAX(m.match_date) as max_date FROM ${tables.ratings} r JOIN ${tables.matches} m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface IS NULL`;
 
     const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
     const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
@@ -815,8 +773,8 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
         r.rating_deviation,
         m.match_date,
         m.surface
-      FROM ratings r
-      JOIN matches m ON r.match_id = m.id
+      FROM ${tables.ratings} r
+      JOIN ${tables.matches} m ON r.match_id = m.id
       WHERE r.player_id = $1 AND r.rating_type = $2 AND m.match_date >= $3
     `;
 
@@ -847,36 +805,38 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 // Player details
 app.get('/api/players/details', async (req, res) => {
   try {
-    const { player } = req.query;
-    
+    const { player, tour } = req.query;
+
+    const tables = getTourTables(tour);
+
     if (!player) {
       return res.status(400).json({ error: 'player parameter required' });
     }
-    
-    const playerResult = await pool.query('SELECT * FROM players WHERE name ILIKE $1', [`%${player}%`]);
-    
+
+    const playerResult = await pool.query(`SELECT * FROM ${tables.players} WHERE name ILIKE $1`, [`%${player}%`]);
+
     if (playerResult.rows.length === 0) {
       return res.status(404).json({ error: `Player "${player}" not found` });
     }
-    
+
     const playerData = playerResult.rows[0];
     const playerId = parseInt(playerData.id);
-    
+
     // Get latest ratings
     const ratingsResult = await pool.query(`
       SELECT rating_type, surface, rating_value, rating_deviation
-      FROM ratings
+      FROM ${tables.ratings}
       WHERE player_id = $1
         AND id IN (
-          SELECT MAX(id) 
-          FROM ratings 
+          SELECT MAX(id)
+          FROM ${tables.ratings}
           WHERE player_id = $1 AND rating_type = r.rating_type AND surface IS NOT DISTINCT FROM r.surface
           GROUP BY rating_type, surface
         )
     `, [playerId]);
-    
+
     playerData.ratings = ratingsResult.rows;
-    
+
     res.json(playerData);
   } catch (error) {
     console.error('Error fetching player:', error);
@@ -1475,12 +1435,15 @@ app.get('/api/dashboard/summary', cacheMiddleware('dashboard_summary', 300), asy
  */
 app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), async (req, res) => {
   try {
-    const { ratingType = 'elo', limit = 10 } = req.query;
-    
-    // Return top active players only (played a match in 2025)
+    const { ratingType = 'elo', limit = 10, tour } = req.query;
+
+    const tables = getTourTables(tour);
+    const currentYear = new Date().getFullYear();
+
+    // Return top active players only (played a match in current year)
     // Use latest match date rating, not MAX(id)
     const result = await pool.query(`
-      SELECT 
+      SELECT
         id,
         name,
         rating_value,
@@ -1491,24 +1454,24 @@ app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), a
           p.name,
           r.rating_value,
           r.rating_deviation
-        FROM ratings r
-        JOIN players p ON r.player_id = p.id
-        JOIN matches m ON r.match_id = m.id
+        FROM ${tables.ratings} r
+        JOIN ${tables.players} p ON r.player_id = p.id
+        JOIN ${tables.matches} m ON r.match_id = m.id
         WHERE r.rating_type = $1 AND r.surface IS NULL
           AND p.id IN (
             SELECT DISTINCT player_id FROM (
-              SELECT winner_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+              SELECT winner_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3
               UNION
-              SELECT player1_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
-              UNION  
-              SELECT player2_id as player_id FROM matches WHERE EXTRACT(YEAR FROM match_date) = 2025
+              SELECT player1_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3
+              UNION
+              SELECT player2_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3
             ) active_players WHERE player_id IS NOT NULL
           )
         ORDER BY p.id, m.match_date DESC, r.id DESC
       ) latest_ratings
       ORDER BY rating_value DESC
       LIMIT $2
-    `, [ratingType, parseInt(limit)]);
+    `, [ratingType, parseInt(limit), currentYear]);
     
     res.json(result.rows);
   } catch (error) {
@@ -1668,10 +1631,13 @@ app.get('/api/tournaments/:id', async (req, res) => {
 app.get('/api/rankings/surface/:surface', async (req, res) => {
   try {
     const { surface } = req.params;
-    const { ratingType = 'elo', limit = 10, active = false } = req.query;
-    
+    const { ratingType = 'elo', limit = 10, active = false, tour } = req.query;
+
+    const tables = getTourTables(tour);
+    const currentYear = new Date().getFullYear();
+
     let query = `
-      SELECT 
+      SELECT
         p.id,
         p.name,
         p.country,
@@ -1687,34 +1653,34 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
                 1
               )
             END
-          FROM matches
-          WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+          FROM ${tables.matches}
+          WHERE EXTRACT(YEAR FROM match_date) = $3
             AND surface = $2
             AND (player1_id = p.id OR player2_id = p.id)
-        ) as win_percentage_2025
-      FROM ratings r
-      JOIN players p ON r.player_id = p.id
+        ) as win_percentage
+      FROM ${tables.ratings} r
+      JOIN ${tables.players} p ON r.player_id = p.id
       WHERE r.rating_type = $1 AND r.surface = $2
-        AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = $1 AND surface = $2 GROUP BY player_id)
+        AND r.id IN (SELECT MAX(id) FROM ${tables.ratings} WHERE rating_type = $1 AND surface = $2 GROUP BY player_id)
     `;
-    
-    const params = [ratingType, surface];
-    
+
+    const params = [ratingType, surface, currentYear];
+
     if (active === 'true') {
       query += ` AND p.id IN (
         SELECT DISTINCT player_id FROM (
-          SELECT winner_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+          SELECT winner_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
           UNION
-          SELECT player1_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-          UNION  
-          SELECT player2_id as player_id FROM matches WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+          SELECT player1_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+          UNION
+          SELECT player2_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
         ) active_players WHERE player_id IS NOT NULL
       )`;
     }
-    
+
     query += ` ORDER BY r.rating_value DESC LIMIT $${params.length + 1}`;
     params.push(parseInt(limit));
-    
+
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error) {
