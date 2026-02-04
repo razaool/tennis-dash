@@ -728,7 +728,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           0
         ) as rank_change
       FROM ranked_players rp
-      CROSS JOIN most_recent_snapshot mrs
+      LEFT JOIN most_recent_snapshot mrs ON true
     `;
 
     const params = [ratingType, currentYear];
