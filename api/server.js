@@ -717,7 +717,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
       FROM ranked_players rp
     `;
 
-    const params = [ratingType, tables.matches, currentYear];
+    const params = [ratingType, currentYear];
 
     if (active === 'true') {
       query += ` WHERE rp.id IN (
