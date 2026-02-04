@@ -1,0 +1,57 @@
+{
+  "_comment": "Fill in the correct full name for each CSV player name",
+  "Ambiguous": {
+    "Chang H.": "Hanna Chang",
+    "_options": ["Hye Jeong Chang", "Hsin Chieh Chang", "Hanna Chang", "Hada Chang", "Haru Chang"],
+    "_matches": "Copa Colsanitas 2025 (won vs Lepchenko, lost to Maria T.)",
+
+    "Zucchini A.": "Arianna Zucchini",
+    "_options": ["Agnese Zucchini", "Arianna Zucchini"],
+    "_matches": "Rome 2025 (vs Mboko)",
+
+    "Branstine C.": "Carson Branstine",
+    "_options": ["Carson Branstine", "Constance Branstine"],
+    "_matches": "Rosmalen 2025, Wimbledon 2025 (vs Sabalenka), Montreal 2025 (vs Sakkari)",
+
+    "Glozman V.": "Valerie Glozman",
+    "_options": ["Vivian Glozman", "Valerie Glozman"],
+    "_matches": "US Open 2025 (vs Lamens)",
+
+    "Tona M.": "Miriana Tona",
+    "_options": ["Milena Tona", "Miriana Tona"],
+    "_matches": "SP Open Sao Paulo 2025 (vs Haddad Maia)",
+
+    "Zhang R.": "Ruien Zhang",
+    "_options": ["Ruo Nan Zhang", "Renee Zhang", "Ruien Zhang", "Ruixi Zhang", "Ruojiao Zhang"],
+    "_matches": "China Open Beijing 2025 (vs Lys)",
+
+    "Sidorova K.": "Kristiana Sidorova",
+    "_options": ["Ksenia Sidorova", "Kristiana Sidorova"],
+    "_matches": "Hong Kong 2025 (vs Lys)"
+  },
+  "NotFound": {
+    "Grant T.C.": "Tyra Caterina Grant",
+    "_matches": "Miami 2025 (vs Grabher), Rome 2025 (vs Ruzic)",
+
+    "Mediorreal A.V.": "Valentina Mediorreal Arias",
+    "_matches": "Copa Colsanitas 2025 (vs Kawa)",
+
+    "Sanchez Uribe M.J.": "Maria Jose Sanchez Uribe",
+    "_matches": "Copa Colsanitas 2025 (vs Pareja)",
+
+    "Torres Murcia M.C.": "Maria Camila Torres Murcia",
+    "_matches": "Copa Colsanitas 2025 (vs Bektas)",
+
+    "Wuerth T.": "Tara Wuerth",
+    "_matches": "Hamburg 2025 (vs Parry)",
+
+    "Popa G.S.": "Giulia Safina Popa",
+    "_matches": "Iasi Open 2025 (vs Jimenez Kasintseva)",
+
+    "Barros V.L.": "Victoria Luisa Barros",
+    "_matches": "SP Open Sao Paulo 2025 (vs Osuigwe)",
+
+    "Wong Hong Yi C.": "Hong Yi Cody Wong",
+    "_matches": "Hong Kong 2025 (vs Morvayova)"
+  }
+}

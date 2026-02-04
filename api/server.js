@@ -713,7 +713,9 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.rating_value,
         rp.rating_deviation,
         rp.win_percentage,
-        rp.current_rank
+        rp.current_rank,
+        rp.calculated_at,
+        0 as rank_change
       FROM ranked_players rp
     `;
 

@@ -63,7 +63,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
   useEffect(() => {
     fetchPlayers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ratingSystem, surface]);
+  }, [ratingSystem, surface, tour]);
 
   const calculateAge = (birthDate: string): number => {
     if (!birthDate) return 0;
