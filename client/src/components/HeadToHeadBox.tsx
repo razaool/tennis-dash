@@ -58,6 +58,28 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
   const prevTourRef = useRef<TourType | null>(null);
   const isInitialMount = useRef(true);
 
+  // Fetch with explicit player names (for tour changes)
+  const fetchHeadToHeadWithNames = async (p1: string, p2: string) => {
+    if (!p1 || !p2) {
+      setError('Please enter both players');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(`${API_BASE_URL}/api/players/head-to-head`, {
+        params: { player1: p1, player2: p2, tour }
+      });
+      setData(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to fetch head-to-head data');
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update default players when tour changes and auto-fetch
   useEffect(() => {
     const defaults = getDefaultPlayers(tour);
@@ -67,14 +89,11 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
     setPlayer2(defaults.player2);
     setData(null);
 
-    // Fetch on mount or tour change (after state updates)
+    // Fetch on mount or tour change with the correct player names
     if (isInitialMount.current || isTourChange) {
       isInitialMount.current = false;
       prevTourRef.current = tour;
-      // Use setTimeout to ensure state has updated before fetching
-      setTimeout(() => {
-        fetchHeadToHead();
-      }, 0);
+      fetchHeadToHeadWithNames(defaults.player1, defaults.player2);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour]);
