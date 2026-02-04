@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TourType } from '../contexts/TourContext';
+import { useTour } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -17,6 +18,7 @@ interface WinStreakData {
 }
 
 const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) => {
+  const { theme } = useTour();
   const [data, setData] = useState<WinStreakData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +42,7 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) 
   if (loading) {
     return (
       <div className={className}>
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: `${theme.textSecondary}`, textAlign: 'center', marginTop: '2rem' }}>
           Loading...
         </div>
       </div>
@@ -51,7 +53,7 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) 
     return (
       <div className={className}>
         <h2>WIN STREAK</h2>
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: `${theme.textSecondary}`, textAlign: 'center', marginTop: '2rem' }}>
           No active win streaks
         </div>
       </div>
@@ -62,13 +64,13 @@ const WinStreakBox: React.FC<WinStreakBoxProps> = ({ className, tour = 'atp' }) 
     <div className={className}>
       <h2>WIN STREAK</h2>
       <div style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{ fontSize: '1.1rem', color: '#00ff41', fontWeight: 'bold' }}>
+        <div style={{ fontSize: '1.1rem', color: `${theme.primaryColor}`, fontWeight: 'bold' }}>
           {data.player_name}
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#d0d0d0' }}>
+        <div style={{ fontSize: '0.75rem', color: `${theme.textPrimary}` }}>
           <strong>Streak:</strong> {data.win_streak} matches
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#d0d0d0' }}>
+        <div style={{ fontSize: '0.75rem', color: `${theme.textPrimary}` }}>
           <strong>Last Win:</strong> {data.last_win_date ? new Date(data.last_win_date).toLocaleDateString() : 'N/A'}
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TourType } from '../contexts/TourContext';
+import { useTour } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -11,6 +12,7 @@ interface RatingProgressionChartProps {
 }
 
 const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ className, tour = 'atp' }) => {
+  const { theme } = useTour();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRatingType, setSelectedRatingType] = useState<'elo' | 'glicko2' | 'trueskill'>('elo');
@@ -66,7 +68,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
     return (
       <div className={className}>
         <h2>RATING PROGRESSION</h2>
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: `${theme.textSecondary}`, textAlign: 'center', marginTop: '2rem' }}>
           Loading...
         </div>
       </div>
@@ -126,9 +128,9 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
             key={system}
             onClick={() => setSelectedRatingType(system)}
             style={{
-              background: selectedRatingType === system ? '#00ff41' : '#131818',
-              color: selectedRatingType === system ? '#0a0e0e' : '#d0d0d0',
-              border: '1px solid #1a1f1f',
+              background: selectedRatingType === system ? `${theme.primaryColor}` : `${theme.backgroundColor}`,
+              color: selectedRatingType === system ? `${theme.headerBgColor}` : `${theme.textPrimary}`,
+              border: `1px solid ${theme.borderColor}`,
               padding: '0.25rem 0.5rem',
               fontSize: '0.6rem',
               textTransform: 'uppercase',
@@ -147,9 +149,9 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
           <button
             onClick={() => setTimeRange('12m')}
             style={{
-              background: timeRange === '12m' ? '#00ff41' : '#131818',
-              color: timeRange === '12m' ? '#0a0e0e' : '#d0d0d0',
-              border: '1px solid #1a1f1f',
+              background: timeRange === '12m' ? `${theme.primaryColor}` : `${theme.backgroundColor}`,
+              color: timeRange === '12m' ? `${theme.headerBgColor}` : `${theme.textPrimary}`,
+              border: `1px solid ${theme.borderColor}`,
               padding: '0.25rem 0.5rem',
               fontSize: '0.6rem',
               textTransform: 'uppercase',
@@ -162,9 +164,9 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
           <button
             onClick={() => setTimeRange('1m')}
             style={{
-              background: timeRange === '1m' ? '#00ff41' : '#131818',
-              color: timeRange === '1m' ? '#0a0e0e' : '#d0d0d0',
-              border: '1px solid #1a1f1f',
+              background: timeRange === '1m' ? `${theme.primaryColor}` : `${theme.backgroundColor}`,
+              color: timeRange === '1m' ? `${theme.headerBgColor}` : `${theme.textPrimary}`,
+              border: `1px solid ${theme.borderColor}`,
               padding: '0.25rem 0.5rem',
               fontSize: '0.6rem',
               textTransform: 'uppercase',
@@ -182,10 +184,10 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
         <div style={{ width: '100%', flex: 1, minHeight: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={prepareChartData()}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1f1f" />
-              <XAxis 
-                dataKey="date" 
-                stroke="#707070"
+              <CartesianGrid strokeDasharray="3 3" stroke={`${theme.borderColor}`} />
+              <XAxis
+                dataKey="date"
+                stroke={`${theme.textSecondary}`}
                 style={{ fontSize: '0.55rem' }}
                 angle={-30}
                 textAnchor="end"
@@ -196,37 +198,37 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
                   return `${date.getMonth() + 1}/${date.getDate()}`;
                 }}
               />
-              <YAxis 
-                stroke="#707070"
+              <YAxis
+                stroke={`${theme.textSecondary}`}
                 style={{ fontSize: '0.6rem' }}
                 domain={calculateYAxisDomain()}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#131818', 
-                  border: '1px solid #1a1f1f',
-                  color: '#d0d0d0',
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: `${theme.backgroundColor}`,
+                  border: `1px solid ${theme.borderColor}`,
+                  color: `${theme.textPrimary}`,
                   fontSize: '0.6rem'
                 }}
                 content={({ active, payload, label }) => {
                   if (!active || !payload || !payload.length) {
                     return null;
                   }
-                  
+
                   // Sort payload by rating value (descending)
                   const sortedPayload = [...payload].sort((a: any, b: any) => {
                     const aValue = parseFloat(a.value) || 0;
                     const bValue = parseFloat(b.value) || 0;
                     return bValue - aValue;
                   });
-                  
+
                   return (
-                    <div style={{ 
-                      backgroundColor: '#131818', 
-                      border: '1px solid #1a1f1f',
+                    <div style={{
+                      backgroundColor: `${theme.backgroundColor}`,
+                      border: `1px solid ${theme.borderColor}`,
                       padding: '0.5rem',
                       fontSize: '0.6rem',
-                      color: '#d0d0d0'
+                      color: `${theme.textPrimary}`
                     }}>
                       <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>{label}</p>
                       {sortedPayload.map((entry: any, index: number) => (
@@ -238,13 +240,13 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
                   );
                 }}
               />
-              <Legend 
-                wrapperStyle={{ fontSize: '0.6rem', color: '#d0d0d0' }}
+              <Legend
+                wrapperStyle={{ fontSize: '0.6rem', color: `${theme.textPrimary}` }}
               />
               {data.map((player, index) => {
-                const colors = ['#00ff41', '#00d9ff', '#ff6b6b', '#ffd700', '#ff69b4'];
+                const colors = [`${theme.primaryColor}`, '#00d9ff', '#ff6b6b', '#ffd700', '#ff69b4'];
                 const color = colors[index % colors.length];
-                
+
                 return (
                   <Line
                     key={player.name}
@@ -261,7 +263,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
           </ResponsiveContainer>
         </div>
       ) : (
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: `${theme.textSecondary}`, textAlign: 'center', marginTop: '2rem' }}>
           No data available
         </div>
       )}

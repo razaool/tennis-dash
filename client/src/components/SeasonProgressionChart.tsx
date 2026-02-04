@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { TourType } from '../contexts/TourContext';
+import { useTour } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -11,6 +12,7 @@ interface SeasonProgressionChartProps {
 }
 
 const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ className, tour = 'atp' }) => {
+  const { theme } = useTour();
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +59,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
     return (
       <div className={className}>
         <h2>SEASON PROGRESS</h2>
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '1rem' }}>
+        <div style={{ fontSize: '0.6rem', color: `${theme.textSecondary}`, textAlign: 'center', marginTop: '1rem' }}>
           Loading...
         </div>
       </div>
@@ -73,10 +75,10 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
         <div style={{ width: '100%', height: '250px', marginTop: '0.25rem', position: 'relative' }}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1f1f" />
+              <CartesianGrid strokeDasharray="3 3" stroke={`${theme.borderColor}`} />
               <XAxis
                 dataKey="dayOfYear"
-                stroke="#707070"
+                stroke={`${theme.textSecondary}`}
                 style={{ fontSize: '0.45rem' }}
                 tickFormatter={(value) => {
                   const date = new Date('2026-01-01');
@@ -91,7 +93,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
                 scale="linear"
               />
               <YAxis
-                stroke="#707070"
+                stroke={`${theme.textSecondary}`}
                 style={{ fontSize: '0.45rem' }}
                 domain={[0, 100]}
                 width={28}
@@ -99,7 +101,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1a1f1f',
+                  backgroundColor: `${theme.borderColor}`,
                   border: '1px solid #333',
                   borderRadius: '4px',
                   fontSize: '0.5rem'
@@ -114,7 +116,7 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
               <Line
                 type="stepAfter"
                 dataKey="progress"
-                stroke="#00ff41"
+                stroke={`${theme.primaryColor}`}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -127,14 +129,14 @@ const SeasonProgressionChart: React.FC<SeasonProgressionChartProps> = ({ classNa
             left: '50%',
             transform: 'translateX(-50%)',
             fontSize: '1.1rem',
-            color: '#00ff41',
+            color: `${theme.primaryColor}`,
             fontWeight: 'bold'
           }}>
             {`${Math.round(chartData[chartData.length - 1].progress)}%`}
           </div>
         </div>
       ) : (
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: `${theme.textSecondary}`, textAlign: 'center', marginTop: '2rem' }}>
           No data available
         </div>
       )}

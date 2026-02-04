@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MovementIndicator from './MovementIndicator';
-import { TourType } from '../contexts/TourContext';
+import { TourType, useTour } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -25,6 +25,7 @@ interface TopPlayersBoxProps {
 }
 
 const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }) => {
+  const { theme } = useTour();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -220,9 +221,9 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
               key={system}
               onClick={() => setRatingSystem(system)}
               style={{
-                background: ratingSystem === system ? '#00ff41' : '#131818',
-                color: ratingSystem === system ? '#0a0e0e' : '#d0d0d0',
-                border: '1px solid #1a1f1f',
+                background: ratingSystem === system ? `${theme.primaryColor}` : `${theme.backgroundColor}`,
+                color: ratingSystem === system ? `${theme.headerBgColor}` : `${theme.textPrimary}`,
+                border: `1px solid ${theme.borderColor}`,
                 padding: '0.25rem 0.5rem',
                 fontSize: '0.6rem',
                 textTransform: 'uppercase',
@@ -237,11 +238,11 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
         
         {/* Surface Toggle (only for ELO) */}
         {ratingSystem === 'elo' && (
-          <div style={{ 
-            display: 'flex', 
-            gap: '0.125rem', 
-            background: '#131818', 
-            border: '1px solid #1a1f1f', 
+          <div style={{
+            display: 'flex',
+            gap: '0.125rem',
+            background: `${theme.backgroundColor}`,
+            border: `1px solid ${theme.borderColor}`, 
             padding: '0.125rem',
             borderRadius: '0.25rem',
             position: 'relative'
@@ -249,8 +250,8 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
             <button
               onClick={() => setSurface(null)}
               style={{
-                background: surface === null ? '#00ff41' : 'transparent',
-                color: surface === null ? '#0a0e0e' : '#d0d0d0',
+                background: surface === null ? `${theme.primaryColor}` : 'transparent',
+                color: surface === null ? `${theme.headerBgColor}` : `${theme.textPrimary}`,
                 border: 'none',
                 padding: '0.25rem 0.5rem',
                 fontSize: '0.6rem',
@@ -268,8 +269,8 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
                 key={surf}
                 onClick={() => setSurface(surf)}
                 style={{
-                  background: surface === surf ? '#00ff41' : 'transparent',
-                  color: surface === surf ? '#0a0e0e' : '#d0d0d0',
+                  background: surface === surf ? `${theme.primaryColor}` : 'transparent',
+                  color: surface === surf ? `${theme.headerBgColor}` : `${theme.textPrimary}`,
                   border: 'none',
                   padding: '0.25rem 0.5rem',
                   fontSize: '0.6rem',
@@ -296,7 +297,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
 
       {/* Players List */}
       {/* Header Row */}
-      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 3rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #1a1f1f', marginBottom: '0.5rem', fontSize: '0.65rem', color: '#707070', textTransform: 'uppercase', alignItems: 'center' }}>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 3rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.65rem', color: `${theme.textSecondary}`, textTransform: 'uppercase', alignItems: 'center' }}>
         <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'right' }}>Age</div>
