@@ -509,19 +509,27 @@ app.get('/api/players/win-streak', async (req, res) => {
   try {
     const { tour } = req.query;
     const tables = getTourTables(tour);
+    const isWTA = tour === 'wta';
 
-    // Get all active players (played in 2025)
+    // Get the most recent match year to use as baseline
+    const yearResult = await pool.query(`
+      SELECT EXTRACT(YEAR FROM MAX(match_date)) as max_year FROM ${tables.matches}
+    `);
+    const maxYear = yearResult.rows[0]?.max_year || 2024;
+    const startYear = isWTA ? 2024 : maxYear; // WTA: use 2024, ATP: use latest year
+
+    // Get all active players (played in the target year)
     const activePlayers = await pool.query(`
       SELECT DISTINCT p.id, p.name
       FROM ${tables.players} p
       WHERE p.id IN (
-        SELECT DISTINCT winner_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) >= 2025
+        SELECT DISTINCT winner_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) >= $1
         UNION
-        SELECT DISTINCT player1_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) >= 2025
+        SELECT DISTINCT player1_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) >= $1
         UNION
-        SELECT DISTINCT player2_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) >= 2025
+        SELECT DISTINCT player2_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) >= $1
       )
-    `);
+    `, [startYear]);
 
     let maxStreak = 0;
     let maxStreakPlayer = null;
@@ -535,9 +543,9 @@ app.get('/api/players/win-streak', async (req, res) => {
           m.match_date
         FROM ${tables.matches} m
         WHERE (m.player1_id = $1 OR m.player2_id = $1)
-          AND EXTRACT(YEAR FROM m.match_date) >= 2025
+          AND EXTRACT(YEAR FROM m.match_date) >= $2
         ORDER BY m.match_date DESC
-      `, [player.id]);
+      `, [player.id, startYear]);
 
       // Count consecutive wins from most recent
       let streak = 0;
@@ -1164,6 +1172,15 @@ app.get('/api/players/win-streak-cached', cacheMiddleware('win_streak', 300), as
   try {
     const { tour } = req.query;
     const tables = getTourTables(tour);
+    const isWTA = tour === 'wta';
+
+    // Get the most recent match year to use as baseline
+    const yearResult = await pool.query(`
+      SELECT EXTRACT(YEAR FROM MAX(match_date)) as max_year FROM ${tables.matches}
+    `);
+    const maxYear = yearResult.rows[0]?.max_year || 2024;
+    const startYear = isWTA ? 2024 : maxYear; // WTA: use 2024, ATP: use latest year
+    const startDate = `${startYear}-01-01`;
 
     // Find player with longest current win streak
     const result = await pool.query(`
@@ -1178,7 +1195,7 @@ app.get('/api/players/win-streak-cached', cacheMiddleware('win_streak', 300), as
           match_date,
           tournament_name
         FROM ${tables.matches}
-        WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
+        WHERE match_date >= $1
         ORDER BY match_date DESC
       ),
       player_streaks AS (
@@ -1210,7 +1227,7 @@ app.get('/api/players/win-streak-cached', cacheMiddleware('win_streak', 300), as
         ps.tournaments
       FROM player_streaks ps
       JOIN ${tables.players} p ON ps.player_id = p.id
-    `);
+    `, [startDate]);
 
     if (result.rows.length === 0) {
       return res.json({
