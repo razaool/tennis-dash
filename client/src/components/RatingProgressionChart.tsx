@@ -62,7 +62,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
     };
     
     fetchData();
-  }, [selectedRatingType, timeRange]);
+  }, [selectedRatingType, timeRange, tour]);
 
   if (loading) {
     return (

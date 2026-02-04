@@ -91,8 +91,7 @@ function normalizeRound(round) {
 
 async function importWTAMatches2026() {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL ||
-      'postgresql://postgres:dVgspSOBlBoNVQzWRkSeydRWPhZUaXvS@metro.proxy.rlwy.net:44222/railway'
+    connectionString: process.env.DATABASE_URL
   });
 
   let client;
