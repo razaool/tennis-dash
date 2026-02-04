@@ -54,12 +54,29 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
   const [showPlayer1Dropdown, setShowPlayer1Dropdown] = useState(false);
   const [showPlayer2Dropdown, setShowPlayer2Dropdown] = useState(false);
 
-  // Update default players when tour changes
+  // Track previous tour to detect changes
+  const prevTourRef = useRef<TourType | null>(null);
+  const isInitialMount = useRef(true);
+
+  // Update default players when tour changes and auto-fetch
   useEffect(() => {
     const defaults = getDefaultPlayers(tour);
+    const isTourChange = prevTourRef.current !== null && prevTourRef.current !== tour;
+
     setPlayer1(defaults.player1);
     setPlayer2(defaults.player2);
     setData(null);
+
+    // Fetch on mount or tour change (after state updates)
+    if (isInitialMount.current || isTourChange) {
+      isInitialMount.current = false;
+      prevTourRef.current = tour;
+      // Use setTimeout to ensure state has updated before fetching
+      setTimeout(() => {
+        fetchHeadToHead();
+      }, 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour]);
 
   // Filter suggestions for player 1
@@ -82,6 +99,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
       setPlayer1Suggestions([]);
       setShowPlayer1Dropdown(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player1, tour]);
 
   // Filter suggestions for player 2
@@ -104,22 +122,8 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
       setPlayer2Suggestions([]);
       setShowPlayer2Dropdown(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player2, tour]);
-
-  // Auto-fetch on mount and when tour changes
-  const hasFetched = useRef(false);
-  useEffect(() => {
-    hasFetched.current = false; // Reset when tour changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour]);
-
-  useEffect(() => {
-    if (!hasFetched.current && player1 && player2) {
-      hasFetched.current = true;
-      fetchHeadToHead();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour, player1, player2]);
 
   const fetchHeadToHead = async () => {
     if (!player1 || !player2) {
