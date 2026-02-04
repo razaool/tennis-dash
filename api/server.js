@@ -263,6 +263,7 @@ app.get('/api/players/head-to-head', async (req, res) => {
   try {
     const { player1, player2, tour } = req.query;
     const tables = getTourTables(tour);
+    const isWTA = tour === 'wta';
 
     if (!player1 || !player2) {
       return res.status(400).json({ error: 'player1 and player2 parameters required' });
@@ -282,6 +283,9 @@ app.get('/api/players/head-to-head', async (req, res) => {
     const player1Id = parseInt(player1Result.rows[0].id);
     const player2Id = parseInt(player2Result.rows[0].id);
 
+    // Build query based on tour (ATP has additional columns that WTA doesn't)
+    const optionalColumns = isWTA ? '' : ', m.sets_won_player1, m.sets_won_player2, m.duration_minutes';
+
     const result = await pool.query(`
       SELECT
         m.id,
@@ -290,14 +294,11 @@ app.get('/api/players/head-to-head', async (req, res) => {
         m.player2_id,
         m.winner_id,
         m.score,
-        m.sets_won_player1,
-        m.sets_won_player2,
         m.match_date,
         m.round,
-        m.duration_minutes,
         m.created_at,
         m.surface,
-        m.tournament_name,
+        m.tournament_name${optionalColumns},
         p1.name as player1_name,
         p2.name as player2_name
       FROM ${tables.matches} m
