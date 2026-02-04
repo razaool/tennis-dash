@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { TourType } from '../contexts/TourContext';
 import { useTour } from '../contexts/TourContext';
@@ -107,9 +107,10 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
   }, [player2, tour]);
 
   // Auto-fetch on mount with default players
+  const hasFetched = useRef(false);
   useEffect(() => {
-    const defaults = getDefaultPlayers(tour);
-    if (player1 === defaults.player1 && player2 === defaults.player2) {
+    if (!hasFetched.current && player1 && player2) {
+      hasFetched.current = true;
       fetchHeadToHead();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
