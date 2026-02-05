@@ -598,7 +598,7 @@ app.get('/api/players/highest-elo-by-surface', async (req, res) => {
     const { tour } = req.query;
     const tables = getTourTables(tour);
 
-    // Get current highest ELO on each surface for active players only (played since Jan 1, 2025)
+    // Get current highest ELO on each surface for active players only (played in last 3 months)
     const surfaces = ['Grass', 'Clay', 'Hard'];
     const results = {};
 
@@ -612,9 +612,9 @@ app.get('/api/players/highest-elo-by-surface', async (req, res) => {
           AND r.id IN (SELECT MAX(id) FROM ${tables.ratings} WHERE rating_type = 'elo' AND surface = $1 GROUP BY player_id)
           AND p.id IN (
             SELECT DISTINCT player_id FROM (
-              SELECT player1_id as player_id FROM ${tables.matches} WHERE match_date >= '2025-01-01'
+              SELECT player1_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '3 months'
               UNION
-              SELECT player2_id as player_id FROM ${tables.matches} WHERE match_date >= '2025-01-01'
+              SELECT player2_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '3 months'
             ) active_players
           )
         ORDER BY elo_rating DESC
@@ -1108,37 +1108,6 @@ app.get('/api/players/recent-matches', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching recent matches:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Highest ELO by surface
-app.get('/api/players/highest-elo-by-surface', cacheMiddleware('highest_elo_surface', 300), async (req, res) => {
-  try {
-    const { tour } = req.query;
-    const tables = getTourTables(tour);
-    const surfaces = ['Grass', 'Clay', 'Hard'];
-    const result = {};
-
-    for (const surface of surfaces) {
-      const surfaceResult = await pool.query(`
-        SELECT
-          p.name,
-          r.rating_value as elo_rating
-        FROM ${tables.ratings} r
-        JOIN ${tables.players} p ON r.player_id = p.id
-        WHERE r.rating_type = 'elo' AND r.surface = $1
-          AND r.id IN (SELECT MAX(id) FROM ${tables.ratings} WHERE rating_type = 'elo' AND surface = $1 GROUP BY player_id)
-        ORDER BY r.rating_value DESC
-        LIMIT 1
-      `, [surface]);
-
-      result[surface.toLowerCase()] = surfaceResult.rows[0] || null;
-    }
-
-    res.json(result);
-  } catch (error) {
-    console.error('Error fetching highest ELO by surface:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
