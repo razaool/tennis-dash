@@ -5,7 +5,6 @@
   "main": "api/server.js",
   "scripts": {
     "start": "node api/server.js",
-  "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm start",
