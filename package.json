@@ -2,7 +2,9 @@
   "name": "tennis-dash",
   "version": "1.0.0",
   "description": "A tennis dashboard with player rating systems",
-  "main": "server/index.js",
+  "main": "api/server.js",
+  "scripts": {
+    "start": "node api/server.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
