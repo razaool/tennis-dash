@@ -2069,6 +2069,77 @@ app.get('/api/python-check', (req, res) => {
   res.json(result);
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 API server running on http://localhost:${PORT}`);
+// Initialize database tables on startup
+async function initializeDatabase() {
+  try {
+    // Create WTA ranking snapshots table if it doesn't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS wta_ranking_snapshots (
+        id SERIAL PRIMARY KEY,
+        rating_type VARCHAR(20) NOT NULL,
+        surface VARCHAR(20),
+        snapshot_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        rankings JSONB NOT NULL,
+        CONSTRAINT unique_snapshot UNIQUE (rating_type, surface, snapshot_date)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_wta_ranking_snapshots_type_surface_date
+      ON wta_ranking_snapshots (rating_type, surface, snapshot_date DESC);
+    `);
+    console.log('✓ WTA ranking snapshots table verified');
+
+    // Create the snapshot function for WTA
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION create_wta_ranking_snapshot(
+        p_rating_type VARCHAR,
+        p_surface VARCHAR DEFAULT NULL
+      )
+      RETURNS void AS $$
+      DECLARE
+        v_rankings JSONB;
+        v_has_ratings BOOLEAN;
+      BEGIN
+        SELECT EXISTS(
+          SELECT 1 FROM wta_ratings r
+          WHERE r.rating_type = p_rating_type
+            AND (p_surface IS NULL OR r.surface = p_surface)
+            AND r.id IN (SELECT MAX(id) FROM wta_ratings GROUP BY player_id)
+          LIMIT 1
+        ) INTO v_has_ratings;
+
+        IF v_has_ratings THEN
+          SELECT jsonb_object_agg('player_' || player_id, rank_number)
+          INTO v_rankings
+          FROM (
+            SELECT
+              r.player_id,
+              RANK() OVER (ORDER BY r.rating_value DESC) as rank_number
+            FROM wta_ratings r
+            WHERE r.rating_type = p_rating_type
+              AND (p_surface IS NULL OR r.surface = p_surface)
+              AND r.id IN (
+                SELECT MAX(id) FROM wta_ratings GROUP BY player_id
+              )
+          ) ranked;
+
+          INSERT INTO wta_ranking_snapshots (rating_type, surface, rankings)
+          VALUES (p_rating_type, p_surface, v_rankings);
+        END IF;
+      END;
+      $$ LANGUAGE plpgsql;
+    `);
+    console.log('✓ WTA snapshot function verified');
+  } catch (error) {
+    console.error('Error initializing database:', error.message);
+  }
+}
+
+// Start server after database initialization
+initializeDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 API server running on http://localhost:${PORT}`);
+  });
+}).catch(err => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
 });
