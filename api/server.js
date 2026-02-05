@@ -2073,18 +2073,23 @@ app.get('/api/python-check', (req, res) => {
 async function initializeDatabase() {
   try {
     // Create WTA ranking snapshots table if it doesn't exist
+    // Use a DO block to handle constraint naming conflicts
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS wta_ranking_snapshots (
-        id SERIAL PRIMARY KEY,
-        rating_type VARCHAR(20) NOT NULL,
-        surface VARCHAR(20),
-        snapshot_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        rankings JSONB NOT NULL,
-        CONSTRAINT unique_snapshot UNIQUE (rating_type, surface, snapshot_date)
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_wta_ranking_snapshots_type_surface_date
-      ON wta_ranking_snapshots (rating_type, surface, snapshot_date DESC);
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'wta_ranking_snapshots') THEN
+          CREATE TABLE wta_ranking_snapshots (
+            id SERIAL PRIMARY KEY,
+            rating_type VARCHAR(20) NOT NULL,
+            surface VARCHAR(20),
+            snapshot_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            rankings JSONB NOT NULL,
+            CONSTRAINT wta_ranking_snapshots_unique UNIQUE (rating_type, surface, snapshot_date)
+          );
+          CREATE INDEX idx_wta_ranking_snapshots_type_surface_date
+          ON wta_ranking_snapshots (rating_type, surface, snapshot_date DESC);
+        END IF;
+      END $$;
     `);
     console.log('✓ WTA ranking snapshots table verified');
 
