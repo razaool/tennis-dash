@@ -691,7 +691,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
                 )
               END
             FROM ${tables.matches}
-            WHERE EXTRACT(YEAR FROM match_date) = $2
+            WHERE EXTRACT(YEAR FROM match_date) = $2::int
               AND (player1_id = p.id OR player2_id = p.id)
           ) as win_percentage,
           ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
@@ -1476,11 +1476,11 @@ app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), a
         WHERE r.rating_type = $1 AND r.surface IS NULL
           AND p.id IN (
             SELECT DISTINCT player_id FROM (
-              SELECT winner_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3
+              SELECT winner_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3::int
               UNION
-              SELECT player1_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3
+              SELECT player1_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3::int
               UNION
-              SELECT player2_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3
+              SELECT player2_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3::int
             ) active_players WHERE player_id IS NOT NULL
           )
         ORDER BY p.id, m.match_date DESC, r.id DESC
@@ -1526,7 +1526,7 @@ app.get('/api/tournaments', async (req, res) => {
     const queryParams = [];
 
     if (year) {
-      where = ' WHERE EXTRACT(YEAR FROM t.start_date) = $1';
+      where = ' WHERE EXTRACT(YEAR FROM t.start_date) = $1::int';
       queryParams.push(parseInt(year));
     }
 
@@ -1670,7 +1670,7 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
               )
             END
           FROM ${tables.matches}
-          WHERE EXTRACT(YEAR FROM match_date) = $3
+          WHERE EXTRACT(YEAR FROM match_date) = $3::int
             AND surface = $2
             AND (player1_id = p.id OR player2_id = p.id)
         ) as win_percentage
