@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TourType } from '../contexts/TourContext';
+import { TourType, useTour } from '../contexts/TourContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -21,6 +21,7 @@ interface HighestELOData {
 }
 
 const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ className, tour = 'atp' }) => {
+  const { theme } = useTour();
   const [data, setData] = useState<HighestELOData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +44,7 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
   if (loading) {
     return (
       <div className={className}>
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: theme.textSecondary, textAlign: 'center', marginTop: '2rem' }}>
           Loading...
         </div>
       </div>
@@ -54,7 +55,7 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
     return (
       <div className={className}>
         <h2>HIGHEST ELO BY SURFACE</h2>
-        <div style={{ fontSize: '0.6rem', color: '#707070', textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ fontSize: '0.6rem', color: theme.textSecondary, textAlign: 'center', marginTop: '2rem' }}>
           No data available
         </div>
       </div>
@@ -67,23 +68,23 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
       <div style={{ padding: '0.5rem', display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: 'calc(100% - 2rem)' }}>
         {data.grass && (
           <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Grass</div>
-            <div style={{ color: '#d0d0d0', fontSize: '0.7rem', marginBottom: '0.125rem' }}>{data.grass.name}</div>
-            <div style={{ color: '#00d9ff', fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.grass.elo_rating)}</div>
+            <div style={{ color: theme.primaryColor, fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Grass</div>
+            <div style={{ color: theme.textPrimary, fontSize: '0.7rem', marginBottom: '0.125rem', fontWeight: 500 }}>{data.grass.name}</div>
+            <div style={{ color: theme.primaryColor, fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.grass.elo_rating)}</div>
           </div>
         )}
         {data.clay && (
           <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Clay</div>
-            <div style={{ color: '#d0d0d0', fontSize: '0.7rem', marginBottom: '0.125rem' }}>{data.clay.name}</div>
-            <div style={{ color: '#00d9ff', fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.clay.elo_rating)}</div>
+            <div style={{ color: theme.primaryColor, fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Clay</div>
+            <div style={{ color: theme.textPrimary, fontSize: '0.7rem', marginBottom: '0.125rem', fontWeight: 500 }}>{data.clay.name}</div>
+            <div style={{ color: theme.primaryColor, fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.clay.elo_rating)}</div>
           </div>
         )}
         {data.hard && (
           <div style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Hard</div>
-            <div style={{ color: '#d0d0d0', fontSize: '0.7rem', marginBottom: '0.125rem' }}>{data.hard.name}</div>
-            <div style={{ color: '#00d9ff', fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.hard.elo_rating)}</div>
+            <div style={{ color: theme.primaryColor, fontWeight: 'bold', marginBottom: '0.25rem', fontSize: '0.75rem' }}>Hard</div>
+            <div style={{ color: theme.textPrimary, fontSize: '0.7rem', marginBottom: '0.125rem', fontWeight: 500 }}>{data.hard.name}</div>
+            <div style={{ color: theme.primaryColor, fontSize: '1.05rem', fontWeight: 'bold' }}>{Math.round(data.hard.elo_rating)}</div>
           </div>
         )}
       </div>
@@ -92,4 +93,3 @@ const HighestELOBySurfaceBox: React.FC<HighestELOBySurfaceBoxProps> = ({ classNa
 };
 
 export default HighestELOBySurfaceBox;
-
