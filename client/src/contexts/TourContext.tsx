@@ -23,13 +23,13 @@ export const TOUR_THEMES: Record<TourType, TourTheme> = {
     headerBgColor: '#0a0e0e',
   },
   wta: {
-    backgroundColor: '#f0ebe5',
-    borderColor: '#d4c5c0',
-    primaryColor: '#c97b84',
-    textPrimary: '#3d3835',
-    textSecondary: '#7a7068',
-    textTertiary: '#a89890',
-    headerBgColor: '#e5e0db',
+    backgroundColor: '#1a1818',
+    borderColor: '#2a2626',
+    primaryColor: '#b8758a',
+    textPrimary: '#c4b8b8',
+    textSecondary: '#7a6e6e',
+    textTertiary: '#5a5050',
+    headerBgColor: '#121010',
   },
 };
 
