@@ -148,6 +148,12 @@ body, html {
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.box-7::-webkit-scrollbar {
+  display: none;
 }
 
 /* Box 9 - Right side of rows 2-3 */
@@ -160,6 +166,12 @@ body, html {
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.box-9::-webkit-scrollbar {
+  display: none;
 }
 
 /* Box 8 - Bottom Footer (ML Prediction) */
@@ -172,6 +184,12 @@ body, html {
   box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.box-8::-webkit-scrollbar {
+  display: none;
 }
 
 /* Typography */
@@ -292,6 +310,12 @@ h3 {
   flex-direction: column;
   gap: 0.25rem;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.matches-list::-webkit-scrollbar {
+  display: none;
 }
 
 .match-card {
