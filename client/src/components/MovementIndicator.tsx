@@ -9,7 +9,9 @@ const MovementIndicator: React.FC<MovementIndicatorProps> = ({ change }) => {
     return <span className="movement-indicator neutral">-</span>;
   }
 
-  const isUp = change > 0;
+  // Negative change means moving UP in rankings (better rank)
+  // Positive change means moving DOWN in rankings (worse rank)
+  const isUp = change < 0;
   const displayValue = Math.abs(change);
   const arrow = isUp ? '↑' : '↓';
 
