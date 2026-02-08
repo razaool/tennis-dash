@@ -615,11 +615,11 @@ h3 {
 }
 
 .App.wta .movement-indicator.up {
-  color: #e87c90;
+  color: #7cb342;
 }
 
 .App.wta .movement-indicator.down {
-  color: #d66a7a;
+  color: #e74c3c;
 }
 
 .App.wta .movement-indicator.neutral {
