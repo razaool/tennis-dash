@@ -724,7 +724,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.current_rank,
         rp.calculated_at,
         COALESCE(
-          (rp.current_rank::int - (mrs.rankings->>'player_'||rp.id)::int),
+          (rp.current_rank::int - (mrs.rankings->>('player_'||rp.id::text))::int),
           0
         ) as rank_change
       FROM ranked_players rp
