@@ -232,7 +232,7 @@ const RatingProgressionChart: React.FC<RatingProgressionChartProps> = ({ classNa
                 wrapperStyle={{ fontSize: '0.6rem', color: `${theme.textPrimary}` }}
               />
               {data.map((player, index) => {
-                const colors = [`${theme.primaryColor}`, '#00d9ff', '#ff6b6b', '#ffd700', '#ff69b4'];
+                const colors = [`${theme.primaryColor}`, '#00d9ff', '#ff6b6b', '#8b5cf6', '#ff69b4'];
                 const color = colors[index % colors.length];
 
                 return (
