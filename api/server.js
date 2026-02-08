@@ -668,9 +668,8 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
 
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
-    const snapshotsTable = tour === 'wta' ? 'wta_ranking_snapshots' : 'ranking_snapshots';
 
-    // Query with movement indicators from snapshots
+    // Query with movement indicators from tournament snapshots
     let query = `
       WITH current_rankings AS (
         SELECT
@@ -706,11 +705,21 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         FROM current_rankings cr
         WHERE cr.rn = 1
       ),
-      most_recent_snapshot AS (
-        SELECT rankings, snapshot_date
-        FROM ${snapshotsTable}
-        WHERE rating_type = $1 AND surface IS NULL
-        ORDER BY snapshot_date DESC
+      tournament_baseline AS (
+        SELECT rankings
+        FROM tournament_snapshots
+        WHERE tour = $3
+          AND rating_type = $1
+          AND surface IS NULL
+          AND snapshot_type = 'before'
+          AND tournament_name = (
+            SELECT tournament_name
+            FROM ${tables.matches}
+            WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+            ORDER BY match_date DESC
+            LIMIT 1
+          )
+        ORDER BY created_at DESC
         LIMIT 1
       )
       SELECT
@@ -724,14 +733,14 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.current_rank,
         rp.calculated_at,
         COALESCE(
-          (rp.current_rank::int - (mrs.rankings->>('player_'||rp.id::text))::int),
+          (rp.current_rank::int - (tb.rankings->('player_'||rp.id::text))::int),
           0
         ) as rank_change
       FROM ranked_players rp
-      LEFT JOIN most_recent_snapshot mrs ON true
+      CROSS JOIN tournament_baseline tb
     `;
 
-    const params = [ratingType, currentYear];
+    const params = [ratingType, currentYear, tour];
 
     if (active === 'true') {
       query += ` WHERE rp.id IN (
