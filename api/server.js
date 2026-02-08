@@ -1635,7 +1635,20 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         )`
       : '';
 
+    // Check if there's been a tournament on this surface in the current year
+    // Only show movement indicators if a snapshot exists AND tournaments have been played on this surface
+    const surfaceCheck = await pool.query(`
+      SELECT EXISTS(
+        SELECT 1 FROM ${tables.matches}
+        WHERE EXTRACT(YEAR FROM match_date) = $1::int
+          AND surface = $2
+      ) as has_tournaments
+    `, [currentYear, surface]);
+
+    const hasSurfaceTournaments = surfaceCheck.rows[0].has_tournaments;
+
     // Query with movement indicators from tournament snapshots
+    // Only include rank_change if tournaments exist on this surface
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -1670,16 +1683,6 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
-      ),
-      tournament_baseline AS (
-        SELECT rankings
-        FROM tournament_snapshots
-        WHERE tour = $4
-          AND rating_type = $1
-          AND surface = $2
-          AND snapshot_type = 'before'
-        ORDER BY created_at DESC
-        LIMIT 1
       )
       SELECT
         rp.id,
@@ -1690,12 +1693,21 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         rp.rating_deviation,
         rp.win_percentage,
         rp.current_rank,
+        ${hasSurfaceTournaments ? `
         COALESCE(
-          (rp.current_rank::int - (tb.rankings->('player_'||rp.id::text))::int),
+          (rp.current_rank::int - (
+            SELECT (rankings->('player_'||rp.id::text))::int
+            FROM tournament_snapshots
+            WHERE tour = $4
+              AND rating_type = $1
+              AND surface = $2
+              AND snapshot_type = 'before'
+            ORDER BY created_at DESC
+            LIMIT 1
+          )),
           0
-        ) as rank_change
+        ) as rank_change` : '0 as rank_change'}
       FROM ranked_players rp
-      CROSS JOIN tournament_baseline tb
       ORDER BY rp.rating_value DESC
       LIMIT $5
     `;
