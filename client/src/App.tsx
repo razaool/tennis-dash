@@ -35,30 +35,9 @@ const AppContent: React.FC<AppContentProps> = ({ isMobile }) => {
   // Desktop view with grid layout
   return (
     <div className={`App ${tour === 'wta' ? 'wta' : ''}`}>
+      {/* Floating Tour Toggle */}
+      <TourToggle floating />
       <main className="dashboard">
-        {/* Tour Toggle - positioned at top */}
-        <div style={{
-          gridColumn: '1 / -1',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0.25rem 0.5rem',
-          borderBottom: '1px solid',
-          borderColor: tour === 'wta' ? '#d0d0d0' : '#1a1f1f'
-        }}>
-          <h1 style={{
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            margin: '0',
-            color: tour === 'wta' ? '#2a2a2a' : '#d0d0d0',
-            textTransform: 'uppercase',
-            letterSpacing: '1px'
-          }}>
-            {tour === 'wta' ? 'WTA Analytics' : 'ATP Analytics'}
-          </h1>
-          <TourToggle />
-        </div>
-
         {/* Box 1 - Total Players */}
         <TotalPlayersBox className="box-1" tour={tour} />
 

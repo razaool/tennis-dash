@@ -48,15 +48,68 @@
   border-color: #e87c90;
 }
 
+/* ========================================
+   FLOATING TOGGLE (Desktop)
+   ======================================== */
+
+.tour-toggle--floating {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1000;
+  background: #0f1414;
+  border: 1px solid #1a1f1f;
+  border-radius: 4px;
+  padding: 0.15rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tour-toggle--floating .tour-toggle-button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.65rem;
+  border: none;
+  background: transparent;
+  color: #707070;
+}
+
+.tour-toggle--floating .tour-toggle-button:hover {
+  background: #1a1f1f;
+}
+
+.tour-toggle--floating .tour-toggle-button.active {
+  background: #00ff41;
+  color: #0a0e0e;
+}
+
+/* WTA floating theme */
+.App.wta .tour-toggle--floating {
+  background: #f0ebe3;
+  border-color: #d4cfc5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.App.wta .tour-toggle--floating .tour-toggle-button {
+  color: #7a756d;
+}
+
+.App.wta .tour-toggle--floating .tour-toggle-button:hover {
+  background: #ddd8d0;
+}
+
+.App.wta .tour-toggle--floating .tour-toggle-button.active {
+  background: #e87c90;
+  color: #ffffff;
+}
+
 /* Mobile */
 .mobile-dashboard .tour-toggle {
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .mobile-dashboard .tour-toggle-button {
-  padding: 0.6rem 1.5rem;
-  font-size: 1.2rem;
-  border-radius: 4px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  border-radius: 3px;
 }
 
 /* Mobile WTA theme */
