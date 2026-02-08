@@ -669,8 +669,18 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
 
+    // Build the active filter condition for both rankings and win percentage
+    const activeFilterCondition = active === 'true'
+      ? ` AND EXISTS (
+          SELECT 1 FROM ${tables.matches} m
+          WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
+            AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+        )`
+      : '';
+
     // Query with movement indicators from tournament snapshots
-    let query = `
+    // Rankings are calculated AFTER applying active filter for accurate ranks
+    const query = `
       WITH current_rankings AS (
         SELECT
           p.id,
@@ -696,7 +706,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
         FROM ${tables.ratings} r
         JOIN ${tables.players} p ON p.id = r.player_id
-        WHERE r.rating_type = $1 AND r.surface IS NULL
+        WHERE r.rating_type = $1 AND r.surface IS NULL${activeFilterCondition}
       ),
       ranked_players AS (
         SELECT
@@ -738,18 +748,11 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         ) as rank_change
       FROM ranked_players rp
       CROSS JOIN tournament_baseline tb
+      ORDER BY rp.rating_value DESC
+      LIMIT $4
     `;
 
-    const params = [ratingType, currentYear, tour];
-
-    if (active === 'true') {
-      query += ` WHERE rp.id IN (
-        SELECT DISTINCT winner_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-      )`;
-    }
-
-    query += ` ORDER BY rp.rating_value DESC LIMIT $${params.length + 1}`;
-    params.push(parseInt(limit));
+    const params = [ratingType, currentYear, tour, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
