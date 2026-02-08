@@ -256,10 +256,12 @@ async function importWTAMatches2026() {
     client = await pool.connect();
     await client.query('BEGIN');
 
-    // Clear existing 2026 matches to avoid duplicates on reimport
-    console.log('\nClearing existing 2026 matches...');
-    const deleteResult = await client.query('DELETE FROM wta_matches WHERE EXTRACT(YEAR FROM match_date) = 2026');
-    console.log(`  Deleted ${deleteResult.rowCount} existing matches\n`);
+    // Clear existing 2026 data (ratings first due to FK constraint, then matches)
+    console.log('\nClearing existing 2026 data...');
+    const ratingDeleteResult = await client.query('DELETE FROM wta_ratings WHERE match_id IN (SELECT id FROM wta_matches WHERE EXTRACT(YEAR FROM match_date) = 2026)');
+    console.log(`  Deleted ${ratingDeleteResult.rowCount} ratings`);
+    const matchDeleteResult = await client.query('DELETE FROM wta_matches WHERE EXTRACT(YEAR FROM match_date) = 2026');
+    console.log(`  Deleted ${matchDeleteResult.rowCount} matches\n`);
 
     console.log('Importing matches...');
 

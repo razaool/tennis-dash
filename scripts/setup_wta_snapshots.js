@@ -39,10 +39,13 @@ async function setupWTASnapshots() {
         v_has_ratings BOOLEAN;
       BEGIN
         SELECT EXISTS(
-          SELECT 1 FROM wta_ratings r
-          WHERE r.rating_type = p_rating_type
-            AND (p_surface IS NULL OR r.surface = p_surface)
-            AND r.id IN (SELECT MAX(id) FROM wta_ratings GROUP BY player_id)
+          SELECT 1 FROM (
+            SELECT DISTINCT ON (player_id) player_id, id
+            FROM wta_ratings
+            WHERE rating_type = p_rating_type
+              AND (p_surface IS NULL OR surface = p_surface)
+            ORDER BY player_id, id DESC
+          ) r
           LIMIT 1
         ) INTO v_has_ratings;
 
@@ -51,14 +54,15 @@ async function setupWTASnapshots() {
           INTO v_rankings
           FROM (
             SELECT
-              r.player_id,
-              RANK() OVER (ORDER BY r.rating_value DESC) as rank_number
-            FROM wta_ratings r
-            WHERE r.rating_type = p_rating_type
-              AND (p_surface IS NULL OR r.surface = p_surface)
-              AND r.id IN (
-                SELECT MAX(id) FROM wta_ratings GROUP BY player_id
-              )
+              player_id,
+              RANK() OVER (ORDER BY rating_value DESC) as rank_number
+            FROM (
+              SELECT DISTINCT ON (player_id) player_id, rating_value
+              FROM wta_ratings
+              WHERE rating_type = p_rating_type
+                AND (p_surface IS NULL OR surface = p_surface)
+              ORDER BY player_id, id DESC
+            ) latest_ratings
           ) ranked;
 
           INSERT INTO wta_ranking_snapshots (rating_type, surface, rankings)
