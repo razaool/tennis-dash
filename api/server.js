@@ -722,13 +722,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           AND rating_type = $1
           AND surface IS NULL
           AND snapshot_type = 'before'
-          AND tournament_name = (
-            SELECT tournament_name
-            FROM ${tables.matches}
-            WHERE EXTRACT(YEAR FROM match_date) = EXTRACT(YEAR FROM CURRENT_DATE)
-            ORDER BY match_date DESC
-            LIMIT 1
-          )
         ORDER BY created_at DESC
         LIMIT 1
       )
