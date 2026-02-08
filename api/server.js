@@ -1647,24 +1647,6 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
 
     const hasSurfaceTournaments = surfaceCheck.rows[0].has_tournaments;
 
-    // Query with movement indicators from tournament snapshots
-    // Only include rank_change if tournaments exist on this surface
-    const rankChangeSelect = hasSurfaceTournaments
-      ? `COALESCE(
-          (rp.current_rank::int - (
-            SELECT (rankings->('player_'||rp.id::text))::int
-            FROM tournament_snapshots
-            WHERE tour = $4
-              AND rating_type = $1
-              AND surface = $2
-              AND snapshot_type = 'before'
-            ORDER BY created_at DESC
-            LIMIT 1
-          )),
-          0
-        ) as rank_change`
-      : '0 as rank_change';
-
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -1699,6 +1681,16 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
+      ),
+      tournament_baseline AS (
+        SELECT rankings
+        FROM tournament_snapshots
+        WHERE tour = $4
+          AND rating_type = $1
+          AND surface = $2
+          AND snapshot_type = 'before'
+        ORDER BY created_at DESC
+        LIMIT 1
       )
       SELECT
         rp.id,
@@ -1709,13 +1701,20 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         rp.rating_deviation,
         rp.win_percentage,
         rp.current_rank,
-        ${rankChangeSelect}
+        CASE
+          WHEN $6 = true THEN COALESCE(
+            (rp.current_rank::int - (tb.rankings->('player_'||rp.id::text))::int),
+            0
+          )
+          ELSE 0
+        END as rank_change
       FROM ranked_players rp
+      CROSS JOIN tournament_baseline tb
       ORDER BY rp.rating_value DESC
       LIMIT $5
     `;
 
-    const params = [ratingType, surface, currentYear, tour, parseInt(limit)];
+    const params = [ratingType, surface, currentYear, tour, parseInt(limit), hasSurfaceTournaments];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
