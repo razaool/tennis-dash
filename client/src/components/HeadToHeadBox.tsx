@@ -199,7 +199,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
               }}
             />
             {showPlayer1Dropdown && (
-              <div style={{
+              <div className="hide-scrollbar" style={{
                 position: 'absolute',
                 top: '100%',
                 left: 0,
@@ -250,7 +250,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
               }}
             />
             {showPlayer2Dropdown && (
-              <div style={{
+              <div className="hide-scrollbar" style={{
                 position: 'absolute',
                 top: '100%',
                 left: 0,
@@ -356,7 +356,7 @@ const HeadToHeadBox: React.FC<HeadToHeadBoxProps> = ({ className, tour = 'atp' }
 
             {/* Recent matches */}
             {data.matches.length > 0 && (
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+              <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                 {/* Match Header - Sticky */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr', gap: '0.25rem', padding: '0.5rem', backgroundColor: theme.headerBgColor, position: 'sticky', top: 0, zIndex: 9, borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.75rem', color: theme.textSecondary, textTransform: 'uppercase', alignItems: 'center' }}>
                   <div>Date</div>
