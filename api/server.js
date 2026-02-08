@@ -1633,50 +1633,81 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
 
-    let query = `
+    // Build the active filter condition
+    const activeFilterCondition = active === 'true'
+      ? ` AND EXISTS (
+          SELECT 1 FROM ${tables.matches} m
+          WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
+            AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+        )`
+      : '';
+
+    // Query with movement indicators from tournament snapshots
+    const query = `
+      WITH current_rankings AS (
+        SELECT
+          p.id,
+          p.name,
+          p.country,
+          p.birth_date,
+          r.rating_value,
+          r.rating_deviation,
+          (
+            SELECT
+              CASE
+                WHEN COUNT(*) = 0 THEN NULL
+                ELSE ROUND(
+                  COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100,
+                  1
+                )
+              END
+            FROM ${tables.matches}
+            WHERE EXTRACT(YEAR FROM match_date) = $3::int
+              AND surface = $2
+              AND (player1_id = p.id OR player2_id = p.id)
+          ) as win_percentage,
+          ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY r.id DESC) as rn
+        FROM ${tables.ratings} r
+        JOIN ${tables.players} p ON r.player_id = p.id
+        WHERE r.rating_type = $1 AND r.surface = $2${activeFilterCondition}
+      ),
+      ranked_players AS (
+        SELECT
+          cr.*,
+          RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
+        FROM current_rankings cr
+        WHERE cr.rn = 1
+      ),
+      tournament_baseline AS (
+        SELECT rankings
+        FROM tournament_snapshots
+        WHERE tour = $4
+          AND rating_type = $1
+          AND surface = $2
+          AND snapshot_type = 'before'
+        ORDER BY created_at DESC
+        LIMIT 1
+      )
       SELECT
-        p.id,
-        p.name,
-        p.country,
-        p.birth_date,
-        r.rating_value,
-        r.rating_deviation,
-        (
-          SELECT
-            CASE
-              WHEN COUNT(*) = 0 THEN NULL
-              ELSE ROUND(
-                COUNT(CASE WHEN winner_id = p.id THEN 1 END)::numeric / COUNT(*)::numeric * 100,
-                1
-              )
-            END
-          FROM ${tables.matches}
-          WHERE EXTRACT(YEAR FROM match_date) = $3::int
-            AND surface = $2
-            AND (player1_id = p.id OR player2_id = p.id)
-        ) as win_percentage
-      FROM ${tables.ratings} r
-      JOIN ${tables.players} p ON r.player_id = p.id
-      WHERE r.rating_type = $1 AND r.surface = $2
-        AND r.id IN (SELECT MAX(id) FROM ${tables.ratings} WHERE rating_type = $1 AND surface = $2 GROUP BY player_id)
+        rp.id,
+        rp.name,
+        rp.country,
+        rp.birth_date,
+        rp.rating_value,
+        rp.rating_deviation,
+        rp.win_percentage,
+        rp.current_rank,
+        COALESCE(
+          (rp.current_rank::int - (tb.rankings->('player_'||rp.id::text))::int),
+          0
+        ) as rank_change
+      FROM ranked_players rp
+      CROSS JOIN tournament_baseline tb
+      ORDER BY rp.rating_value DESC
+      LIMIT $5
     `;
 
-    const params = [ratingType, surface, currentYear];
-
-    if (active === 'true') {
-      query += ` AND p.id IN (
-        SELECT DISTINCT player_id FROM (
-          SELECT winner_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-          UNION
-          SELECT player1_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-          UNION
-          SELECT player2_id as player_id FROM ${tables.matches} WHERE match_date >= CURRENT_DATE - INTERVAL '6 months'
-        ) active_players WHERE player_id IS NOT NULL
-      )`;
-    }
-
-    query += ` ORDER BY r.rating_value DESC LIMIT $${params.length + 1}`;
-    params.push(parseInt(limit));
+    const params = [ratingType, surface, currentYear, tour, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
