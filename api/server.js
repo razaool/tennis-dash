@@ -740,7 +740,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           0
         ) as rank_change
       FROM ranked_players rp
-      CROSS JOIN tournament_baseline tb
+      LEFT JOIN tournament_baseline tb ON true
       ORDER BY rp.rating_value DESC
       LIMIT $4
     `;
