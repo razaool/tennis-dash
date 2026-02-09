@@ -1709,7 +1709,7 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
           ELSE 0
         END as rank_change
       FROM ranked_players rp
-      CROSS JOIN tournament_baseline tb
+      LEFT JOIN tournament_baseline tb ON true
       ORDER BY rp.rating_value DESC
       LIMIT $5
     `;
