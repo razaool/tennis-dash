@@ -465,24 +465,6 @@ h3 {
   }
 }
 
-/* Movement Indicators */
-.movement-indicator {
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.movement-indicator.up {
-  color: #00ff41;
-}
-
-.movement-indicator.down {
-  color: #ff6b6b;
-}
-
-.movement-indicator.neutral {
-  color: #888;
-}
-
 .baseline-timestamp {
   font-size: 0.7rem;
   color: #888;
@@ -612,18 +594,6 @@ h3 {
 
 .App.wta .error {
   color: #d66a7a;
-}
-
-.App.wta .movement-indicator.up {
-  color: #7cb342;
-}
-
-.App.wta .movement-indicator.down {
-  color: #e74c3c;
-}
-
-.App.wta .movement-indicator.neutral {
-  color: #9a9590;
 }
 
 .App.wta .baseline-timestamp {

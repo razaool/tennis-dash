@@ -90,8 +90,6 @@
 .mobile-dashboard .surface-count,
 .mobile-dashboard .header-row,
 .mobile-dashboard .player-info,
-.mobile-dashboard .player-movement,
-.mobile-dashboard .movement-indicator,
 .mobile-dashboard .baseline-timestamp {
   font-size: 1.2rem !important;
 }
@@ -209,14 +207,6 @@
 
 .mobile-dashboard.wta .surface-count {
   color: #e87c90 !important;
-}
-
-.mobile-dashboard.wta .movement-indicator.up {
-  color: #e87c90 !important;
-}
-
-.mobile-dashboard.wta .movement-indicator.down {
-  color: #d66a7a !important;
 }
 
 .mobile-dashboard.wta .baseline-timestamp {

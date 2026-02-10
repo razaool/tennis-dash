@@ -669,20 +669,15 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
 
-    // For movement indicators, we ALWAYS use active players (played in last 6 months)
-    // This matches the baseline which only contains active players
-    const activeFilterForMovement = ` AND EXISTS (
-      SELECT 1 FROM ${tables.matches} m
-      WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
-        AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
-    )`;
-
-    // Build the active filter condition for main query (respects the active parameter)
+    // Build the active filter condition
     const activeFilterCondition = active === 'true'
-      ? activeFilterForMovement
+      ? ` AND EXISTS (
+          SELECT 1 FROM ${tables.matches} m
+          WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
+            AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+        )`
       : '';
 
-    // Query with movement indicators from baseline_rankings table
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -717,15 +712,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
-      ),
-      baseline AS (
-        SELECT rankings
-        FROM baseline_rankings
-        WHERE tour = $3
-          AND rating_type = $1
-          AND surface IS NULL
-        ORDER BY created_at DESC
-        LIMIT 1
       )
       SELECT
         rp.id,
@@ -736,18 +722,13 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.rating_deviation,
         rp.win_percentage,
         rp.current_rank,
-        rp.calculated_at,
-        COALESCE(
-          (rp.current_rank::int - (baseline.rankings->('player_'||rp.id::text))::int),
-          0
-        ) as rank_change
+        rp.calculated_at
       FROM ranked_players rp
-      CROSS JOIN baseline baseline
       ORDER BY rp.rating_value DESC
-      LIMIT $4
+      LIMIT $3
     `;
 
-    const params = [ratingType, currentYear, tour, parseInt(limit)];
+    const params = [ratingType, currentYear, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
@@ -1650,7 +1631,6 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         )`
       : '';
 
-    // Query with movement indicators from baseline_rankings table
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -1685,15 +1665,6 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
-      ),
-      baseline AS (
-        SELECT rankings
-        FROM baseline_rankings
-        WHERE tour = $4
-          AND rating_type = $1
-          AND surface = $2
-        ORDER BY created_at DESC
-        LIMIT 1
       )
       SELECT
         rp.id,
@@ -1703,18 +1674,13 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         rp.rating_value,
         rp.rating_deviation,
         rp.win_percentage,
-        rp.current_rank,
-        COALESCE(
-          (rp.current_rank::int - (baseline.rankings->('player_'||rp.id::text))::int),
-          0
-        ) as rank_change
+        rp.current_rank
       FROM ranked_players rp
-      CROSS JOIN baseline baseline
       ORDER BY rp.rating_value DESC
-      LIMIT $5
+      LIMIT $4
     `;
 
-    const params = [ratingType, surface, currentYear, tour, parseInt(limit)];
+    const params = [ratingType, surface, currentYear, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
