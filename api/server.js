@@ -777,38 +777,46 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 
     const playerId = parseInt(playerResult.rows[0].id);
 
-    // Get the most recent rating date for this player (use calculated_at instead of match_id)
-    const maxDateQuery = surface
-      ? `SELECT MAX(calculated_at) as max_date FROM ${tables.ratings} WHERE player_id = $1 AND rating_type = $2 AND surface = $3`
-      : `SELECT MAX(calculated_at) as max_date FROM ${tables.ratings} WHERE player_id = $1 AND rating_type = $2 AND surface IS NULL`;
+    // Get the most recent match date for this player using LEFT JOIN
+    // Use LEFT JOIN to include ratings without match_id
+    const dateFilter = surface
+      ? ` AND (r.surface = $3 OR r.surface IS NULL)`
+      : ` AND r.surface IS NULL`;
 
-    const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
-    const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
+    const maxDateResult = await pool.query(`
+      SELECT COALESCE(MAX(m.match_date), MAX(r.calculated_at)) as max_date
+      FROM ${tables.ratings} r
+      LEFT JOIN ${tables.matches} m ON r.match_id = m.id
+      WHERE r.player_id = $1 AND r.rating_type = $2${dateFilter}
+    `, surface ? [playerId, ratingType, surface] : [playerId, ratingType]);
+
     const maxDate = maxDateResult.rows[0]?.max_date;
     const daysToSubtract = parseInt(months) * 30;
     const minDate = maxDate ? new Date(new Date(maxDate).getTime() - daysToSubtract * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
 
-    // Use calculated_at instead of match_id join for better performance
+    // Use LEFT JOIN to get match_date when available, calculated_at otherwise
     let query = `
       SELECT
         r.rating_value,
         r.rating_deviation,
-        r.calculated_at as match_date,
-        r.surface
+        COALESCE(m.match_date, r.calculated_at)::date as match_date,
+        COALESCE(m.surface, r.surface) as surface
       FROM ${tables.ratings} r
-      WHERE r.player_id = $1 AND r.rating_type = $2 AND r.calculated_at >= $3
+      LEFT JOIN ${tables.matches} m ON r.match_id = m.id
+      WHERE r.player_id = $1 AND r.rating_type = $2
+        AND COALESCE(m.match_date, r.calculated_at) >= $3::date
     `;
 
     const params = [playerId, ratingType, minDate];
 
     if (surface) {
-      query += ` AND r.surface = $4`;
+      query += ` AND (r.surface = $4 OR r.surface IS NULL)`;
       params.push(surface);
     } else {
       query += ` AND r.surface IS NULL`;
     }
 
-    query += ` ORDER BY r.calculated_at ASC`;
+    query += ` ORDER BY COALESCE(m.match_date, r.calculated_at) ASC`;
 
     const result = await pool.query(query, params);
     res.json({
