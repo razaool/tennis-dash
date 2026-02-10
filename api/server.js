@@ -1746,6 +1746,123 @@ app.get('/api/rankings/compare', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/rankings/historical:
+ *   get:
+ *     summary: Get historical rankings as of a specific date for active players
+ *     tags: [Rankings]
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2026-01-15"
+ *         required: true
+ *         description: The date to get rankings as of (YYYY-MM-DD)
+ *       - in: query
+ *         name: ratingType
+ *         schema:
+ *           type: string
+ *           enum: [elo, glicko2, trueskill]
+ *           default: elo
+ *         description: Rating system to use
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Number of players to return
+ *       - in: query
+ *         name: tour
+ *         schema:
+ *           type: string
+ *           enum: [atp, wta]
+ *           default: atp
+ *         description: Tour type
+ *     responses:
+ *       200:
+ *         description: Historical rankings
+ *       400:
+ *         description: Invalid date format
+ */
+app.get('/api/rankings/historical', async (req, res) => {
+  try {
+    const { date, ratingType = 'elo', limit = 100, tour } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date parameter required (format: YYYY-MM-DD)' });
+    }
+
+    // Validate date format
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+    }
+
+    const tables = getTourTables(tour);
+
+    const query = `
+      WITH latest_ratings AS (
+        SELECT DISTINCT ON (r.player_id)
+          r.player_id as id,
+          p.name,
+          p.country,
+          p.birth_date,
+          r.rating_value,
+          r.rating_deviation,
+          r.calculated_at
+        FROM ${tables.ratings} r
+        JOIN ${tables.players} p ON r.player_id = p.id
+        WHERE r.rating_type = $1
+          AND r.surface IS NULL
+          AND r.calculated_at <= $2::date
+        ORDER BY r.player_id, r.id DESC
+      ),
+      active_players AS (
+        SELECT DISTINCT lr.id
+        FROM latest_ratings lr
+        WHERE EXISTS (
+          SELECT 1 FROM ${tables.matches} m
+          WHERE (m.player1_id = lr.id OR m.player2_id = lr.id OR m.winner_id = lr.id)
+            AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+        )
+      ),
+      ranked_players AS (
+        SELECT
+          lr.*,
+          RANK() OVER (ORDER BY lr.rating_value DESC) as rank
+        FROM latest_ratings lr
+        JOIN active_players ap ON lr.id = ap.id
+      )
+      SELECT
+        rp.id,
+        rp.name,
+        rp.country,
+        rp.rating_value,
+        rp.rating_deviation,
+        rp.rank,
+        rp.calculated_at
+      FROM ranked_players rp
+      ORDER BY rp.rating_value DESC
+      LIMIT $3
+    `;
+
+    const result = await pool.query(query, [ratingType, parsedDate.toISOString().split('T')[0], parseInt(limit)]);
+    res.json({
+      date: date,
+      rating_type: ratingType,
+      tour: tour || 'atp',
+      count: result.rows.length,
+      players: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching historical rankings:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
 // ============================================
 // ANALYTICS ENDPOINTS
 // ============================================
