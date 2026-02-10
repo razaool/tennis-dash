@@ -315,12 +315,6 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
         </div>
       )}
 
-      {/* Tournament comparison info */}
-      {!surface && players.some(p => p.rank_change !== null && p.rank_change !== undefined) && (
-        <div style={{ fontSize: '0.65rem', color: '#888', marginTop: '0.25rem', fontWeight: 500 }}>
-          Movement vs {players.find(p => p.tournament_name)?.tournament_name || 'last tournament'}
-        </div>
-      )}
 
       {/* Players List */}
       {/* Header Row */}
