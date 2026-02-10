@@ -678,8 +678,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         )`
       : '';
 
-    // Query with movement indicators - for now set rank_change to 0
-    // TODO: Implement proper baseline comparison
+    // Query with movement indicators from baseline_rankings table
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -714,6 +713,15 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
+      ),
+      baseline AS (
+        SELECT rankings
+        FROM baseline_rankings
+        WHERE tour = $3
+          AND rating_type = $1
+          AND surface IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1
       )
       SELECT
         rp.id,
@@ -725,13 +733,17 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.win_percentage,
         rp.current_rank,
         rp.calculated_at,
-        0 as rank_change
+        COALESCE(
+          (rp.current_rank::int - (baseline.rankings->('player_'||rp.id::text))::int),
+          0
+        ) as rank_change
       FROM ranked_players rp
+      CROSS JOIN baseline baseline
       ORDER BY rp.rating_value DESC
-      LIMIT $3
+      LIMIT $4
     `;
 
-    const params = [ratingType, currentYear, parseInt(limit)];
+    const params = [ratingType, currentYear, tour, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
@@ -1621,18 +1633,7 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         )`
       : '';
 
-    // Check if there's been a tournament on this surface in the current year
-    // Only show movement indicators if a snapshot exists AND tournaments have been played on this surface
-    const surfaceCheck = await pool.query(`
-      SELECT EXISTS(
-        SELECT 1 FROM ${tables.matches}
-        WHERE EXTRACT(YEAR FROM match_date) = $1::int
-          AND surface = $2
-      ) as has_tournaments
-    `, [currentYear, surface]);
-
-    const hasSurfaceTournaments = surfaceCheck.rows[0].has_tournaments;
-
+    // Query with movement indicators from baseline_rankings table
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -1668,13 +1669,12 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         FROM current_rankings cr
         WHERE cr.rn = 1
       ),
-      tournament_baseline AS (
+      baseline AS (
         SELECT rankings
-        FROM tournament_snapshots
+        FROM baseline_rankings
         WHERE tour = $4
           AND rating_type = $1
           AND surface = $2
-          AND snapshot_type = 'before'
         ORDER BY created_at DESC
         LIMIT 1
       )
@@ -1687,20 +1687,17 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
         rp.rating_deviation,
         rp.win_percentage,
         rp.current_rank,
-        CASE
-          WHEN $6 = true THEN COALESCE(
-            (rp.current_rank::int - (tb.rankings->('player_'||rp.id::text))::int),
-            0
-          )
-          ELSE 0
-        END as rank_change
+        COALESCE(
+          (rp.current_rank::int - (baseline.rankings->('player_'||rp.id::text))::int),
+          0
+        ) as rank_change
       FROM ranked_players rp
-      LEFT JOIN tournament_baseline tb ON true
+      CROSS JOIN baseline baseline
       ORDER BY rp.rating_value DESC
       LIMIT $5
     `;
 
-    const params = [ratingType, surface, currentYear, tour, parseInt(limit), hasSurfaceTournaments];
+    const params = [ratingType, surface, currentYear, tour, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
