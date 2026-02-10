@@ -1,5 +1,4 @@
-// Capture baseline rankings - run this AFTER ratings are calculated but BEFORE new tournament matches are imported
-// This stores the rankings as of the day before the most recent tournament starts
+// Fixed: Capture baseline rankings - use proper parameterized queries with conditional surface
 const { Pool } = require('pg');
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -8,21 +7,6 @@ async function captureBaselineRankings() {
   console.log('Capturing baseline rankings...\n');
 
   try {
-    // First, create the table if it doesn't exist
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS baseline_rankings (
-        id SERIAL PRIMARY KEY,
-        tour VARCHAR(10) NOT NULL,
-        rating_type VARCHAR(20) NOT NULL,
-        surface VARCHAR(20),
-        baseline_date DATE NOT NULL,
-        tournament_name VARCHAR(255) NOT NULL,
-        rankings JSONB NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT unique_baseline UNIQUE (tour, rating_type, surface, tournament_name)
-      )
-    `);
-
     const currentYear = new Date().getFullYear();
 
     // Find the most recent tournament
@@ -49,23 +33,19 @@ async function captureBaselineRankings() {
     console.log(`Start date: ${mostRecentTournament.start_date}`);
     console.log(`Baseline date: ${baselineDate} (day before)\n`);
 
-    // Define the rating systems and surfaces to capture
-    const configs = [
-      { tour: 'atp', ratingType: 'elo', surfaces: [null, 'Hard', 'Clay', 'Grass'] },
-      { tour: 'atp', ratingType: 'glicko2', surfaces: [null] },
-      { tour: 'atp', ratingType: 'trueskill', surfaces: [null] },
-    ];
-
-    for (const config of configs) {
-      for (const surface of config.surfaces) {
-        await captureForTypeAndSurface(config.tour, config.ratingType, surface, baselineDate, mostRecentTournament.tournament_name);
-      }
-    }
+    // ELO All surfaces
+    await captureForTypeAndSurface('atp', 'elo', null, baselineDate, mostRecentTournament.tournament_name);
+    await captureForTypeAndSurface('atp', 'elo', 'Hard', baselineDate, mostRecentTournament.tournament_name);
+    await captureForTypeAndSurface('atp', 'elo', 'Clay', baselineDate, mostRecentTournament.tournament_name);
+    await captureForTypeAndSurface('atp', 'elo', 'Grass', baselineDate, mostRecentTournament.tournament_name);
+    await captureForTypeAndSurface('atp', 'glicko2', null, baselineDate, mostRecentTournament.tournament_name);
+    await captureForTypeAndSurface('atp', 'trueskill', null, baselineDate, mostRecentTournament.tournament_name);
 
     console.log('\n✅ Baseline rankings captured successfully!');
 
   } catch (error) {
     console.error('Error:', error.message);
+    console.error(error.stack);
     throw error;
   } finally {
     await pool.end();
@@ -76,37 +56,41 @@ async function captureForTypeAndSurface(tour, ratingType, surface, baselineDate,
   const surfaceLabel = surface || 'All';
   console.log(`Capturing ${tour.toUpperCase()} ${ratingType.toUpperCase()} ${surfaceLabel}...`);
 
-  // Get rankings for active players as of baseline date
-  // Active = played in last 6 months
+  // Use parameters properly - no template literal interpolation
   const result = await pool.query(`
-    WITH player_ratings AS (
-      SELECT DISTINCT ON (p.id)
-        p.id,
+    WITH latest_ratings AS (
+      SELECT DISTINCT ON (r.player_id)
+        r.player_id,
         r.rating_value
       FROM ratings r
-      JOIN players p ON r.player_id = p.id
-      JOIN matches m ON r.match_id = m.id
       WHERE r.rating_type = $1
-        AND ($2::text IS NULL OR r.surface = $2)
-        AND m.match_date <= $3::date
-        AND EXISTS (
-          SELECT 1 FROM matches m2
-          WHERE (m2.player1_id = p.id OR m2.player2_id = p.id OR m2.winner_id = p.id)
-            AND m2.match_date >= CURRENT_DATE - INTERVAL '6 months'
-        )
-      ORDER BY p.id, m.match_date DESC, r.id DESC
+        AND r.calculated_at <= $2::date
+        AND ($3::text IS NULL OR r.surface = $3)
+      ORDER BY r.player_id, r.calculated_at DESC
+    ),
+    active_players AS (
+      SELECT DISTINCT lr.player_id
+      FROM latest_ratings lr
+      WHERE EXISTS (
+        SELECT 1 FROM matches m
+        WHERE (m.player1_id = lr.player_id OR m.player2_id = lr.player_id OR m.winner_id = lr.player_id)
+          AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+      )
+    ),
+    ranked AS (
+      SELECT lr.player_id, RANK() OVER (ORDER BY lr.rating_value DESC) as rank_number
+      FROM latest_ratings lr
+      JOIN active_players ap ON lr.player_id = ap.player_id
     )
-    SELECT jsonb_object_agg('player_' || id, rank_number)
-    FROM (
-      SELECT id, RANK() OVER (ORDER BY rating_value DESC) as rank_number
-      FROM player_ratings
-    ) ranked
-  `, [ratingType, surface, baselineDate]);
+    SELECT jsonb_object_agg('player_' || player_id, rank_number)
+    FROM ranked
+  `, [ratingType, baselineDate, surface]);
 
   if (result.rows[0]?.jsonb_object_agg) {
     const rankings = result.rows[0].jsonb_object_agg;
+    const playerCount = Object.keys(rankings).length;
 
-    // Delete existing baseline for this combination
+    // Delete existing baseline using parameters
     await pool.query(`
       DELETE FROM baseline_rankings
       WHERE tour = $1 AND rating_type = $2 AND ($3::text IS NULL OR surface = $3)
@@ -118,7 +102,7 @@ async function captureForTypeAndSurface(tour, ratingType, surface, baselineDate,
       VALUES ($1, $2, $3, $4, $5, $6)
     `, [tour, ratingType, surface, baselineDate, tournamentName, rankings]);
 
-    console.log(`  ✓ ${tour.toUpperCase()} ${ratingType.toUpperCase()} ${surfaceLabel}: ${Object.keys(rankings).length} players`);
+    console.log(`  ✓ ${tour.toUpperCase()} ${ratingType.toUpperCase()} ${surfaceLabel}: ${playerCount} players`);
   } else {
     console.log(`  ⚠ ${tour.toUpperCase()} ${ratingType.toUpperCase()} ${surfaceLabel}: No ratings found`);
   }

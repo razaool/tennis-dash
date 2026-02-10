@@ -669,13 +669,17 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
 
-    // Build the active filter condition for both rankings and win percentage
+    // For movement indicators, we ALWAYS use active players (played in last 6 months)
+    // This matches the baseline which only contains active players
+    const activeFilterForMovement = ` AND EXISTS (
+      SELECT 1 FROM ${tables.matches} m
+      WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
+        AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+    )`;
+
+    // Build the active filter condition for main query (respects the active parameter)
     const activeFilterCondition = active === 'true'
-      ? ` AND EXISTS (
-          SELECT 1 FROM ${tables.matches} m
-          WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
-            AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
-        )`
+      ? activeFilterForMovement
       : '';
 
     // Query with movement indicators from baseline_rankings table
