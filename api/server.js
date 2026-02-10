@@ -678,22 +678,8 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         )`
       : '';
 
-    // Find the most recent tournament start date for baseline calculation
-    const tournamentResult = await pool.query(`
-      SELECT DISTINCT tournament_name, MIN(match_date)::date as start_date
-      FROM ${tables.matches}
-      WHERE EXTRACT(YEAR FROM match_date) = $1
-      GROUP BY tournament_name
-      ORDER BY MIN(match_date) DESC
-      LIMIT 1
-    `, [currentYear]);
-
-    const baselineDate = tournamentResult.rows[0]?.start_date
-      ? new Date(new Date(tournamentResult.rows[0].start_date).getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-      : null;
-
-    // Query with movement indicators calculated dynamically
-    // Rankings are calculated AFTER applying active filter for accurate ranks
+    // Query with movement indicators - for now set rank_change to 0
+    // TODO: Implement proper baseline comparison
     const query = `
       WITH current_rankings AS (
         SELECT
@@ -728,27 +714,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
           RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
-      ),
-      baseline_rankings AS (
-        SELECT
-          p.id,
-          RANK() OVER (ORDER BY r.rating_value DESC) as baseline_rank
-        FROM ${tables.ratings} r
-        JOIN ${tables.players} p ON r.player_id = p.id
-        JOIN ${tables.matches} m ON r.match_id = m.id
-        WHERE r.rating_type = $1
-          AND r.surface IS NULL
-          AND m.match_date <= $5::date
-          AND r.id = (
-            SELECT MAX(r2.id)
-            FROM ${tables.ratings} r2
-            JOIN ${tables.matches} m2 ON r2.match_id = m2.id
-            WHERE r2.player_id = p.id
-              AND r2.rating_type = $1
-              AND r2.surface IS NULL
-              AND m2.match_date <= $5::date
-          )
-          ${activeFilterCondition}
       )
       SELECT
         rp.id,
@@ -760,17 +725,13 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.win_percentage,
         rp.current_rank,
         rp.calculated_at,
-        COALESCE(
-          (rp.current_rank::int - br.baseline_rank::int),
-          0
-        ) as rank_change
+        0 as rank_change
       FROM ranked_players rp
-      LEFT JOIN baseline_rankings br ON rp.id = br.id
       ORDER BY rp.rating_value DESC
-      LIMIT $4
+      LIMIT $3
     `;
 
-    const params = [ratingType, currentYear, tour, parseInt(limit), baselineDate];
+    const params = [ratingType, currentYear, parseInt(limit)];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
