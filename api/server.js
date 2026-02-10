@@ -777,10 +777,10 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 
     const playerId = parseInt(playerResult.rows[0].id);
 
-    // Get the most recent match date for this player
+    // Get the most recent rating date for this player (use calculated_at instead of match_id)
     const maxDateQuery = surface
-      ? `SELECT MAX(m.match_date) as max_date FROM ${tables.ratings} r JOIN ${tables.matches} m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface = $3`
-      : `SELECT MAX(m.match_date) as max_date FROM ${tables.ratings} r JOIN ${tables.matches} m ON r.match_id = m.id WHERE r.player_id = $1 AND r.rating_type = $2 AND r.surface IS NULL`;
+      ? `SELECT MAX(calculated_at) as max_date FROM ${tables.ratings} WHERE player_id = $1 AND rating_type = $2 AND surface = $3`
+      : `SELECT MAX(calculated_at) as max_date FROM ${tables.ratings} WHERE player_id = $1 AND rating_type = $2 AND surface IS NULL`;
 
     const maxDateParams = surface ? [playerId, ratingType, surface] : [playerId, ratingType];
     const maxDateResult = await pool.query(maxDateQuery, maxDateParams);
@@ -788,15 +788,15 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
     const daysToSubtract = parseInt(months) * 30;
     const minDate = maxDate ? new Date(new Date(maxDate).getTime() - daysToSubtract * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
 
+    // Use calculated_at instead of match_id join for better performance
     let query = `
       SELECT
         r.rating_value,
         r.rating_deviation,
-        m.match_date,
-        m.surface
+        r.calculated_at as match_date,
+        r.surface
       FROM ${tables.ratings} r
-      JOIN ${tables.matches} m ON r.match_id = m.id
-      WHERE r.player_id = $1 AND r.rating_type = $2 AND m.match_date >= $3
+      WHERE r.player_id = $1 AND r.rating_type = $2 AND r.calculated_at >= $3
     `;
 
     const params = [playerId, ratingType, minDate];
@@ -808,7 +808,7 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
       query += ` AND r.surface IS NULL`;
     }
 
-    query += ` ORDER BY m.match_date ASC`;
+    query += ` ORDER BY r.calculated_at ASC`;
 
     const result = await pool.query(query, params);
     res.json({
@@ -1346,6 +1346,7 @@ app.get('/api/dashboard/summary', cacheMiddleware('dashboard_summary', 300), asy
     `);
 
     // Get top players by ELO (only for ATP - WTA doesn't have ratings yet)
+    // Use DISTINCT ON instead of correlated subquery for better performance
     let topPlayers = { rows: [] };
     if (tables.ratings) {
       topPlayers = await pool.query(`
@@ -1353,10 +1354,15 @@ app.get('/api/dashboard/summary', cacheMiddleware('dashboard_summary', 300), asy
           p.name as player_name,
           p.country,
           r.rating_value
-        FROM ratings r
-        JOIN players p ON r.player_id = p.id
-        WHERE r.rating_type = 'elo' AND r.surface IS NULL
-          AND r.id IN (SELECT MAX(id) FROM ratings WHERE rating_type = 'elo' AND surface IS NULL GROUP BY player_id)
+        FROM (
+          SELECT DISTINCT ON (player_id)
+            player_id,
+            rating_value
+          FROM ratings
+          WHERE rating_type = 'elo' AND surface IS NULL
+          ORDER BY player_id, id DESC
+        ) r
+        JOIN players p ON p.id = r.player_id
         ORDER BY r.rating_value DESC
         LIMIT 10
       `);
@@ -1433,7 +1439,7 @@ app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), a
     const currentYear = new Date().getFullYear();
 
     // Return top active players only (played a match in current year)
-    // Use latest match date rating, not MAX(id)
+    // Use calculated_at instead of match_id join for better performance
     const result = await pool.query(`
       SELECT
         id,
@@ -1448,7 +1454,6 @@ app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), a
           r.rating_deviation
         FROM ${tables.ratings} r
         JOIN ${tables.players} p ON r.player_id = p.id
-        JOIN ${tables.matches} m ON r.match_id = m.id
         WHERE r.rating_type = $1 AND r.surface IS NULL
           AND p.id IN (
             SELECT DISTINCT player_id FROM (
@@ -1459,7 +1464,7 @@ app.get('/api/dashboard/trending', cacheMiddleware('dashboard_trending', 300), a
               SELECT player2_id as player_id FROM ${tables.matches} WHERE EXTRACT(YEAR FROM match_date) = $3::int
             ) active_players WHERE player_id IS NOT NULL
           )
-        ORDER BY p.id, m.match_date DESC, r.id DESC
+        ORDER BY p.id, r.calculated_at DESC
       ) latest_ratings
       ORDER BY rating_value DESC
       LIMIT $2
