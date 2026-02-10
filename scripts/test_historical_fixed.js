@@ -1,4 +1,4 @@
-// Test the historical rankings endpoint
+// Test the full historical rankings query with fix
 const { Pool } = require('pg');
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -6,9 +6,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 async function test() {
   const date = '2026-02-01';
   const ratingType = 'elo';
-  const limit = 20;
+  const limit = 15;
 
-  console.log(`Testing historical rankings for ${date}...`);
+  console.log(`Testing FIXED historical rankings for ${date}...`);
 
   const query = `
     WITH latest_ratings AS (
@@ -24,7 +24,7 @@ async function test() {
       JOIN players p ON r.player_id = p.id
       WHERE r.rating_type = $1
         AND r.surface IS NULL
-        AND r.calculated_at <= $2::date
+        AND r.calculated_at < ($2::date + INTERVAL '1 day')
       ORDER BY r.player_id, r.id DESC
     ),
     active_players AS (
@@ -55,7 +55,7 @@ async function test() {
 
   const result = await pool.query(query, [ratingType, date, limit]);
 
-  console.log(`\nTop ${limit} ATP players as of ${date}:`);
+  console.log(`\nTop ${limit} ATP players as of ${date} (FIXED):`);
   console.table(result.rows);
 
   await pool.end();

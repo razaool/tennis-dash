@@ -1817,7 +1817,7 @@ app.get('/api/rankings/historical', async (req, res) => {
         JOIN ${tables.players} p ON r.player_id = p.id
         WHERE r.rating_type = $1
           AND r.surface IS NULL
-          AND r.calculated_at <= $2::date
+          AND r.calculated_at < ($2::date + INTERVAL '1 day')
         ORDER BY r.player_id, r.id DESC
       ),
       active_players AS (
