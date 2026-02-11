@@ -158,11 +158,11 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
   // Movement Indicator Component
   const MovementIndicator: React.FC<{ change: number | null | undefined }> = ({ change }) => {
     if (change === null || change === undefined) {
-      return <span style={{ color: '#888', fontSize: '0.65rem' }}>-</span>;
+      return <span style={{ color: '#888', fontSize: '0.8rem', fontWeight: 600 }}>-</span>;
     }
 
     if (change === 0) {
-      return <span style={{ color: '#888', fontSize: '0.65rem' }}>=</span>;
+      return <span style={{ color: '#888', fontSize: '0.8rem', fontWeight: 600 }}>=</span>;
     }
 
     const isUp = change < 0; // Rank decreased (improved)
@@ -172,12 +172,12 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
       <span
         style={{
           color: isUp ? '#28a745' : isDown ? '#dc3545' : '#888',
-          fontSize: '0.65rem',
+          fontSize: '0.8rem',
           fontWeight: 600,
           fontVariantNumeric: 'tabular-nums',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.1rem'
+          gap: '0.15rem'
         }}
       >
         {isUp ? '↑' : isDown ? '↓' : ''}
