@@ -669,7 +669,7 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
 
-    // Build the active filter condition
+    // Build active filter condition
     const activeFilterCondition = active === 'true'
       ? ` AND EXISTS (
           SELECT 1 FROM ${tables.matches} m
@@ -677,21 +677,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
             AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
         )`
       : '';
-
-    // Get the most recent tournament snapshot for rank comparison
-    const snapshotResult = await pool.query(`
-      SELECT rankings, tournament_name
-      FROM tournament_snapshots
-      WHERE tour = $1
-        AND rating_type = $2
-        AND surface IS NULL
-        AND snapshot_type = 'before'
-      ORDER BY created_at DESC
-      LIMIT 1
-    `, [tour || 'atp', ratingType]);
-
-    const baselineRankings = snapshotResult.rows[0]?.rankings || null;
-    const tournamentName = snapshotResult.rows[0]?.tournament_name || null;
 
     const query = `
       WITH current_rankings AS (
@@ -746,21 +731,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const params = [ratingType, currentYear, parseInt(limit)];
 
     const result = await pool.query(query, params);
-
-    // Add rank_change if we have baseline rankings
-    if (baselineRankings) {
-      result.rows.forEach(player => {
-        const baselineRank = baselineRankings[`player_${player.id}`];
-        player.rank_change = baselineRank
-          ? player.current_rank - parseInt(baselineRank)
-          : null;
-      });
-      result.rows.forEach(player => {
-        if (player.rank_change !== null) {
-          player.tournament_name = tournamentName;
-        }
-      });
-    }
 
     res.json(result.rows);
   } catch (error) {

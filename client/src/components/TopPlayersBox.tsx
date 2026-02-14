@@ -15,8 +15,6 @@ interface Player {
   current_rank?: number;
   calculated_at?: string;
   last_updated?: string;
-  rank_change?: number | null;
-  tournament_name?: string | null;
 }
 
 interface TopPlayersBoxProps {
@@ -155,37 +153,6 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     return `rgb(${red}, ${green}, 0)`;
   };
 
-  // Movement Indicator Component
-  const MovementIndicator: React.FC<{ change: number | null | undefined }> = ({ change }) => {
-    if (change === null || change === undefined) {
-      return <span style={{ color: '#888', fontSize: '0.8rem', fontWeight: 600 }}>-</span>;
-    }
-
-    if (change === 0) {
-      return <span style={{ color: '#888', fontSize: '0.8rem', fontWeight: 600 }}>=</span>;
-    }
-
-    const isUp = change < 0; // Rank decreased (improved)
-    const isDown = change > 0; // Rank increased (worsened)
-
-    return (
-      <span
-        style={{
-          color: isUp ? '#28a745' : isDown ? '#dc3545' : '#888',
-          fontSize: '0.8rem',
-          fontWeight: 600,
-          fontVariantNumeric: 'tabular-nums',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.15rem'
-        }}
-      >
-        {isUp ? '↑' : isDown ? '↓' : ''}
-        {Math.abs(change)}
-      </span>
-    );
-  };
-
   const formatBaselineDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
 
@@ -318,18 +285,17 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
 
       {/* Players List */}
       {/* Header Row */}
-      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 2.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem 2.5rem', gap: '0.25rem', padding: '0.5rem', borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.65rem', color: `${theme.textSecondary}`, textTransform: 'uppercase', alignItems: 'center' }}>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.65rem', color: `${theme.textSecondary}`, textTransform: 'uppercase', alignItems: 'center' }}>
         <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'right' }}>Age</div>
         <div style={{ textAlign: 'right' }}>Win%</div>
         <div style={{ textAlign: 'right' }}>Rating</div>
         {ratingSystem !== 'elo' && <div style={{ textAlign: 'right' }}>RD</div>}
-        <div style={{ textAlign: 'center' }}>Move</div>
       </div>
       <div className="players-list">
         {players.map((player, index) => (
-          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 2.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem 2.5rem' }}>
+          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem' }}>
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
               <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -349,18 +315,6 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
             {ratingSystem !== 'elo' && <div className="player-rating" style={{ minWidth: '3rem' }}>
               {`±${Math.round(player.rating_deviation || 0).toString()}`}
             </div>}
-            {/* Movement indicator - only for overall rankings */}
-            {!surface && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <MovementIndicator change={player.rank_change} />
-              </div>
-            )}
-            {/* Empty cell for surface rankings */}
-            {surface && (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <span style={{ color: '#888', fontSize: '0.65rem' }}>-</span>
-              </div>
-            )}
           </div>
         ))}
       </div>
