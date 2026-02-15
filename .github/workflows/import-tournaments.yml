@@ -1,0 +1,86 @@
+name: Import Tennis Tournaments
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_url:
+        description: 'TennisMyLife CSV URL (leave empty for default ongoing_tourneys.csv)'
+        required: false
+        default: ''
+      filter_new:
+        description: 'Only import new matches?'
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    # Run daily at 5 AM UTC
+    - cron: '0 5 * * *'
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download TennisMyLife CSV
+        run: |
+          if [ -n "${{ inputs.csv_url }}" ]; then
+            echo "Downloading from custom URL: ${{ inputs.csv_url }}"
+            curl -o matches.csv "${{ inputs.csv_url }}"
+          else
+            echo "Downloading ongoing_tourneys.csv from TennisMyLife"
+            curl -o matches.csv https://stats.tennismylife.org/data/ongoing_tourneys.csv
+          fi
+
+      - name: Filter to new matches
+        if: inputs.filter_new == true
+        run: |
+          echo "Filtering to only new matches..."
+          node scripts/filter_new_matches.js matches.csv > new_matches.csv
+          echo "Filtered CSV saved to new_matches.csv"
+
+      - name: Use full CSV
+        if: inputs.filter_new == false
+        run: |
+          echo "Using full CSV (all matches)"
+          cp matches.csv new_matches.csv
+
+      - name: Generate SQL import file
+        run: |
+          node scripts/import_tennismylife.js new_matches.csv
+
+      - name: Import to Railway Database
+        run: |
+          psql "$DATABASE_URL" < new_matches_import.sql
+
+      - name: Recalculate ELO Ratings
+        run: |
+          node scripts/calculateELORatings_incremental.js
+
+      - name: Recalculate Glicko2 Ratings
+        run: |
+          node scripts/calculateGlicko2Ratings.js
+
+      - name: Recalculate TrueSkill Ratings
+        run: |
+          node scripts/calculateTrueSkillRatings.js
+
+      - name: Summary
+        run: |
+          echo "=== Import Complete ==="
+          echo "Matches imported from TennisMyLife"
+          echo "All ratings recalculated"
