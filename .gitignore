@@ -23,7 +23,14 @@ logs/
 
 # Data files (keep in data-source/)
 /*.csv
+/*.sql
+/*.txt
 ml_features.csv
+
+# Temp directories
+temp_csv/
+temp_sql/
+archive/
 
 # Claude Code settings (may contain sensitive data)
 .claude/

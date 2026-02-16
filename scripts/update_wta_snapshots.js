@@ -10,14 +10,14 @@ async function updateWTA() {
   `);
   console.log('Deleted old WTA snapshots');
   
-  // Create new WTA snapshots with Abu Dhabi tournament (latest)
+  // Create new WTA snapshots for latest tournament (Qatar Open 2026)
   const ratingTypes = ['elo', 'glicko2', 'trueskill'];
-  
+
   for (const rating of ratingTypes) {
     await pool.query(`
-      SELECT create_tournament_snapshot($1, $2, $3, $4, NULL, $5)
-    `, ['wta', rating, 'Abu Dhabi WTA Women\'s Tennis Open', 'before', '2026-02-08']);
-    console.log(`Created WTA ${rating} snapshot for Abu Dhabi`);
+      SELECT create_tournament_snapshot($1, $2, $3, $4, $5)
+    `, ['wta', rating, 'Qatar Open', 'before', NULL]);
+    console.log(`Created WTA ${rating} snapshot for Qatar Open`);
   }
   
   // Verify

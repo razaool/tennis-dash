@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION create_tournament_snapshot(
   p_tournament_name VARCHAR,
   p_snapshot_type VARCHAR,
   p_surface VARCHAR DEFAULT NULL,
-  p_as_of_date DATE DEFAULT CURRENT_DATE
+  p_as_of_date DATE DEFAULT CURRENT_TIMESTAMP
 )
 RETURNS void AS $$
 DECLARE
@@ -48,6 +48,9 @@ BEGIN
     SELECT MIN(m.match_date)::date FROM %I m WHERE m.tournament_name = $1
   ', v_match_table) USING p_tournament_name INTO v_start_date;
 
+  -- Use tournament start date as "as of" date for snapshot (not current_timestamp)
+  p_as_of_date DATE := COALESCE(v_start_date, CURRENT_DATE);
+
   -- Insert snapshot with ALL active players' rankings as of the specified date
   EXECUTE format('
     INSERT INTO tournament_snapshots (tour, rating_type, surface, tournament_name, tournament_start_date, snapshot_type, rankings)
@@ -56,8 +59,7 @@ BEGIN
       $2::varchar,
       $4::varchar,
       $3::varchar,
-      $5::date,
-      $6::varchar,
+      p_as_of_date,
       jsonb_object_agg(''player_'' || player_id::text, rank_number)
     FROM (
       SELECT
@@ -70,17 +72,16 @@ BEGIN
         FROM %I rp
         WHERE rp.rating_type = $2::varchar
           AND ($4::varchar IS NULL OR rp.surface = $4::varchar)
-          AND rp.calculated_at < ($7::date + INTERVAL ''1 day'')
+          AND rp.calculated_at < (p_as_of_date + INTERVAL '1 day')
         ORDER BY rp.player_id, rp.id DESC
       ) r
       WHERE EXISTS (
         SELECT 1 FROM %I m
         WHERE (m.player1_id = r.player_id OR m.player2_id = r.player_id OR m.winner_id = r.player_id)
-          AND m.match_date >= $7::date - INTERVAL ''6 months''
+          AND m.match_date >= p_as_of_date - INTERVAL '6 months'
       )
     ) ranked
   ', v_table_name, v_match_table)
   USING p_tour, p_rating_type, p_tournament_name, p_surface, v_start_date, p_snapshot_type, p_as_of_date;
-
 END;
 $$ LANGUAGE plpgsql;
