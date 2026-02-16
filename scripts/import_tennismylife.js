@@ -185,7 +185,7 @@ function convertTennisMyLifeCSV(csvFile) {
   sql += `CREATE OR REPLACE FUNCTION normalize_player_name(name TEXT)\n`;
   sql += `RETURNS TEXT AS $$\n`;
   sql += `BEGIN\n`;
-  sql += `  RETURN lower(trim(regexp_replace(regexp_replace(name, '[‘’'’]', '', 'g'), '-', ' ')));\n`;
+  sql += `  RETURN lower(trim(regexp_replace(regexp_replace(name, $$['’]$$, $$$$, 'g'), '-', ' ')));\n`;
   sql += `END;\n`;
   sql += `$$ LANGUAGE plpgsql IMMUTABLE;\n\n`;
 
