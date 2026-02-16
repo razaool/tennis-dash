@@ -56,8 +56,13 @@ jobs:
         run: |
           node scripts/calculateTrueSkillRatings_incremental.js
 
+      - name: Create Active Player Snapshots
+        run: |
+          node scripts/create_active_snapshots.js
+
       - name: Summary
         run: |
           echo "=== Import Complete ==="
           echo "Matches imported from TennisMyLife"
           echo "All ratings recalculated"
+          echo "Active player snapshots created"

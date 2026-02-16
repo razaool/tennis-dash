@@ -713,13 +713,6 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         FROM current_rankings cr
         WHERE cr.rn = 1
       )
-      , previous_snapshot AS (
-        SELECT rankings, snapshot_date
-        FROM ranking_snapshots
-        WHERE rating_type = 'elo' AND surface IS NULL
-        ORDER BY snapshot_date DESC
-        LIMIT 1 OFFSET 1
-      )
       SELECT
         rp.id,
         rp.name,
@@ -729,15 +722,8 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.rating_deviation,
         rp.win_percentage,
         rp.current_rank,
-        rp.calculated_at,
-        CASE
-          WHEN ps.rankings IS NOT NULL AND ps.rankings ? ('player_' || rp.id::text)
-            THEN rp.current_rank - (ps.rankings->>'player_' || rp.id::text)::int
-          ELSE NULL
-        END as rank_change,
-        ps.snapshot_date as baseline_date
+        rp.calculated_at
       FROM ranked_players rp
-      LEFT JOIN previous_snapshot ps ON true
       ORDER BY rp.rating_value DESC
       LIMIT $3
     `;
@@ -746,7 +732,48 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
 
     const result = await pool.query(query, params);
 
-    res.json(result.rows);
+    // Get previous snapshot for active players of this rating type
+    const snapshotKey = `${ratingType}_active`;
+    const prevSnapshotResult = await pool.query(
+      `SELECT rankings, snapshot_date
+       FROM ranking_snapshots
+       WHERE rating_type = $1 AND surface IS NULL
+       ORDER BY snapshot_date DESC
+       LIMIT 1 OFFSET 1`,
+      [snapshotKey]
+    );
+
+    const prevSnapshot = prevSnapshotResult.rows[0];
+
+    // Calculate rank changes
+    const rowsWithChange = result.rows.map(row => {
+      const prevRank = prevSnapshot?.rankings?.[row.id.toString()];
+      const rankChange = prevRank ? row.current_rank - parseInt(prevRank) : null;
+      return {
+        ...row,
+        rank_change: rankChange,
+        baseline_date: prevSnapshot?.snapshot_date || null
+      };
+    });
+
+    // Save new snapshot after returning results (don't block the response)
+    setImmediate(async () => {
+      try {
+        const rankings = {};
+        result.rows.forEach(row => {
+          rankings[row.id.toString()] = row.current_rank;
+        });
+        await pool.query(
+          `INSERT INTO ranking_snapshots (rating_type, surface, rankings)
+           VALUES ($1, NULL, $2)`,
+          [snapshotKey, JSON.stringify(rankings)]
+        );
+      } catch (err) {
+        console.error('Error saving snapshot:', err.message);
+      }
+    });
+
+    res.json(rowsWithChange);
   } catch (error) {
     console.error('Error fetching top players:', error);
     res.status(500).json({ error: 'Internal server error' });

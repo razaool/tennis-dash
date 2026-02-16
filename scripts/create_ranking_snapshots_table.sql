@@ -28,7 +28,12 @@ BEGIN
     SELECT 1 FROM ratings r
     WHERE r.rating_type = p_rating_type
       AND (p_surface IS NULL OR r.surface = p_surface)
-      AND r.id IN (SELECT MAX(id) FROM ratings GROUP BY player_id)
+      AND r.id IN (
+        SELECT MAX(id) FROM ratings
+        WHERE rating_type = p_rating_type
+          AND (p_surface IS NULL OR surface = p_surface)
+        GROUP BY player_id
+      )
     LIMIT 1
   ) INTO v_has_ratings;
 
@@ -45,7 +50,10 @@ BEGIN
       WHERE r.rating_type = p_rating_type
         AND (p_surface IS NULL OR r.surface = p_surface)
         AND r.id IN (
-          SELECT MAX(id) FROM ratings GROUP BY player_id
+          SELECT MAX(id) FROM ratings
+          WHERE rating_type = p_rating_type
+            AND (p_surface IS NULL OR surface = p_surface)
+          GROUP BY player_id
         )
     ) ranked;
 
