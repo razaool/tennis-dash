@@ -263,10 +263,11 @@ function convertTennisMyLifeCSV(csvFile) {
   fs.writeFileSync(sqlFile, sql);
 
   console.log(`✅ SQL file generated: ${sqlFile}`);
-  console.log(`\n📊 Import Summary:`);
-  console.log(`   👥 Players to add: ${Object.keys(players).length}`);
-  console.log(`   🏆 Tournaments to add: ${Object.keys(tournaments).length}`);
-  console.log(`   🎾 Matches to insert: ${matches.length}`);
+  console.log(`\n📊 CSV Summary (what's in the file):`);
+  console.log(`   👥 Unique players: ${Object.keys(players).length}`);
+  console.log(`   🏆 Tournaments: ${Object.keys(tournaments).length}`);
+  console.log(`   🎾 Matches: ${matches.length}`);
+  console.log(`\n📝 Note: SQL will skip existing players/tournaments/matches using WHERE NOT EXISTS`);
   console.log(`\n🚀 Next Steps:`);
   console.log(`   1. Review the SQL file: ${sqlFile}`);
   console.log(`   2. Import to Railway via Railway Console or:`);
