@@ -713,6 +713,13 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         FROM current_rankings cr
         WHERE cr.rn = 1
       )
+      , previous_snapshot AS (
+        SELECT rankings, snapshot_date
+        FROM ranking_snapshots
+        WHERE rating_type = 'elo' AND surface IS NULL
+        ORDER BY snapshot_date DESC
+        LIMIT 1 OFFSET 1
+      )
       SELECT
         rp.id,
         rp.name,
@@ -722,8 +729,15 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.rating_deviation,
         rp.win_percentage,
         rp.current_rank,
-        rp.calculated_at
+        rp.calculated_at,
+        CASE
+          WHEN ps.rankings IS NOT NULL AND ps.rankings ? ('player_' || rp.id::text)
+            THEN rp.current_rank - (ps.rankings->>'player_' || rp.id::text)::int
+          ELSE NULL
+        END as rank_change,
+        ps.snapshot_date as baseline_date
       FROM ranked_players rp
+      LEFT JOIN previous_snapshot ps ON true
       ORDER BY rp.rating_value DESC
       LIMIT $3
     `;

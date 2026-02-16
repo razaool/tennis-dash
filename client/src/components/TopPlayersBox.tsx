@@ -15,6 +15,8 @@ interface Player {
   current_rank?: number;
   calculated_at?: string;
   last_updated?: string;
+  rank_change?: number | null;
+  baseline_date?: string | null;
 }
 
 interface TopPlayersBoxProps {
@@ -153,6 +155,23 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     return `rgb(${red}, ${green}, 0)`;
   };
 
+  const MovementIndicator: React.FC<{ change: number | null | undefined }> = ({ change }) => {
+    if (change === null || change === undefined) {
+      return <span style={{ color: '#888', fontSize: '0.65rem' }}>—</span>;
+    }
+    if (change === 0) {
+      return <span style={{ color: '#888', fontSize: '0.65rem' }}>=</span>;
+    }
+    const movementColor = change < 0 ? '#4ade80' : '#f87171'; // green for up (negative = better), red for down
+    const icon = change < 0 ? '↑' : '↓';
+    const value = Math.abs(change);
+    return (
+      <span style={{ color: movementColor, fontSize: '0.65rem', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+        {icon}{value}
+      </span>
+    );
+  };
+
   const formatBaselineDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
 
@@ -276,26 +295,27 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
       </div>
 
       {/* Baseline Timestamp */}
-      {players.length > 0 && players[0].last_updated && (
-        <div className="baseline-timestamp" style={{ fontSize: '0.7rem', color: '#888', marginTop: '0.25rem', fontWeight: 500 }}>
-          {formatBaselineDate(players[0].last_updated)}
+      {ratingSystem === 'elo' && tour === 'atp' && players.length > 0 && players[0].baseline_date && (
+        <div className="baseline-timestamp" style={{ fontSize: '0.65rem', color: '#888', marginTop: '0.25rem', fontWeight: 500 }}>
+          {formatBaselineDate(players[0].baseline_date)}
         </div>
       )}
 
 
       {/* Players List */}
       {/* Header Row */}
-      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.65rem', color: `${theme.textSecondary}`, textTransform: 'uppercase', alignItems: 'center' }}>
+      <div className="header-row" style={{ display: 'grid', gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 2.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem', gap: '0.25rem', padding: '0.5rem', borderBottom: `1px solid ${theme.borderColor}`, marginBottom: '0.5rem', fontSize: '0.65rem', color: `${theme.textSecondary}`, textTransform: 'uppercase', alignItems: 'center' }}>
         <div style={{ minWidth: '1.5rem' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'right' }}>Age</div>
         <div style={{ textAlign: 'right' }}>Win%</div>
         <div style={{ textAlign: 'right' }}>Rating</div>
         {ratingSystem !== 'elo' && <div style={{ textAlign: 'right' }}>RD</div>}
+        {ratingSystem === 'elo' && tour === 'atp' && <div style={{ textAlign: 'center' }}>Move</div>}
       </div>
       <div className="players-list">
         {players.map((player, index) => (
-          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem' }}>
+          <div key={player.id} className="player-card" style={{ gridTemplateColumns: ratingSystem === 'elo' ? 'auto 1fr 3rem 3rem 3.5rem 2.5rem' : 'auto 1fr 3rem 3rem 3.5rem 3rem' }}>
             <div className="player-rank">#{index + 1}</div>
             <div className="player-info">
               <div className="player-name" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -315,6 +335,11 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
             {ratingSystem !== 'elo' && <div className="player-rating" style={{ minWidth: '3rem' }}>
               {`±${Math.round(player.rating_deviation || 0).toString()}`}
             </div>}
+            {ratingSystem === 'elo' && tour === 'atp' && (
+              <div style={{ textAlign: 'center' }}>
+                <MovementIndicator change={player.rank_change} />
+              </div>
+            )}
           </div>
         ))}
       </div>
