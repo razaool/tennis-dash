@@ -50,11 +50,11 @@ jobs:
 
       - name: Recalculate Glicko2 Ratings
         run: |
-          node scripts/calculateGlicko2Ratings.js
+          node scripts/calculateGlicko2Ratings_incremental.js
 
       - name: Recalculate TrueSkill Ratings
         run: |
-          node scripts/calculateTrueSkillRatings.js
+          node scripts/calculateTrueSkillRatings_incremental.js
 
       - name: Summary
         run: |
