@@ -664,19 +664,25 @@ app.get('/api/players/highest-elo-by-surface', async (req, res) => {
 app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), async (req, res) => {
   try {
     const { ratingType } = req.params;
-    const { limit = 10, active = false, tour } = req.query;
+    const { limit, active = false, tour } = req.query;
 
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
+    const isActive = active === 'true';
+    // No limit for active players, default to 10 otherwise
+    const playerLimit = isActive ? null : (limit ? parseInt(limit) : 10);
 
     // Build active filter condition
-    const activeFilterCondition = active === 'true'
+    const activeFilterCondition = isActive
       ? ` AND EXISTS (
           SELECT 1 FROM ${tables.matches} m
           WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
             AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
         )`
       : '';
+
+    const limitClause = playerLimit ? `LIMIT $3` : '';
+    const queryParams = playerLimit ? [ratingType, currentYear, playerLimit] : [ratingType, currentYear];
 
     const query = `
       WITH current_rankings AS (
@@ -725,12 +731,10 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
         rp.calculated_at
       FROM ranked_players rp
       ORDER BY rp.rating_value DESC
-      LIMIT $3
+      ${limitClause}
     `;
 
-    const params = [ratingType, currentYear, parseInt(limit)];
-
-    const result = await pool.query(query, params);
+    const result = await pool.query(query, queryParams);
 
     // Get previous snapshot for active players of this rating type
     const snapshotKey = `${ratingType}_active`;
