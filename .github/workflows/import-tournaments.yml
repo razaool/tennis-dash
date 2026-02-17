@@ -3,8 +3,8 @@ name: Import Tennis Tournaments
 on:
   workflow_dispatch:
   schedule:
-    # Run daily at 5 AM UTC
-    - cron: '0 5 * * *'
+    # Run every hour
+    - cron: '0 * * * *'
 
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
