@@ -669,8 +669,10 @@ app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), asy
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
     const isActive = active === 'true';
-    // No limit for active players, default to 10 otherwise
-    const playerLimit = isActive ? null : (limit ? parseInt(limit) : 10);
+    // Respect explicit limit, default to 500 for active (covers all active players), 10 otherwise
+    const playerLimit = limit
+      ? parseInt(limit)
+      : (isActive ? 500 : 10);
 
     // Build active filter condition
     const activeFilterCondition = isActive
