@@ -16,6 +16,9 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+// Minimum threshold for creating a snapshot (prevents small test datasets)
+const MIN_PLAYERS_THRESHOLD = 200;
+
 async function createSnapshot(ratingType) {
   // Get all active players with their current rank
   const result = await pool.query(`
@@ -34,7 +37,7 @@ async function createSnapshot(ratingType) {
         )
     ),
     ranked AS (
-      SELECT id, RANK() OVER (ORDER BY rating_value DESC) as current_rank
+      SELECT id, RANK() OVER (ORDER BY r.rating_value DESC) as current_rank
       FROM current_rankings
       WHERE rn = 1
     )
@@ -43,7 +46,27 @@ async function createSnapshot(ratingType) {
   `, [ratingType]);
 
   if (result.rows.length === 0) {
-    console.log(`  No active players found for ${ratingType}`);
+    console.log(`  ✗ No active players found for ${ratingType}`);
+    return;
+  }
+
+  if (result.rows.length < MIN_PLAYERS_THRESHOLD) {
+    console.log(`  ✗ Too few active players (${result.rows.length} < ${MIN_PLAYERS_THRESHOLD}), skipping snapshot`);
+    return;
+  }
+
+  // Check if a snapshot already exists for today
+  const existingSnapshot = await pool.query(
+    `SELECT id, snapshot_date
+     FROM ranking_snapshots
+     WHERE rating_type = $1 AND surface IS NULL
+       AND DATE(snapshot_date) = CURRENT_DATE
+     LIMIT 1`,
+    [`${ratingType}_active`]
+  );
+
+  if (existingSnapshot.rows.length > 0) {
+    console.log(`  ✓ Snapshot already exists for ${ratingType} today, skipping`);
     return;
   }
 
