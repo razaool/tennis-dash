@@ -661,7 +661,7 @@ app.get('/api/players/highest-elo-by-surface', async (req, res) => {
  *       200:
  *         description: List of top players
  */
-app.get('/api/players/top/:ratingType', cacheMiddleware('top_players', 300), async (req, res) => {
+app.get('/api/players/top/:ratingType', async (req, res) => {
   try {
     const { ratingType } = req.params;
     const { limit, active = false, tour } = req.query;
