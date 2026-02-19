@@ -37,7 +37,7 @@ async function createSnapshot(ratingType) {
         )
     ),
     ranked AS (
-      SELECT id, RANK() OVER (ORDER BY r.rating_value DESC) as current_rank
+      SELECT id, RANK() OVER (ORDER BY rating_value DESC) as current_rank
       FROM current_rankings
       WHERE rn = 1
     )
