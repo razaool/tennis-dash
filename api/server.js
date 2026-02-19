@@ -1673,13 +1673,18 @@ app.get('/api/tournaments/:id', async (req, res) => {
 app.get('/api/rankings/surface/:surface', async (req, res) => {
   try {
     const { surface } = req.params;
-    const { ratingType = 'elo', limit = 10, active = false, tour } = req.query;
+    const { ratingType = 'elo', limit, active = false, tour } = req.query;
 
     const tables = getTourTables(tour);
     const currentYear = new Date().getFullYear();
+    const isActive = active === 'true';
+    // Respect explicit limit, default to 500 for active (covers all active players), 10 otherwise
+    const playerLimit = limit
+      ? parseInt(limit)
+      : (isActive ? 500 : 10);
 
     // Build the active filter condition
-    const activeFilterCondition = active === 'true'
+    const activeFilterCondition = isActive
       ? ` AND EXISTS (
           SELECT 1 FROM ${tables.matches} m
           WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
@@ -1736,7 +1741,7 @@ app.get('/api/rankings/surface/:surface', async (req, res) => {
       LIMIT $4
     `;
 
-    const params = [ratingType, surface, currentYear, parseInt(limit)];
+    const params = [ratingType, surface, currentYear, playerLimit];
 
     const result = await pool.query(query, params);
     res.json(result.rows);
