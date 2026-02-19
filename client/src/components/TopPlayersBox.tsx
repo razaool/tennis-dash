@@ -175,20 +175,28 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     if (!dateString) return '';
 
     const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const today = new Date();
 
-    if (diffDays === 0) return 'Updated: Today';
-    if (diffDays === 1) return 'Updated: Yesterday';
-    if (diffDays < 7) return `Updated: ${diffDays} days ago`;
+    // Format time as "2:30 PM"
+    const timeStr = date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
 
-    // Format as "Jan 12, 2026"
-    return `Updated: ${date.toLocaleDateString('en-US', {
+    // Check if date is today
+    const isToday = date.toDateString() === today.toDateString();
+
+    if (isToday) {
+      return `Updated: ${timeStr} today`;
+    }
+
+    const dateStr = date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })}`;
+      day: 'numeric'
+    });
+
+    return `Updated: ${timeStr}, ${dateStr}`;
   };
 
   if (loading) {
