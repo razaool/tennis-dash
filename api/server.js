@@ -753,13 +753,15 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     const prevSnapshot = prevSnapshotResult.rows[0];
 
     // Calculate rank changes
+    const now = new Date().toISOString();
     const rowsWithChange = result.rows.map(row => {
       const prevRank = prevSnapshot?.rankings?.[row.id.toString()];
       const rankChange = prevRank ? row.current_rank - parseInt(prevRank) : null;
       return {
         ...row,
         rank_change: rankChange,
-        baseline_date: prevSnapshot?.snapshot_date || null
+        baseline_date: prevSnapshot?.snapshot_date || null,
+        last_updated: now
       };
     });
 

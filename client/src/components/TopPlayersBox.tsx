@@ -171,32 +171,26 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
     );
   };
 
-  const formatBaselineDate = (dateString: string | undefined): string => {
-    if (!dateString) return '';
+  const formatMovementLabel = (updatedDate: string | undefined, baselineDate: string | undefined): string => {
+    if (!updatedDate || !baselineDate) return '';
 
-    const date = new Date(dateString);
-    const today = new Date();
+    const updated = new Date(updatedDate);
+    const baseline = new Date(baselineDate);
 
-    // Format time as "2:30 PM"
-    const timeStr = date.toLocaleTimeString('en-US', {
+    // Format current time as "2:30 PM"
+    const timeStr = updated.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     });
 
-    // Check if date is today
-    const isToday = date.toDateString() === today.toDateString();
-
-    if (isToday) {
-      return `Updated: ${timeStr} today`;
-    }
-
-    const dateStr = date.toLocaleDateString('en-US', {
+    // Format baseline date as "Feb 16"
+    const baselineStr = baseline.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric'
     });
 
-    return `Updated: ${timeStr}, ${dateStr}`;
+    return `Updated: ${timeStr}, vs ${baselineStr}`;
   };
 
   if (loading) {
@@ -304,7 +298,7 @@ const TopPlayersBox: React.FC<TopPlayersBoxProps> = ({ className, tour = 'atp' }
       {/* Baseline Timestamp */}
       {ratingSystem === 'elo' && tour === 'atp' && players.length > 0 && players[0].baseline_date && (
         <div className="baseline-timestamp" style={{ fontSize: '0.65rem', color: '#888', marginTop: '0.25rem', fontWeight: 500 }}>
-          {formatBaselineDate(players[0].baseline_date)}
+          {formatMovementLabel(players[0].last_updated, players[0].baseline_date)}
         </div>
       )}
 
