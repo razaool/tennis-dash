@@ -814,16 +814,14 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
 
     const playerId = parseInt(playerResult.rows[0].id);
 
-    // Get the most recent match date for this player using LEFT JOIN
-    // Use LEFT JOIN to include ratings without match_id
+    // Get the most recent calculation date for this player
     const dateFilter = surface
       ? ` AND (r.surface = $3 OR r.surface IS NULL)`
       : ` AND r.surface IS NULL`;
 
     const maxDateResult = await pool.query(`
-      SELECT COALESCE(MAX(m.match_date), MAX(r.calculated_at)) as max_date
+      SELECT MAX(r.calculated_at) as max_date
       FROM ${tables.ratings} r
-      LEFT JOIN ${tables.matches} m ON r.match_id = m.id
       WHERE r.player_id = $1 AND r.rating_type = $2${dateFilter}
     `, surface ? [playerId, ratingType, surface] : [playerId, ratingType]);
 
@@ -831,17 +829,17 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
     const daysToSubtract = parseInt(months) * 30;
     const minDate = maxDate ? new Date(new Date(maxDate).getTime() - daysToSubtract * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null;
 
-    // Use LEFT JOIN to get match_date when available, calculated_at otherwise
+    // Use calculated_at for the date to show when the rating was actually computed
     let query = `
       SELECT
         r.rating_value,
         r.rating_deviation,
-        COALESCE(m.match_date, r.calculated_at)::date as match_date,
+        r.calculated_at::date as match_date,
         COALESCE(m.surface, r.surface) as surface
       FROM ${tables.ratings} r
       LEFT JOIN ${tables.matches} m ON r.match_id = m.id
       WHERE r.player_id = $1 AND r.rating_type = $2
-        AND COALESCE(m.match_date, r.calculated_at) >= $3::date
+        AND r.calculated_at >= $3::date
     `;
 
     const params = [playerId, ratingType, minDate];
@@ -853,7 +851,7 @@ app.get('/api/players/ratings/:ratingType', async (req, res) => {
       query += ` AND r.surface IS NULL`;
     }
 
-    query += ` ORDER BY COALESCE(m.match_date, r.calculated_at) ASC`;
+    query += ` ORDER BY r.calculated_at ASC`;
 
     const result = await pool.query(query, params);
     res.json({
