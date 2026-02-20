@@ -738,20 +738,13 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
 
     const result = await pool.query(query, queryParams);
 
-    // Get previous snapshot for active players of this rating type
-    // Use the most recent snapshot from a different day
+    // Get the most recent Monday snapshot for weekly baseline comparison
     const snapshotKey = `${ratingType}_active`;
     const prevSnapshotResult = await pool.query(
       `SELECT rankings, snapshot_date
        FROM ranking_snapshots
        WHERE rating_type = $1 AND surface IS NULL
-         AND snapshot_date < (
-           SELECT DATE(snapshot_date) FROM (
-             SELECT snapshot_date FROM ranking_snapshots
-             WHERE rating_type = $1 AND surface IS NULL
-             ORDER BY snapshot_date DESC LIMIT 1
-           ) recent
-         )
+         AND EXTRACT(DOW FROM snapshot_date) = 1 -- Monday (0=Sunday, 1=Monday)
        ORDER BY snapshot_date DESC
        LIMIT 1`,
       [snapshotKey]
