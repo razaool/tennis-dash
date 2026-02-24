@@ -20,9 +20,28 @@ function getLineCount(filePath) {
   return content.split('\n').filter(line => line.trim()).length - 1; // minus header
 }
 
+// Check if Excel file exists and has content
+if (!fs.existsSync(XLSX_FILE)) {
+  console.error('ERROR: Excel file not found:', XLSX_FILE);
+  process.exit(1);
+}
+
+const xlsxStats = fs.statSync(XLSX_FILE);
+if (xlsxStats.size < 10000) {
+  console.error('ERROR: Excel file is too small, download may have failed:', xlsxStats.size, 'bytes');
+  process.exit(1);
+}
+
+console.log('Excel file downloaded:', xlsxStats.size, 'bytes');
+
 // Convert Excel to CSV
 console.log('Converting Excel to CSV...');
-execSync(`python3 -c "import pandas as pd; df = pd.read_excel('${XLSX_FILE}'); df.to_csv('${NEW_CSV}', index=False, quoting=1)"`, { stdio: 'inherit' });
+try {
+  execSync(`python3 -c "import pandas as pd; df = pd.read_excel('${XLSX_FILE}'); df.to_csv('${NEW_CSV}', index=False, quoting=1)"`, { stdio: 'inherit' });
+} catch (err) {
+  console.error('ERROR: Failed to convert Excel to CSV');
+  process.exit(1);
+}
 
 // Get new hash and count
 const newHash = calculateHash(NEW_CSV);
