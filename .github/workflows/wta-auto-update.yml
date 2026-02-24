@@ -37,52 +37,28 @@ jobs:
           echo "Downloading 2026 WTA data..."
           curl -s -L -A "Mozilla/5.0" -o wta-source/2026.xlsx http://www.tennis-data.co.uk/2026w/2026.xlsx
 
-      - name: Convert Excel to CSV
-        run: |
-          cat > /tmp/convert.py << 'ENDSCRIPT'
-          import pandas as pd
-          import hashlib
-          import sys
+      - name: Convert Excel to CSV and get hash
+        id: convert
+        run: echo "hash=$(python3 -c 'import pandas as pd,hashlib; df=pd.read_excel("wta-source/2026.xlsx"); df.to_csv("wta-source/2026wta_new.csv",index=False,quoting=1); print(hashlib.md5(open("wta-source/2026wta_new.csv","rb").read().hexdigest())')" && echo "NEW_HASH=$hash" && echo "MATCH_COUNT=$(python3 -c 'import pandas as pd; print(len(pd.read_excel("wta-source/2026.xlsx")))')"
 
-          df = pd.read_excel('wta-source/2026.xlsx')
-          df.to_csv('wta-source/2026wta_new.csv', index=False, quoting=1)
-
-          with open('wta-source/2026wta_new.csv', 'rb') as f:
-              new_hash = hashlib.md5(f.read()).hexdigest()
-          print(f'NEW_HASH={new_hash}')
-          print(f'MATCH_COUNT={len(df)}')
-          ENDSCRIPT
-
-          python3 /tmp/convert.py
-
-      - name: Check if file changed
-        id: check_change
+      - name: Get previous file hash
+        id: previous
         run: |
           if [ -f "wta-source/2026wta_previous.csv" ]; then
-            cat > /tmp/check.py << 'ENDSCRIPT'
-            import pandas as pd
-            import hashlib
-            df_prev = pd.read_csv('wta-source/2026wta_previous.csv')
-            prev_count = len(df_prev)
-            with open('wta-source/2026wta_previous.csv', 'rb') as f:
-                prev_hash = hashlib.md5(f.read()).hexdigest()
-            print(f'PREV_COUNT={prev_count}')
-            print(f'PREV_HASH={prev_hash}')
-            ENDSCRIPT
-
-            python3 /tmp/check.py
+            echo "PREV_HASH=$(python3 -c 'import hashlib; print(hashlib.md5(open("wta-source/2026wta_previous.csv","rb").read().hexdigest())')"
+            echo "PREV_COUNT=$(python3 -c 'import pandas as pd; print(len(pd.read_csv("wta-source/2026wta_previous.csv")))')"
           else
-            echo "PREV_COUNT=0"
             echo "PREV_HASH=none"
+            echo "PREV_COUNT=0"
           fi
 
       - name: Compare files
         id: compare
         run: |
-          NEW_HASH="${{ steps.check_change.outputs.NEW_HASH }}"
-          PREV_HASH="${{ steps.check_change.outputs.PREV_HASH }}"
-          MATCH_COUNT="${{ steps.check_change.outputs.MATCH_COUNT }}"
-          PREV_COUNT="${{ steps.check_change.outputs.PREV_COUNT }}"
+          NEW_HASH="${{ steps.convert.outputs.NEW_HASH }}"
+          PREV_HASH="${{ steps.previous.outputs.PREV_HASH }}"
+          MATCH_COUNT="${{ steps.convert.outputs.MATCH_COUNT }}"
+          PREV_COUNT="${{ steps.previous.outputs.PREV_COUNT }}"
 
           echo "New hash: $NEW_HASH"
           echo "Prev hash: $PREV_HASH"
