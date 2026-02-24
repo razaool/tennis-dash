@@ -35,7 +35,7 @@ jobs:
       - name: Download WTA data from tennis-data.co.uk
         run: |
           echo "Downloading 2026 WTA data..."
-          curl -s -o wta-source/2026.xlsx https://www.tennis-data.co.uk/2026w/2026.xlsx
+          curl -s -L -A "Mozilla/5.0" -o wta-source/2026.xlsx https://www.tennis-data.co.uk/2026w/2026.xlsx
 
       - name: Convert Excel to CSV
         run: |
