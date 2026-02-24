@@ -12,6 +12,9 @@ env:
 jobs:
   wta-update:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      reason: ${{ steps.check.outputs.reason }}
 
     steps:
       - name: Checkout
@@ -35,48 +38,57 @@ jobs:
       - name: Download WTA data from tennis-data.co.uk
         run: |
           echo "Downloading 2026 WTA data..."
-          curl -s -L -A "Mozilla/5.0" -o wta-source/2026.xlsx http://www.tennis-data.co.uk/2026w/2026.xlsx
+          curl -s -L -A "Mozilla/5.0" -o wta-source/2026.xlsx http://www.tennis-data.co.uk/2026.xlsx
 
       - name: Check for changes
         id: check
         run: |
           node scripts/wta_check_and_prepare.js
-          node scripts/wta_check_and_prepare.js > /tmp/wta_status.txt
-          cat /tmp/wta_status.txt
+          node scripts/wta_check_and_prepare.js | tee /tmp/wta_status.txt
+
+      - name: Set output variables
+        id: set_outputs
+        run: |
+          if grep -q "CHANGED=true" /tmp/wta_status.txt; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "reason=$(grep REASON= /tmp/wta_status.txt | cut -d= -f2)" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "reason=$(grep REASON= /tmp/wta_status.txt | cut -d= -f2)" >> $GITHUB_OUTPUT
+          fi
 
       - name: Import WTA matches
-        if: contains(steps.check.outputs.*, 'CHANGED=true')
+        if: steps.set_outputs.outputs.changed == 'true'
         run: |
           echo "Running WTA import..."
           node scripts/import_wta_append.js wta-source/2026wta_new.csv
 
       - name: Calculate WTA ELO Ratings
-        if: contains(steps.check.outputs.*, 'CHANGED=true')
+        if: steps.set_outputs.outputs.changed == 'true'
         run: |
           echo "Calculating WTA ELO ratings..."
           node scripts/calculateWTaeloRatings_incremental.js
 
       - name: Calculate WTA Glicko2 Ratings
-        if: contains(steps.check.outputs.*, 'CHANGED=true')
+        if: steps.set_outputs.outputs.changed == 'true'
         run: |
           echo "Calculating WTA Glicko2 ratings..."
           node scripts/calculateWTAglicko2Ratings_incremental.js
 
       - name: Calculate WTA TrueSkill Ratings
-        if: contains(steps.check.outputs.*, 'CHANGED=true')
+        if: steps.set_outputs.outputs.changed == 'true'
         run: |
           echo "Calculating WTA TrueSkill ratings..."
           node scripts/calculateWTATrueSkillRatings_incremental.js
 
       - name: Save current file as baseline
-        if: contains(steps.check.outputs.*, 'CHANGED=true')
+        if: steps.set_outputs.outputs.changed == 'true'
         run: |
           cp wta-source/2026wta_new.csv wta-source/2026wta_previous.csv
           echo "Saved as baseline for next comparison"
 
       - name: Summary
         run: |
-          if [ -f /tmp/wta_status.txt ]; then
-            echo "=== WTA Auto-Update Complete ==="
-            cat /tmp/wta_status.txt
-          fi
+          echo "=== WTA Auto-Update Complete ==="
+          echo "Changed: ${{ steps.set_outputs.outputs.changed }}"
+          echo "Reason: ${{ steps.set_outputs.outputs.reason }}"
