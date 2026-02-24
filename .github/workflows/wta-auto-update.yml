@@ -39,40 +39,38 @@ jobs:
 
       - name: Convert Excel to CSV
         run: |
-          python3 << 'PYEOF'
+          cat > /tmp/convert.py << 'ENDSCRIPT'
           import pandas as pd
           import hashlib
+          import sys
 
-          # Read Excel and convert to CSV
           df = pd.read_excel('wta-source/2026.xlsx')
           df.to_csv('wta-source/2026wta_new.csv', index=False, quoting=1)
 
-          # Calculate hash of new file
           with open('wta-source/2026wta_new.csv', 'rb') as f:
               new_hash = hashlib.md5(f.read()).hexdigest()
           print(f'NEW_HASH={new_hash}')
-
-          # Count matches
           print(f'MATCH_COUNT={len(df)}')
-          PYEOF
+          ENDSCRIPT
+
+          python3 /tmp/convert.py
 
       - name: Check if file changed
         id: check_change
         run: |
           if [ -f "wta-source/2026wta_previous.csv" ]; then
-            python3 << 'PYEOF'
+            cat > /tmp/check.py << 'ENDSCRIPT'
             import pandas as pd
             import hashlib
-
-            # Read previous file
             df_prev = pd.read_csv('wta-source/2026wta_previous.csv')
             prev_count = len(df_prev)
             with open('wta-source/2026wta_previous.csv', 'rb') as f:
                 prev_hash = hashlib.md5(f.read()).hexdigest()
-
             print(f'PREV_COUNT={prev_count}')
             print(f'PREV_HASH={prev_hash}')
-            PYEOF
+            ENDSCRIPT
+
+            python3 /tmp/check.py
           else
             echo "PREV_COUNT=0"
             echo "PREV_HASH=none"
