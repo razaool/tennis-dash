@@ -1,0 +1,140 @@
+name: WTA Auto-Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every 24 hours at 8 AM UTC
+    - cron: '0 8 * * *'
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+jobs:
+  wta-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Python and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install pandas openpyxl
+
+      - name: Download WTA data from tennis-data.co.uk
+        run: |
+          echo "Downloading 2026 WTA data..."
+          curl -s -o wta-source/2026.xlsx https://www.tennis-data.co.uk/2026w/2026.xlsx
+
+      - name: Convert Excel to CSV
+        run: |
+          python3 -c "
+import pandas as pd
+import hashlib
+
+# Read Excel and convert to CSV
+df = pd.read_excel('wta-source/2026.xlsx')
+df.to_csv('wta-source/2026wta_new.csv', index=False, quoting=1)
+
+# Calculate hash of new file
+with open('wta-source/2026wta_new.csv', 'rb') as f:
+    new_hash = hashlib.md5(f.read()).hexdigest()
+print(f'NEW_HASH={new_hash}')
+
+# Count matches
+print(f'MATCH_COUNT={len(df)}')
+          "
+
+      - name: Check if file changed
+        id: check_change
+        run: |
+          if [ -f "wta-source/2026wta_previous.csv" ]; then
+            python3 -c "
+import pandas as pd
+import hashlib
+
+# Read previous file
+df_prev = pd.read_csv('wta-source/2026wta_previous.csv')
+prev_count = len(df_prev)
+with open('wta-source/2026wta_previous.csv', 'rb') as f:
+    prev_hash = hashlib.md5(f.read()).hexdigest()
+
+print(f'PREV_COUNT={prev_count}')
+print(f'PREV_HASH={prev_hash}')
+            "
+          else
+            echo "PREV_COUNT=0"
+            echo "PREV_HASH=none"
+          fi
+
+      - name: Compare files
+        id: compare
+        run: |
+          NEW_HASH="${{ steps.check_change.outputs.NEW_HASH }}"
+          PREV_HASH="${{ steps.check_change.outputs.PREV_HASH }}"
+          MATCH_COUNT="${{ steps.check_change.outputs.MATCH_COUNT }}"
+          PREV_COUNT="${{ steps.check_change.outputs.PREV_COUNT }}"
+
+          echo "New hash: $NEW_HASH"
+          echo "Prev hash: $PREV_HASH"
+          echo "New matches: $MATCH_COUNT"
+          echo "Prev matches: $PREV_COUNT"
+
+          if [ "$PREV_HASH" = "none" ]; then
+            echo "CHANGED=true"
+            echo "REASON=First run - no previous file"
+          elif [ "$NEW_HASH" != "$PREV_HASH" ]; then
+            echo "CHANGED=true"
+            DIFF=$((MATCH_COUNT - PREV_COUNT))
+            echo "REASON=File changed ($DIFF matches)"
+          else
+            echo "CHANGED=false"
+            echo "REASON=No changes"
+          fi
+
+      - name: Import WTA matches
+        if: steps.compare.outputs.CHANGED == 'true'
+        run: |
+          echo "Running WTA import..."
+          node scripts/import_wta_append.js wta-source/2026wta_new.csv
+
+      - name: Calculate WTA ELO Ratings
+        if: steps.compare.outputs.CHANGED == 'true'
+        run: |
+          echo "Calculating WTA ELO ratings..."
+          node scripts/calculateWTaeloRatings_incremental.js
+
+      - name: Calculate WTA Glicko2 Ratings
+        if: steps.compare.outputs.CHANGED == 'true'
+        run: |
+          echo "Calculating WTA Glicko2 ratings..."
+          node scripts/calculateWTAglicko2Ratings_incremental.js
+
+      - name: Calculate WTA TrueSkill Ratings
+        if: steps.compare.outputs.CHANGED == 'true'
+        run: |
+          echo "Calculating WTA TrueSkill ratings..."
+          node scripts/calculateWTATrueSkillRatings_incremental.js
+
+      - name: Save current file as baseline
+        if: steps.compare.outputs.CHANGED == 'true'
+        run: |
+          cp wta-source/2026wta_new.csv wta-source/2026wta_previous.csv
+          echo "Saved as baseline for next comparison"
+
+      - name: Summary
+        run: |
+          echo "=== WTA Auto-Update Complete ==="
+          echo "Changed: ${{ steps.compare.outputs.CHANGED }}"
+          echo "Reason: ${{ steps.compare.outputs.REASON }}"
