@@ -2,6 +2,12 @@ name: WTA Auto-Update
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_download:
+        description: 'Skip download and use existing 2026wta.csv'
+        required: false
+        type: boolean
+        default: true
   schedule:
     # Run every 24 hours at 8 AM UTC
     - cron: '0 8 * * *'
@@ -13,8 +19,8 @@ jobs:
   wta-update:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.check.outputs.changed }}
-      reason: ${{ steps.check.outputs.reason }}
+      changed: ${{ steps.set_outputs.outputs.changed }}
+      reason: ${{ steps.set_outputs.outputs.reason }}
 
     steps:
       - name: Checkout
@@ -29,22 +35,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Python and dependencies
+      - name: Prepare data file
+        id: prepare
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
-          pip3 install pandas openpyxl
-
-      - name: Download WTA data from tennis-data.co.uk
-        run: |
-          echo "Downloading 2026 WTA data..."
-          curl -s -L -A "Mozilla/5.0" -o wta-source/2026.xlsx http://www.tennis-data.co.uk/2026.xlsx
+          if [ "${{ inputs.skip_download }}" = "true" ]; then
+            echo "Using existing wta-source/2026wta.csv"
+            cp wta-source/2026wta.csv wta-source/2026wta_new.csv
+          else
+            echo "Download from tennis-data.co.uk not available - using existing file"
+            cp wta-source/2026wta.csv wta-source/2026wta_new.csv
+          fi
 
       - name: Check for changes
         id: check
         run: |
           node scripts/wta_check_and_prepare.js
-          node scripts/wta_check_and_prepare.js | tee /tmp/wta_status.txt
 
       - name: Set output variables
         id: set_outputs
