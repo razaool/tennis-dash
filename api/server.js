@@ -766,17 +766,21 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     });
 
     // Save new snapshot after returning results (don't block the response)
+    // Only save complete snapshots for active players (no small limit queries)
     setImmediate(async () => {
       try {
-        const rankings = {};
-        result.rows.forEach(row => {
-          rankings[row.id.toString()] = row.current_rank;
-        });
-        await pool.query(
-          `INSERT INTO ranking_snapshots (rating_type, surface, rankings)
-           VALUES ($1, NULL, $2)`,
-          [snapshotKey, JSON.stringify(rankings)]
-        );
+        // Only save if we're getting all active players (not a limited subset)
+        if (isActive && !limit && result.rows.length > 50) {
+          const rankings = {};
+          result.rows.forEach(row => {
+            rankings[row.id.toString()] = row.current_rank;
+          });
+          await pool.query(
+            `INSERT INTO ranking_snapshots (rating_type, surface, rankings)
+             VALUES ($1, NULL, $2)`,
+            [snapshotKey, JSON.stringify(rankings)]
+          );
+        }
       } catch (err) {
         console.error('Error saving snapshot:', err.message);
       }
