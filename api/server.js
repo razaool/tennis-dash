@@ -738,48 +738,52 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
 
     const result = await pool.query(query, queryParams);
 
-    // Get the most recent Monday snapshot for weekly baseline comparison
-    // Use previous Monday's complete snapshot (skip partial snapshots with <100 players)
+    // Get current full snapshot and most recent Monday snapshot for comparison
     const snapshotKey = `${ratingType}_active`;
-    const prevSnapshotResult = await pool.query(
+
+    // Get the most recent complete snapshot (current baseline)
+    const currentSnapshotResult = await pool.query(
       `SELECT rankings, snapshot_date
        FROM ranking_snapshots
        WHERE rating_type = $1 AND surface IS NULL
-         AND EXTRACT(DOW FROM snapshot_date) = 1 -- Monday (0=Sunday, 1=Monday)
-         AND snapshot_date < CURRENT_DATE -- Skip today's snapshots, use previous Monday
+         AND (SELECT COUNT(*) FROM jsonb_object_keys(rankings)) > 100
        ORDER BY snapshot_date DESC
        LIMIT 1`,
       [snapshotKey]
     );
 
-    // If the returned snapshot has too few players (partial snapshot), find a complete one
-    let prevSnapshot = prevSnapshotResult.rows[0];
-    if (prevSnapshot && Object.keys(prevSnapshot.rankings).length < 100) {
-      const completeSnapshotResult = await pool.query(
+    const currentSnapshot = currentSnapshotResult.rows[0];
+
+    // Get the most recent Monday snapshot (different from current snapshot)
+    let mondaySnapshot;
+    if (currentSnapshot) {
+      // Find most recent Monday snapshot, excluding the current snapshot
+      const mondaySnapshotResult = await pool.query(
         `SELECT rankings, snapshot_date
          FROM ranking_snapshots
          WHERE rating_type = $1 AND surface IS NULL
-           AND EXTRACT(DOW FROM snapshot_date) = 1
-           AND snapshot_date < CURRENT_DATE
+           AND EXTRACT(DOW FROM snapshot_date) = 1 -- Monday
+           AND id != $2 -- Exclude current snapshot if it's Monday
            AND (SELECT COUNT(*) FROM jsonb_object_keys(rankings)) > 100
          ORDER BY snapshot_date DESC
          LIMIT 1`,
-        [snapshotKey]
+        [snapshotKey, currentSnapshotResult.rows[0]?.id || 0]
       );
-      if (completeSnapshotResult.rows.length > 0) {
-        prevSnapshot = completeSnapshotResult.rows[0];
-      }
+
+      mondaySnapshot = mondaySnapshotResult.rows[0];
     }
 
-    // Calculate rank changes
+    // Calculate rank changes: compare current snapshot vs Monday snapshot
     const now = new Date().toISOString();
+    const baselineSnapshot = mondaySnapshot || currentSnapshot; // Fallback to current if no Monday
+
     const rowsWithChange = result.rows.map(row => {
-      const prevRank = prevSnapshot?.rankings?.[row.id.toString()];
+      const prevRank = baselineSnapshot?.rankings?.[row.id.toString()];
       const rankChange = prevRank ? row.current_rank - parseInt(prevRank) : null;
       return {
         ...row,
         rank_change: rankChange,
-        baseline_date: prevSnapshot?.snapshot_date || null,
+        baseline_date: baselineSnapshot?.snapshot_date || null,
         last_updated: now
       };
     });
