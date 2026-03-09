@@ -739,7 +739,7 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     const result = await pool.query(query, queryParams);
 
     // Get the most recent Monday snapshot for weekly baseline comparison
-    // Use previous Monday's snapshot (not today's) to show weekly movement
+    // Use previous Monday's complete snapshot (skip partial snapshots with <100 players)
     const snapshotKey = `${ratingType}_active`;
     const prevSnapshotResult = await pool.query(
       `SELECT rankings, snapshot_date
@@ -752,7 +752,24 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
       [snapshotKey]
     );
 
-    const prevSnapshot = prevSnapshotResult.rows[0];
+    // If the returned snapshot has too few players (partial snapshot), find a complete one
+    let prevSnapshot = prevSnapshotResult.rows[0];
+    if (prevSnapshot && Object.keys(prevSnapshot.rankings).length < 100) {
+      const completeSnapshotResult = await pool.query(
+        `SELECT rankings, snapshot_date
+         FROM ranking_snapshots
+         WHERE rating_type = $1 AND surface IS NULL
+           AND EXTRACT(DOW FROM snapshot_date) = 1
+           AND snapshot_date < CURRENT_DATE
+           AND (SELECT COUNT(*) FROM jsonb_object_keys(rankings)) > 100
+         ORDER BY snapshot_date DESC
+         LIMIT 1`,
+        [snapshotKey]
+      );
+      if (completeSnapshotResult.rows.length > 0) {
+        prevSnapshot = completeSnapshotResult.rows[0];
+      }
+    }
 
     // Calculate rank changes
     const now = new Date().toISOString();
