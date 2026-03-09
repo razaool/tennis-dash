@@ -757,17 +757,17 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
     // Get the most recent Monday snapshot (different from current snapshot)
     let mondaySnapshot;
     if (currentSnapshot) {
-      // Find most recent Monday snapshot, excluding the current snapshot
+      // Find most recent Monday snapshot from a different day than current snapshot
       const mondaySnapshotResult = await pool.query(
         `SELECT rankings, snapshot_date
          FROM ranking_snapshots
          WHERE rating_type = $1 AND surface IS NULL
            AND EXTRACT(DOW FROM snapshot_date) = 1 -- Monday
-           AND id != $2 -- Exclude current snapshot if it's Monday
+           AND snapshot_date::date != $2::date -- Different day than current snapshot
            AND (SELECT COUNT(*) FROM jsonb_object_keys(rankings)) > 100
          ORDER BY snapshot_date DESC
          LIMIT 1`,
-        [snapshotKey, currentSnapshotResult.rows[0]?.id || 0]
+        [snapshotKey, currentSnapshot.snapshot_date]
       );
 
       mondaySnapshot = mondaySnapshotResult.rows[0];
