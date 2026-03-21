@@ -63,7 +63,7 @@ async function getKFactor(playerId, ratingType) {
   return kFactors.established;
 }
 
-async function getCurrentRating(playerId, ratingType, surface = null, beforeMatchDate = null) {
+async function getCurrentRating(playerId, ratingType, surface = null, beforeMatchDate = null, excludeMatchId = null) {
   let query = `
     SELECT r.rating_value
     FROM wta_ratings r
@@ -78,7 +78,13 @@ async function getCurrentRating(playerId, ratingType, surface = null, beforeMatc
     params.push(surface);
   }
 
-  if (beforeMatchDate) {
+  if (excludeMatchId) {
+    // When recalculating sequentially, exclude current match and get most recent rating
+    // This allows using ratings from earlier matches on the same day
+    params.push(excludeMatchId);
+    query += ` AND r.match_id != $${params.length}`;
+  } else if (beforeMatchDate) {
+    // Original logic: use date filtering (not suitable for same-day matches)
     params.push(beforeMatchDate);
     query += ` AND m.match_date < $${params.length}`;
   }
@@ -104,8 +110,8 @@ async function calculateELOMatch(player1Id, player2Id, winnerId, matchId, matchD
   const k2 = await getKFactor(player2Id, 'elo');
 
   // Overall ELO (no surface)
-  const elo1Overall = await getCurrentRating(player1Id, 'elo', null, matchDate);
-  const elo2Overall = await getCurrentRating(player2Id, 'elo', null, matchDate);
+  const elo1Overall = await getCurrentRating(player1Id, 'elo', null, null, matchId);
+  const elo2Overall = await getCurrentRating(player2Id, 'elo', null, null, matchId);
 
   const expected1Overall = 1 / (1 + Math.pow(10, (elo2Overall - elo1Overall) / 400));
   const expected2Overall = 1 / (1 + Math.pow(10, (elo1Overall - elo2Overall) / 400));
@@ -124,8 +130,8 @@ async function calculateELOMatch(player1Id, player2Id, winnerId, matchId, matchD
   const k1Surface = await getKFactor(player1Id, 'elo');
   const k2Surface = await getKFactor(player2Id, 'elo');
 
-  const elo1Surface = await getCurrentRating(player1Id, 'elo', normalizedSurface, matchDate);
-  const elo2Surface = await getCurrentRating(player2Id, 'elo', normalizedSurface, matchDate);
+  const elo1Surface = await getCurrentRating(player1Id, 'elo', normalizedSurface, null, matchId);
+  const elo2Surface = await getCurrentRating(player2Id, 'elo', normalizedSurface, null, matchId);
 
   const expected1Surface = 1 / (1 + Math.pow(10, (elo2Surface - elo1Surface) / 400));
   const expected2Surface = 1 / (1 + Math.pow(10, (elo1Surface - elo2Surface) / 400));
