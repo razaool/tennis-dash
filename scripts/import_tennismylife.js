@@ -63,7 +63,7 @@ function getLevelCode(tourneyLevel) {
 
 // Parse date from YYYYMMDD to YYYY-MM-DD
 function parseDate(dateStr) {
-  if (dateStr.length !== 8) return dateStr;
+  if (!dateStr || typeof dateStr !== 'string' || dateStr.length !== 8) return dateStr;
   const year = dateStr.substring(0, 4);
   const month = dateStr.substring(4, 6);
   const day = dateStr.substring(6, 8);
