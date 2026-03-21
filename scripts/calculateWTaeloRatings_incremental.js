@@ -111,8 +111,8 @@ async function calculateELOMatch(player1Id, player2Id, winnerId, matchId, matchD
   const expected2Overall = 1 / (1 + Math.pow(10, (elo1Overall - elo2Overall) / 400));
 
   const player1WonOverall = player1Id === winnerId;
-  const newElo1Overall = elo1Overall + (k1 * overallWeight) * (player1WonOverall ? 1 : 0 - expected1Overall);
-  const newElo2Overall = elo2Overall + (k2 * overallWeight) * (player1WonOverall ? 0 : 1 - expected2Overall);
+  const newElo1Overall = elo1Overall + (k1 * overallWeight) * ((player1WonOverall ? 1 : 0) - expected1Overall);
+  const newElo2Overall = elo2Overall + (k2 * overallWeight) * ((player1WonOverall ? 0 : 1) - expected2Overall);
 
   await saveRating(player1Id, 'elo', newElo1Overall, matchId, null);
   await saveRating(player2Id, 'elo', newElo2Overall, matchId, null);
@@ -130,8 +130,8 @@ async function calculateELOMatch(player1Id, player2Id, winnerId, matchId, matchD
   const expected1Surface = 1 / (1 + Math.pow(10, (elo2Surface - elo1Surface) / 400));
   const expected2Surface = 1 / (1 + Math.pow(10, (elo1Surface - elo2Surface) / 400));
 
-  const newElo1Surface = elo1Surface + (k1Surface * overallWeight) * (player1WonOverall ? 1 : 0 - expected1Surface);
-  const newElo2Surface = elo2Surface + (k2Surface * overallWeight) * (player1WonOverall ? 0 : 1 - expected2Surface);
+  const newElo1Surface = elo1Surface + (k1Surface * overallWeight) * ((player1WonOverall ? 1 : 0) - expected1Surface);
+  const newElo2Surface = elo2Surface + (k2Surface * overallWeight) * ((player1WonOverall ? 0 : 1) - expected2Surface);
 
   await saveRating(player1Id, 'elo', newElo1Surface, matchId, normalizedSurface);
   await saveRating(player2Id, 'elo', newElo2Surface, matchId, normalizedSurface);
