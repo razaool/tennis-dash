@@ -2,7 +2,7 @@ const fs = require('fs');
 const { parse } = require('csv-parse/sync');
 const { Pool } = require('pg');
 
-const CSV_PATH = './wta-source/2026wta.csv';
+const CSV_PATH = './wta-source/2026wta-new.csv';
 const MAPPING_PATH = './wta-source/player_name_mapping.json';
 const BATCH_SIZE = 100;
 
@@ -256,17 +256,23 @@ async function importWTAMatches2026() {
     client = await pool.connect();
     await client.query('BEGIN');
 
-    // Clear existing 2026 data (ratings first due to FK constraint, then matches)
-    console.log('\nClearing existing 2026 data...');
-    const ratingDeleteResult = await client.query('DELETE FROM wta_ratings WHERE match_id IN (SELECT id FROM wta_matches WHERE EXTRACT(YEAR FROM match_date) = 2026)');
-    console.log(`  Deleted ${ratingDeleteResult.rowCount} ratings`);
-    const matchDeleteResult = await client.query('DELETE FROM wta_matches WHERE EXTRACT(YEAR FROM match_date) = 2026');
-    console.log(`  Deleted ${matchDeleteResult.rowCount} matches\n`);
+    // Get existing match signatures to avoid duplicates
+    console.log('\nChecking for existing matches...');
+    const existingMatches = await client.query(`
+      SELECT player1_id, player2_id, match_date, round
+      FROM wta_matches
+      WHERE EXTRACT(YEAR FROM match_date) = 2026
+    `);
+    const existingKeys = new Set(
+      existingMatches.rows.map(m => `${m.player1_id}-${m.player2_id}-${m.match_date.toISOString().split('T')[0]}-${m.round}`)
+    );
+    console.log(`  Found ${existingKeys.size} existing matches\n`);
 
-    console.log('Importing matches...');
+    console.log('Importing matches (append mode)...');
 
     let imported = 0;
     let skipped = 0;
+    let duplicate = 0;
 
     for (let i = 0; i < records.length; i += BATCH_SIZE) {
       const batch = records.slice(i, i + BATCH_SIZE);
@@ -293,9 +299,17 @@ async function importWTAMatches2026() {
         const score = buildScore(row);
         const round = normalizeRound(row.Round);
 
+        // Skip if match already exists
+        const matchKey = `${winnerId}-${loserId}-${matchDate}-${round}`;
+        if (existingKeys.has(matchKey)) {
+          duplicate++;
+          continue;
+        }
+
         values.push(winnerId, loserId, winnerId, matchDate, score, round, row.Surface, row.Tournament);
         placeholders.push(`($${paramCount++}, $${paramCount++}, $${paramCount++}, $${paramCount++}, $${paramCount++}, $${paramCount++}, $${paramCount++}, $${paramCount++})`);
         imported++;
+        existingKeys.add(matchKey); // Track to avoid duplicates within this batch
       }
 
       if (placeholders.length > 0) {
@@ -310,7 +324,8 @@ async function importWTAMatches2026() {
 
     console.log(`\n\n✓ Import complete!`);
     console.log(`  Imported: ${imported} matches`);
-    console.log(`  Skipped: ${skipped} matches`);
+    console.log(`  Skipped (no player match): ${skipped} matches`);
+    console.log(`  Skipped (already exists): ${duplicate} matches`);
 
   } finally {
     if (client) client.release();
