@@ -95,7 +95,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
     } else if (!showPlayer1Dropdown) {
       setPlayer1Suggestions([]);
     }
-  }, [player1, showPlayer1Dropdown, defaultP1]);
+  }, [player1, showPlayer1Dropdown, defaultP1, tour]);
 
   // Fetch suggestions for player 2 (only when user is actively typing)
   useEffect(() => {
@@ -121,7 +121,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
     } else if (!showPlayer2Dropdown) {
       setPlayer2Suggestions([]);
     }
-  }, [player2, showPlayer2Dropdown, defaultP2]);
+  }, [player2, showPlayer2Dropdown, defaultP2, tour]);
 
   const selectPlayer1 = (name: string) => {
     setPlayer1(name);
