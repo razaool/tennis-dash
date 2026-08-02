@@ -1,0 +1,102 @@
+{
+  "model_type": "XGBoost",
+  "tour": "atp",
+  "version": "2.0",
+  "trained_at": "2026-08-01T19:10:02.558050Z",
+  "feature_names": [
+    "surface_elo_diff",
+    "overall_elo_diff",
+    "p1_surface_wr_12mo",
+    "p2_surface_wr_12mo",
+    "surface_wr_diff_12mo",
+    "p1_surface_wr_career",
+    "p2_surface_wr_career",
+    "surface_wr_diff_career",
+    "p1_form_20",
+    "p2_form_20",
+    "form_diff_20",
+    "p1_surface_form_10",
+    "p2_surface_form_10",
+    "surface_form_diff_10",
+    "age_diff",
+    "hand_matchup",
+    "h2h_surface_advantage",
+    "surface_encoded"
+  ],
+  "split": {
+    "type": "chronological",
+    "test_start_date": "2024-01-01"
+  },
+  "samples": {
+    "train": 69737,
+    "test": 7522,
+    "train_date_range": [
+      "2000-01-03",
+      "2023-11-27"
+    ],
+    "test_date_range": [
+      "2024-01-01",
+      "2026-08-01"
+    ]
+  },
+  "performance": {
+    "test_accuracy": 0.6445094389789949,
+    "test_auc": 0.7048339626911055,
+    "test_log_loss": 0.6262866725223114,
+    "test_brier": 0.2185023388944009,
+    "train_accuracy": 0.7184564865136155,
+    "train_auc": 0.8007235230111445,
+    "cv_accuracy_mean": 0.668077783514025,
+    "cv_accuracy_std": 0.014371988862531085,
+    "cv_auc_mean": 0.7329323914971493
+  },
+  "per_surface": {
+    "Clay": {
+      "n": 2548,
+      "accuracy": 0.6342229199372057
+    },
+    "Grass": {
+      "n": 913,
+      "accuracy": 0.6473165388828039
+    },
+    "Hard": {
+      "n": 4061,
+      "accuracy": 0.6503324304358532
+    }
+  },
+  "feature_importances": {
+    "overall_elo_diff": 0.2864292562007904,
+    "surface_elo_diff": 0.1495281457901001,
+    "form_diff_20": 0.04572948440909386,
+    "age_diff": 0.03999311104416847,
+    "p1_surface_wr_12mo": 0.03792842850089073,
+    "p1_surface_wr_career": 0.03707604855298996,
+    "p2_surface_wr_career": 0.03702713921666145,
+    "p2_surface_wr_12mo": 0.036142315715551376,
+    "p2_form_20": 0.03524785861372948,
+    "surface_wr_diff_12mo": 0.03523191064596176,
+    "h2h_surface_advantage": 0.03490125760436058,
+    "p1_form_20": 0.034235939383506775,
+    "surface_wr_diff_career": 0.03420150279998779,
+    "p1_surface_form_10": 0.033173780888319016,
+    "p2_surface_form_10": 0.03224816545844078,
+    "surface_encoded": 0.03097756952047348,
+    "surface_form_diff_10": 0.030766019597649574,
+    "hand_matchup": 0.029162025079131126
+  },
+  "hyperparameters": {
+    "objective": "binary:logistic",
+    "max_depth": 6,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 3,
+    "gamma": 0.1,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "random_state": 42,
+    "n_jobs": -1,
+    "tree_method": "hist"
+  }
+}

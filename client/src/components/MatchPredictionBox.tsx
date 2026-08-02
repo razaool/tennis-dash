@@ -152,6 +152,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
           player1_name: player1,
           player2_name: player2,
           surface: surface,
+          tour: tour,
         }),
       });
 

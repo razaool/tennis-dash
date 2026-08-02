@@ -1,320 +1,137 @@
 """
-Flask API for ML Match Predictions
+Flask API for ML Match Predictions (tour-aware, rebuilt).
+
+Serves the XGBoost match-prediction model trained by scripts/ml_train_model_v2.py.
+Feature extraction delegates entirely to the SHARED features module
+(ml-service/features.py) — the same code training uses — so train and serve
+cannot drift. Predictions are computed live from the database (point-in-time
+"latest" ratings/form), so they always reflect the current state.
+
+Endpoints:
+  POST /predict  {player1_name, player2_name, surface, tour='atp'}
+  GET  /health
 """
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import os
+import traceback
+
 import joblib
-import numpy as np
-import psycopg2
-from datetime import datetime, timedelta
-import pandas as pd
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
+import features as F
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-# Database connection using Railway's DATABASE_URL
-def get_db_connection():
-    database_url = os.environ.get('DATABASE_URL')
-    if not database_url:
-        raise Exception('DATABASE_URL environment variable not set')
-    return psycopg2.connect(database_url, sslmode='require')
+# tour -> loaded XGBoost model (artifacts named <tour>_xgboost_model.pkl here)
+MODELS = {}
 
-def get_player_id(player_name, conn):
-    """Get player ID from name"""
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT id FROM players 
-        WHERE LOWER(name) = LOWER(%s)
-        LIMIT 1
-    """, (player_name,))
-    result = cursor.fetchone()
-    cursor.close()
-    return result[0] if result else None
 
-def get_surface_elo(player_id, surface, conn):
-    """Get player's latest ELO rating on specific surface"""
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT rating_value
-        FROM ratings
-        WHERE player_id = %s
-            AND rating_type = 'elo'
-            AND surface = %s
-        ORDER BY calculated_at DESC
-        LIMIT 1
-    """, (player_id, surface))
-    result = cursor.fetchone()
-    cursor.close()
-    return float(result[0]) if result else 1500.0
+def _load_models():
+    base = os.path.dirname(os.path.abspath(__file__))
+    for tour in ('atp', 'wta'):
+        path = os.path.join(base, f'{tour}_xgboost_model.pkl')
+        if os.path.exists(path):
+            try:
+                MODELS[tour] = joblib.load(path)
+                print(f'Loaded {tour.upper()} model from {path}', flush=True)
+            except Exception as e:  # pragma: no cover
+                print(f'Failed to load {tour} model: {e}', flush=True)
+        else:
+            print(f'No {tour} model found at {path}', flush=True)
 
-def get_overall_elo(player_id, conn):
-    """Get player's latest overall ELO rating"""
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT rating_value
-        FROM ratings
-        WHERE player_id = %s
-            AND rating_type = 'elo'
-            AND surface IS NULL
-        ORDER BY calculated_at DESC
-        LIMIT 1
-    """, (player_id,))
-    result = cursor.fetchone()
-    cursor.close()
-    return float(result[0]) if result else 1500.0
 
-def get_surface_win_rate(player_id, surface, months, conn):
-    """Get player's win rate on surface in last N months"""
-    cursor = conn.cursor()
-    cutoff_date = datetime.now() - timedelta(days=months*30)
-    
-    cursor.execute("""
-        SELECT 
-            COUNT(*) as total,
-            COUNT(*) FILTER (WHERE winner_id = %s) as wins
-        FROM matches m
-        WHERE (m.player1_id = %s OR m.player2_id = %s)
-            AND m.surface = %s
-            AND m.match_date >= %s
-            AND m.winner_id IS NOT NULL
-    """, (player_id, player_id, player_id, surface, cutoff_date))
-    
-    result = cursor.fetchone()
-    cursor.close()
-    
-    if result and result[0] > 0:
-        return result[1] / result[0]
-    return 0.5
+_load_models()
 
-def get_recent_form(player_id, num_matches, conn):
-    """Get player's recent form (win rate in last N matches)"""
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT winner_id = %s as won
-        FROM matches m
-        WHERE (m.player1_id = %s OR m.player2_id = %s)
-            AND m.winner_id IS NOT NULL
-        ORDER BY m.match_date DESC
-        LIMIT %s
-    """, (player_id, player_id, player_id, num_matches))
-    
-    results = cursor.fetchall()
-    cursor.close()
-    
-    if len(results) > 0:
-        wins = sum(1 for r in results if r[0])
-        return wins / len(results)
-    return 0.5
-
-def get_h2h(player1_id, player2_id, surface, conn):
-    """Get head-to-head record on specific surface"""
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT 
-            COUNT(*) FILTER (WHERE winner_id = %s) as p1_wins,
-            COUNT(*) FILTER (WHERE winner_id = %s) as p2_wins
-        FROM matches m
-        WHERE ((m.player1_id = %s AND m.player2_id = %s) 
-            OR (m.player1_id = %s AND m.player2_id = %s))
-            AND m.surface = %s
-            AND m.winner_id IS NOT NULL
-    """, (player1_id, player2_id, player1_id, player2_id, player2_id, player1_id, surface))
-    
-    result = cursor.fetchone()
-    cursor.close()
-    
-    if result:
-        p1_wins = result[0] or 0
-        p2_wins = result[1] or 0
-        return p1_wins - p2_wins
-    return 0
-
-def get_player_info(player_id, conn):
-    """Get player age, height, hand"""
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT birth_date, height, playing_hand
-        FROM players
-        WHERE id = %s
-    """, (player_id,))
-    result = cursor.fetchone()
-    cursor.close()
-    return result if result else (None, None, None)
-
-# Load model once at startup
-model = joblib.load('xgboost_model.pkl')
-scaler = joblib.load('scaler.pkl')
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check endpoint"""
-    return jsonify({'status': 'ok', 'service': 'ml-prediction'})
+    return jsonify({'status': 'ok', 'service': 'ml-prediction', 'models': list(MODELS.keys())})
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """Predict match outcome"""
     try:
-        data = request.get_json()
-        
-        # Extract parameters
-        player1_name = data.get('player1_name')
-        player2_name = data.get('player2_name')
+        data = request.get_json() or {}
+        p1_name = data.get('player1_name')
+        p2_name = data.get('player2_name')
         surface = data.get('surface')
-        
-        # Validate input
-        if not all([player1_name, player2_name, surface]):
-            return jsonify({
-                'success': False,
-                'error': 'Missing required fields: player1_name, player2_name, surface'
-            }), 400
-        
-        if surface not in ['Hard', 'Clay', 'Grass']:
-            return jsonify({
-                'success': False,
-                'error': 'Invalid surface. Must be one of: Hard, Clay, Grass'
-            }), 400
-        
-        # Connect to database
-        conn = get_db_connection()
-        
-        # Get player IDs
-        player1_id = get_player_id(player1_name, conn)
-        player2_id = get_player_id(player2_name, conn)
-        
-        if not player1_id or not player2_id:
+        tour = (data.get('tour') or 'atp').lower()
+
+        if not all([p1_name, p2_name, surface]):
+            return jsonify({'success': False,
+                            'error': 'Missing required fields: player1_name, player2_name, surface'}), 400
+        if surface not in F.VALID_SURFACES:
+            return jsonify({'success': False,
+                            'error': f"Invalid surface. Must be one of {list(F.VALID_SURFACES)}"}), 400
+        if tour not in ('atp', 'wta'):
+            return jsonify({'success': False, 'error': "tour must be 'atp' or 'wta'"}), 400
+        if tour not in MODELS:
+            return jsonify({'success': False, 'error': f'{tour.upper()} model not available'}), 503
+
+        conn = F.get_db_connection()
+        try:
+            p1_id = F.get_player_id(p1_name, conn, tour)
+            p2_id = F.get_player_id(p2_name, conn, tour)
+            if not p1_id:
+                return jsonify({'success': False, 'error': f'Player not found: {p1_name}'}), 404
+            if not p2_id:
+                return jsonify({'success': False, 'error': f'Player not found: {p2_name}'}), 404
+            if p1_id == p2_id:
+                return jsonify({'success': False, 'error': 'player1 and player2 must be different'}), 400
+
+            # One consolidated query computes every feature (point-in-time "latest").
+            vec, raw = F.build_feature_vector(p1_id, p2_id, surface, conn, tour)
+        finally:
             conn.close()
-            return jsonify({
-                'success': False,
-                'error': f'Player not found: {player1_name if not player1_id else player2_name}'
-            }), 404
-        
-        # Get ELO ratings
-        p1_surface_elo = get_surface_elo(player1_id, surface, conn)
-        p2_surface_elo = get_surface_elo(player2_id, surface, conn)
-        p1_overall_elo = get_overall_elo(player1_id, conn)
-        p2_overall_elo = get_overall_elo(player2_id, conn)
-        
-        # Get win rates
-        p1_surface_wr_12mo = get_surface_win_rate(player1_id, surface, 12, conn)
-        p2_surface_wr_12mo = get_surface_win_rate(player2_id, surface, 12, conn)
-        p1_surface_wr_career = get_surface_win_rate(player1_id, surface, 120, conn)
-        p2_surface_wr_career = get_surface_win_rate(player2_id, surface, 120, conn)
-        
-        # Get recent form
-        p1_form_20 = get_recent_form(player1_id, 20, conn)
-        p2_form_20 = get_recent_form(player2_id, 20, conn)
-        p1_surface_form_10 = get_recent_form(player1_id, 10, conn)
-        p2_surface_form_10 = get_recent_form(player2_id, 10, conn)
-        
-        # Get H2H
-        h2h_surface = get_h2h(player1_id, player2_id, surface, conn)
-        
-        # Get player info
-        p1_birth, p1_height, p1_hand = get_player_info(player1_id, conn)
-        p2_birth, p2_height, p2_hand = get_player_info(player2_id, conn)
-        
-        conn.close()
-        
-        # Calculate age difference
-        if p1_birth and p2_birth:
-            p1_age = (datetime.now() - pd.to_datetime(p1_birth)).days / 365.25
-            p2_age = (datetime.now() - pd.to_datetime(p2_birth)).days / 365.25
-            age_diff = p1_age - p2_age
-        else:
-            age_diff = 0
-        
-        # Height difference
-        height_diff = (p1_height or 180) - (p2_height or 180)
-        
-        # Hand matchup
-        hand_matchup = 1 if p1_hand != p2_hand else 0
-        
-        # Encode surface
-        surface_encoded = {'Hard': 0, 'Clay': 1, 'Grass': 2}.get(surface, 0)
-        
-        # Create feature vector
-        features = np.array([[
-            p1_surface_elo - p2_surface_elo,
-            p1_overall_elo - p2_overall_elo,
-            p1_surface_wr_12mo,
-            p2_surface_wr_12mo,
-            p1_surface_wr_12mo - p2_surface_wr_12mo,
-            p1_surface_wr_career,
-            p2_surface_wr_career,
-            p1_surface_wr_career - p2_surface_wr_career,
-            p1_form_20,
-            p2_form_20,
-            p1_form_20 - p2_form_20,
-            p1_surface_form_10,
-            p2_surface_form_10,
-            p1_surface_form_10 - p2_surface_form_10,
-            age_diff,
-            height_diff,
-            hand_matchup,
-            h2h_surface,
-            surface_encoded
-        ]])
-        
-        # Scale features
-        features_scaled = scaler.transform(features)
-        
-        # Make prediction
-        prediction_proba = model.predict_proba(features_scaled)[0]
-        prediction = model.predict(features_scaled)[0]
-        
-        # Calculate confidence
-        confidence = abs(float(prediction_proba[1]) - float(prediction_proba[0]))
-        
-        # Return result
+
+        model = MODELS[tour]
+        proba = model.predict_proba(vec)[0]
+        # training target = 1 means player1 won → class 1 = P(player1 wins)
+        p1_win = float(proba[1])
+        p2_win = float(proba[0])
+        winner = p1_name if p1_win >= p2_win else p2_name
+
         return jsonify({
             'success': True,
-            'player1': player1_name,
-            'player2': player2_name,
-            'surface': surface,
+            'player1': p1_name, 'player2': p2_name, 'surface': surface, 'tour': tour,
             'prediction': {
-                'winner': player1_name if prediction == 1 else player2_name,
-                'player1_win_probability': float(prediction_proba[1]),
-                'player2_win_probability': float(prediction_proba[0]),
-                'confidence': confidence
+                'winner': winner,
+                'player1_win_probability': p1_win,
+                'player2_win_probability': p2_win,
+                'confidence': abs(p1_win - p2_win),
             },
             'key_factors': {
-                'surface_elo_difference': float(p1_surface_elo - p2_surface_elo),
-                'form_difference': float(p1_form_20 - p2_form_20),
-                'surface_form_difference': float(p1_surface_form_10 - p2_surface_form_10),
-                'h2h_advantage': int(h2h_surface),
-                'player1_surface_wr': float(p1_surface_wr_12mo),
-                'player2_surface_wr': float(p2_surface_wr_12mo)
+                'surface_elo_difference': round(raw['surface_elo_difference'], 2),
+                'form_difference': round(raw['form_difference'], 3),
+                'surface_form_difference': round(raw['surface_form_difference'], 3),
+                'h2h_advantage': int(raw['h2h_advantage']),
+                'player1_surface_wr': round(raw['player1_surface_wr'], 3),
+                'player2_surface_wr': round(raw['player2_surface_wr'], 3),
             },
             'player_stats': {
                 'player1': {
-                    'surface_elo': float(p1_surface_elo),
-                    'overall_elo': float(p1_overall_elo),
-                    'recent_form': float(p1_form_20),
-                    'surface_form': float(p1_surface_form_10)
+                    'surface_elo': round(raw['p1']['surface_elo'], 2),
+                    'overall_elo': round(raw['p1']['overall_elo'], 2),
+                    'recent_form': round(raw['p1']['recent_form'], 3),
+                    'surface_form': round(raw['p1']['surface_form'], 3),
                 },
                 'player2': {
-                    'surface_elo': float(p2_surface_elo),
-                    'overall_elo': float(p2_overall_elo),
-                    'recent_form': float(p2_form_20),
-                    'surface_form': float(p2_surface_form_10)
-                }
-            }
+                    'surface_elo': round(raw['p2']['surface_elo'], 2),
+                    'overall_elo': round(raw['p2']['overall_elo'], 2),
+                    'recent_form': round(raw['p2']['recent_form'], 3),
+                    'surface_form': round(raw['p2']['surface_form'], 3),
+                },
+            },
         })
-        
+
     except Exception as e:
-        import traceback
-        app.logger.error(f'Prediction error: {str(e)}')
+        app.logger.error(f'Prediction error: {e}')
         app.logger.error(traceback.format_exc())
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-

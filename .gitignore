@@ -10,7 +10,9 @@ tennis_dash_production_backup.sql
 # Logs (keep directory, ignore contents)
 logs/
 
-# ML Models (only in ml-service/)
+# ML model artifacts: trained model + metadata ARE committed (the service loads
+# them from the repo). Only the large per-tour feature-extraction caches are ignored.
+ml-service/*_features.csv
 /model_metadata.json
 /scaler.pkl
 /xgboost_model.pkl

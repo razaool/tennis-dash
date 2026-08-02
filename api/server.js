@@ -2140,7 +2140,7 @@ app.get('/api/analytics/surfaces/strength', async (req, res) => {
  */
 app.post('/api/match-prediction', async (req, res) => {
   try {
-    const { player1_name, player2_name, surface } = req.body;
+    const { player1_name, player2_name, surface, tour } = req.body;
 
     // Validate input
     if (!player1_name || !player2_name || !surface) {
@@ -2158,10 +2158,21 @@ app.post('/api/match-prediction', async (req, res) => {
       });
     }
 
+    // Tour (defaults to ATP); WTA is served once its model is trained
+    const normalizedTour = (tour || 'atp').toLowerCase();
+    if (!['atp', 'wta'].includes(normalizedTour)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid tour. Must be 'atp' or 'wta'"
+      });
+    }
+
     // Call external ML prediction service
     const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5000';
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
       const response = await fetch(`${ML_SERVICE_URL}/predict`, {
         method: 'POST',
         headers: {
@@ -2170,9 +2181,12 @@ app.post('/api/match-prediction', async (req, res) => {
         body: JSON.stringify({
           player1_name,
           player2_name,
-          surface
+          surface,
+          tour: normalizedTour
         }),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       const data = await response.json();
 
@@ -2214,10 +2228,13 @@ app.post('/api/match-prediction', async (req, res) => {
 app.get('/api/model/info', async (req, res) => {
   try {
     const fs = require('fs');
-    const metadata = JSON.parse(fs.readFileSync('model_metadata.json', 'utf8'));
+    const path = require('path');
+    const tour = (req.query.tour || 'atp').toLowerCase();
+    const file = path.join(__dirname, '..', 'ml-service', `${tour}_model_metadata.json`);
+    const metadata = JSON.parse(fs.readFileSync(file, 'utf8'));
     res.json(metadata);
   } catch (error) {
-    res.status(500).json({
+    res.status(404).json({
       success: false,
       error: 'Model metadata not found'
     });
