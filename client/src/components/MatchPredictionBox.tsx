@@ -78,9 +78,10 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
-            params: { 
+            params: {
               q: player1,
-              activeOnly: 'true'  // Only show active players (2025+)
+              activeOnly: 'true',  // Only show active players (2025+)
+              tour: tour
             }
           });
           const names = response.data.map((p: any) => p.name);
@@ -103,9 +104,10 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
-            params: { 
+            params: {
               q: player2,
-              activeOnly: 'true'  // Only show active players (2025+)
+              activeOnly: 'true',  // Only show active players (2025+)
+              tour: tour
             }
           });
           const names = response.data.map((p: any) => p.name);
