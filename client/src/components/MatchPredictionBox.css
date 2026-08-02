@@ -629,3 +629,178 @@
   }
 }
 
+/* ============================================================= */
+/* WTA theme overrides (light) — scoped under .App.wta            */
+/* palette: #e87c90 primary, #b587b0 secondary, #3a3a3a text,     */
+/* #7a756d muted, #d4cfc5 borders, #f0ebe3 / #e6e1d9 backgrounds  */
+/* ============================================================= */
+
+.App.wta .match-prediction-box h2 {
+  color: #3a3a3a;
+  border-bottom-color: #d4cfc5;
+}
+
+.App.wta .player-select-wrapper label,
+.App.wta .surface-select-wrapper label {
+  color: #7a756d;
+}
+
+.App.wta .selected-indicator {
+  color: #e87c90;
+}
+
+.App.wta .player-search-input {
+  background: #f0ebe3;
+  border-color: #d4cfc5;
+  color: #3a3a3a;
+}
+
+.App.wta .player-search-input:focus,
+.App.wta .player-search-input.selected {
+  border-color: #e87c90;
+  background: rgba(232, 124, 144, 0.08);
+}
+
+.App.wta .player-search-input::placeholder {
+  color: #9a908c;
+}
+
+.App.wta .dropdown-list {
+  background: #f0ebe3;
+  border-color: #e87c90;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.App.wta .dropdown-item {
+  color: #3a3a3a;
+}
+
+.App.wta .dropdown-item:hover {
+  background: #e6e1d9;
+  color: #e87c90;
+}
+
+.App.wta .vs-indicator {
+  color: #e87c90;
+}
+
+.App.wta .surface-btn {
+  background: #f0ebe3;
+  border-color: #d4cfc5;
+  color: #7a756d;
+}
+
+.App.wta .surface-btn:hover {
+  border-color: #e87c90;
+  color: #3a3a3a;
+}
+
+.App.wta .surface-btn.active {
+  background: #e87c90;
+  border-color: #e87c90;
+  color: #ffffff;
+}
+
+.App.wta .predict-btn {
+  background: #e87c90;
+  color: #ffffff;
+}
+
+.App.wta .predict-btn:hover:not(:disabled) {
+  background: #d96a80;
+}
+
+.App.wta .predict-btn:disabled {
+  background: #d4cfc5;
+  color: #9a908c;
+}
+
+.App.wta .prediction-results {
+  border-top-color: #d4cfc5;
+}
+
+.App.wta .matchup {
+  color: #7a756d;
+}
+
+.App.wta .winner-badge {
+  background: rgba(232, 124, 144, 0.15);
+  border-color: #e87c90;
+  color: #e87c90;
+}
+
+.App.wta .player-name {
+  color: #3a3a3a;
+}
+
+.App.wta .probability-bar-container {
+  background: #f0ebe3;
+  border-color: #d4cfc5;
+}
+
+.App.wta .probability-bar.player1 {
+  background: linear-gradient(90deg, rgba(232, 124, 144, 0.35), rgba(232, 124, 144, 0.6));
+  border-right-color: #e87c90;
+}
+
+.App.wta .probability-bar.player2 {
+  background: linear-gradient(90deg, rgba(181, 135, 176, 0.35), rgba(181, 135, 176, 0.6));
+  border-right-color: #b587b0;
+}
+
+.App.wta .probability-text {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.App.wta .key-factors {
+  background: #f0ebe3;
+  border-color: #d4cfc5;
+}
+
+.App.wta .key-factors h3 {
+  color: #7a756d;
+}
+
+.App.wta .factor-label {
+  color: #9a908c;
+}
+
+.App.wta .factor-value {
+  color: #3a3a3a;
+}
+
+.App.wta .factor-value.confidence {
+  color: #e87c90;
+}
+
+.App.wta .stats-column {
+  background: #f0ebe3;
+  border-color: #d4cfc5;
+}
+
+.App.wta .stats-column h4 {
+  color: #e87c90;
+  border-bottom-color: #d4cfc5;
+}
+
+.App.wta .stat-row span:first-child {
+  color: #7a756d;
+}
+
+.App.wta .stat-value {
+  color: #3a3a3a;
+}
+
+.App.wta .match-prediction-box::-webkit-scrollbar-track {
+  background: #f0ebe3;
+}
+
+.App.wta .match-prediction-box::-webkit-scrollbar-thumb {
+  background: #d4cfc5;
+}
+
+.App.wta .match-prediction-box::-webkit-scrollbar-thumb:hover {
+  background: #c4bfb5;
+}
+

@@ -54,7 +54,7 @@ const AppContent: React.FC<AppContentProps> = ({ isMobile }) => {
         <WinStreakBox className="box-2" tour={tour} />
 
         {/* Box 3 - Top Players */}
-        <TopPlayersBox className="box-3" tour={tour} />
+        <TopPlayersBox className="box-3" key={tour} tour={tour} />
 
         {/* Box 7 - Rating Progression Chart */}
         <RatingProgressionChart className="box-7" tour={tour} />
@@ -63,7 +63,7 @@ const AppContent: React.FC<AppContentProps> = ({ isMobile }) => {
         <HeadToHeadBox className="box-9" tour={tour} />
 
         {/* Box 8 - ML Match Prediction */}
-        <MatchPredictionBox className="box-8" tour={tour} />
+        <MatchPredictionBox className="box-8" key={tour} tour={tour} />
       </main>
       <Analytics />
     </div>
