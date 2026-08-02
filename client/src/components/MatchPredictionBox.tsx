@@ -47,9 +47,14 @@ interface MatchPredictionBoxProps {
 }
 
 const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour = 'atp' }) => {
-  const [player1, setPlayer1] = useState<string>('Carlos Alcaraz');
-  const [player2, setPlayer2] = useState<string>('Novak Djokovic');
-  const [surface, setSurface] = useState<string>('Grass');
+  const isWta = tour === 'wta';
+  const defaultP1 = isWta ? 'Iga Swiatek' : 'Carlos Alcaraz';
+  const defaultP2 = isWta ? 'Aryna Sabalenka' : 'Novak Djokovic';
+  const defaultSurface = isWta ? 'Clay' : 'Grass';
+
+  const [player1, setPlayer1] = useState<string>(defaultP1);
+  const [player2, setPlayer2] = useState<string>(defaultP2);
+  const [surface, setSurface] = useState<string>(defaultSurface);
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -60,7 +65,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
 
   // Auto-fetch prediction on mount with default players
   useEffect(() => {
-    if (player1 === 'Carlos Alcaraz' && player2 === 'Novak Djokovic' && surface === 'Grass') {
+    if (player1 === defaultP1 && player2 === defaultP2 && surface === defaultSurface) {
       handlePredict();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,7 +74,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
   // Fetch suggestions for player 1 (only when user is actively typing)
   useEffect(() => {
     // Don't fetch suggestions for default value or empty string
-    if (player1.length > 0 && player1 !== 'Carlos Alcaraz' && showPlayer1Dropdown) {
+    if (player1.length > 0 && player1 !== defaultP1 && showPlayer1Dropdown) {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
@@ -94,7 +99,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
   // Fetch suggestions for player 2 (only when user is actively typing)
   useEffect(() => {
     // Don't fetch suggestions for default value or empty string
-    if (player2.length > 0 && player2 !== 'Novak Djokovic' && showPlayer2Dropdown) {
+    if (player2.length > 0 && player2 !== defaultP2 && showPlayer2Dropdown) {
       const fetchSuggestions = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/api/players/search`, {
@@ -170,19 +175,6 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
     }
   };
 
-  // WTA empty state - ML predictions rely on ratings which aren't calculated for WTA yet
-  if (tour === 'wta') {
-    return (
-      <div className={`match-prediction-box ${className}`}>
-        <h2>⚡ ML MATCH PREDICTION</h2>
-        <div className="empty-state">
-          <div className="empty-state-icon">🎾</div>
-          <div>WTA predictions coming soon</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`match-prediction-box ${className}`}>
       <h2>⚡ ML MATCH PREDICTION</h2>
@@ -201,7 +193,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
               }}
               onFocus={() => {
                 // Only show dropdown if user has started typing (not default value)
-                if (player1 !== 'Carlos Alcaraz' && player1.length > 0) {
+                if (player1 !== defaultP1 && player1.length > 0) {
                   setShowPlayer1Dropdown(true);
                 }
               }}
@@ -241,7 +233,7 @@ const MatchPredictionBox: React.FC<MatchPredictionBoxProps> = ({ className, tour
               }}
               onFocus={() => {
                 // Only show dropdown if user has started typing (not default value)
-                if (player2 !== 'Novak Djokovic' && player2.length > 0) {
+                if (player2 !== defaultP2 && player2.length > 0) {
                   setShowPlayer2Dropdown(true);
                 }
               }}
