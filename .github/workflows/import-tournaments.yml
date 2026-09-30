@@ -34,35 +34,58 @@ jobs:
       - name: Download TennisMyLife CSV
         run: |
           echo "Downloading ongoing_tourneys.csv from TennisMyLife"
-          curl -o matches.csv https://stats.tennismylife.org/data/ongoing_tourneys.csv
+          # -f: fail the step on HTTP errors instead of saving an error page as CSV
+          curl -f -o matches.csv https://stats.tennismylife.org/data/ongoing_tourneys.csv
+
+      - name: Check for ongoing matches
+        id: csvcheck
+        run: |
+          ROWS=$(tail -n +2 matches.csv | grep -c . || true)
+          echo "Data rows in CSV: $ROWS"
+          if [ "$ROWS" -eq 0 ]; then
+            echo "has_data=false" >> "$GITHUB_OUTPUT"
+            echo "No ongoing tournament matches — skipping import."
+          else
+            echo "has_data=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Generate SQL import file
+        if: steps.csvcheck.outputs.has_data == 'true'
         run: |
           node scripts/import_tennismylife.js matches.csv
 
       - name: Import to Railway Database
+        if: steps.csvcheck.outputs.has_data == 'true'
         run: |
           psql "$DATABASE_URL" < matches_import.sql
 
       - name: Recalculate ELO Ratings
+        if: steps.csvcheck.outputs.has_data == 'true'
         run: |
           node scripts/calculateELORatings_incremental.js
 
       - name: Recalculate Glicko2 Ratings
+        if: steps.csvcheck.outputs.has_data == 'true'
         run: |
           node scripts/calculateGlicko2Ratings_incremental.js
 
       - name: Recalculate TrueSkill Ratings
+        if: steps.csvcheck.outputs.has_data == 'true'
         run: |
           node scripts/calculateTrueSkillRatings_incremental.js
 
       - name: Create Active Player Snapshots
+        if: steps.csvcheck.outputs.has_data == 'true'
         run: |
           node scripts/create_active_snapshots.js
 
       - name: Summary
         run: |
-          echo "=== Import Complete ==="
-          echo "Matches imported from TennisMyLife"
-          echo "All ratings recalculated"
-          echo "Active player snapshots created"
+          if [ "${{ steps.csvcheck.outputs.has_data }}" == "true" ]; then
+            echo "=== Import Complete ==="
+            echo "Matches imported from TennisMyLife"
+            echo "All ratings recalculated"
+            echo "Active player snapshots created"
+          else
+            echo "=== Skipped — no ongoing tournament matches in CSV ==="
+          fi

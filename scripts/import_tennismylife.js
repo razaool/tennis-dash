@@ -90,8 +90,10 @@ function convertTennisMyLifeCSV(csvFile) {
   const lines = content.split('\n').filter(line => line.trim().length > 0);
 
   if (lines.length < 2) {
+    // Exit non-zero: otherwise the workflow proceeds without the SQL file being
+    // written and fails confusingly at the psql step.
     console.error('Error: CSV file is empty or has no data rows');
-    return;
+    process.exit(1);
   }
 
   // Parse header
