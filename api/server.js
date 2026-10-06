@@ -368,62 +368,77 @@ app.get('/api/season/progression', async (req, res) => {
     const { tour } = req.query;
     const tables = getTourTables(tour);
 
-    // Derive tournaments from matches to ensure imported events are included
+    // Derive tournaments from matches to ensure imported events are included.
+    // Davis Cup ties are stored as one tournament_name per tie ("Davis Cup
+    // WG1 R1: X vs Y") — collapse them into a single 'Davis Cup' event so one
+    // weekend of ~35 ties doesn't register as 35 tournaments.
     const tournamentsResult = await pool.query(`
       SELECT
-        tournament_name,
+        CASE WHEN tournament_name ILIKE 'Davis Cup%' THEN 'Davis Cup'
+             ELSE tournament_name END AS tournament_name,
         MIN(match_date) AS start_date
       FROM ${tables.matches}
       WHERE EXTRACT(YEAR FROM match_date) = 2026
          OR (EXTRACT(YEAR FROM match_date) = 2025 AND EXTRACT(MONTH FROM match_date) = 12)
-      GROUP BY tournament_name
+      GROUP BY 1
       ORDER BY MIN(match_date) ASC
     `);
 
-    const tournaments = tournamentsResult.rows.map(row => ({
-      name: row.tournament_name,
-      start_date: row.start_date
-    }));
-    // Known remaining tournaments not in the database yet
-    const remainingTournaments = [
-      'Australian Open',
+    // DB tournament_name -> full-season calendar name, where they refer to the
+    // same event but differ ('Beijing' in the data = 'China Open' on the
+    // calendar, 'Monte Carlo' = 'Monte Carlo Masters', ...). 'Munch' is a
+    // typo'd variant of 'Munich' in the data — both map to 'BMW Open'.
+    const CALENDAR_ALIASES = {
+      'ASB Classic': 'Auckland',
+      'Open Sud de France': 'Montpellier',
+      'Dallas': 'ATP 500 Dallas',
+      'Doha': 'Qatar ExxonMobil Open',
+      'Rio de Janeiro': 'Rio Open',
+      'Acapulco': 'ATP 500 Acapulco',
+      'Indian Wells Masters': 'Indian Wells',
+      'Miami Masters': 'Miami Open',
+      'Monte Carlo': 'Monte Carlo Masters',
+      'Munich': 'BMW Open',
+      'Munch': 'BMW Open',
+      'Barcelona': 'Barcelona Open',
+      'Madrid Masters': 'Madrid Open',
+      'Rome Masters': 'Internazionali BNL d Italia',
+      'Stuttgart': 'BOSS Open',
+      "Queen's Club": "Queen's Club Championships",
+      'Halle': 'Halle Open',
+      'Gstaad': 'Swiss Open Gstaad',
+      'Hamburg': 'ATP 500 Hamburg',
+      'Washington': 'Citi Open',
+      'Canada Masters': 'National Bank Open',
+      'Cincinnati Masters': 'Western & Southern Open',
+      'Chengdu': 'ATP 500 Chengdu',
+      'Tokyo': 'Japan Open',
+      'Beijing': 'China Open'
+    };
+
+    // Canonicalise + dedupe derived tournaments by calendar name.
+    const byCanonical = new Map();
+    for (const row of tournamentsResult.rows) {
+      const canonical = (tour === 'atp' && CALENDAR_ALIASES[row.tournament_name]) || row.tournament_name;
+      const existing = byCanonical.get(canonical);
+      if (!existing || new Date(row.start_date) < new Date(existing.start_date)) {
+        byCanonical.set(canonical, { name: canonical, start_date: row.start_date });
+      }
+    }
+    const tournaments = [...byCanonical.values()]
+      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+    // Full-season ATP calendar. Used only to count events that haven't
+    // happened yet — anything already derived from matches (via the alias map)
+    // is excluded, so events are never counted twice. 'Gerry Weber Open' and
+    // 'Nordic Open' were removed: they're duplicate names for Halle and
+    // Stockholm respectively. WTA has no calendar list yet — WTA progress is
+    // derived from imported matches only.
+    const ATP_CALENDAR = [
       'Copenhagen',
-      'Doha',
       'Montpellier',
-      'Auckland',
-      'Buenos Aires',
-      'Delray Beach',
-      'Los Cabos',
-      'Rotterdam',
-      'Qatar ExxonMobil Open',
-      'ATP 500 Dallas',
-      'Rio Open',
-      'ATP 500 Acapulco',
-      'Indian Wells',
-      'Miami Open',
-      'Monte Carlo Masters',
-      'Barcelona Open',
-      'BMW Open',
-      'Madrid Open',
-      'Internazionali BNL d Italia',
       'Lyon Open',
-      'Roland Garros',
-      'BOSS Open',
-      'Gerry Weber Open',
-      'Queen\'s Club Championships',
-      'Halle Open',
-      'Wimbledon',
-      'Swiss Open Gstaad',
-      'ATP 500 Hamburg',
-      'Nordic Open',
-      'Citi Open',
-      'National Bank Open',
-      'Western & Southern Open',
-      'US Open',
       'Moselle Open',
-      'ATP 500 Chengdu',
-      'China Open',
-      'Japan Open',
       'Shanghai Masters',
       'European Open',
       'Stockholm Open',
@@ -431,7 +446,10 @@ app.get('/api/season/progression', async (req, res) => {
       'Paris Masters',
       'ATP Finals'
     ];
-    
+    const remainingTournaments = tour === 'wta'
+      ? []
+      : ATP_CALENDAR.filter(name => !byCanonical.has(name));
+
     const totalTournaments = tournaments.length + remainingTournaments.length;
     
     // Get the latest match date in the database
