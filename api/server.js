@@ -674,13 +674,24 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
       ? parseInt(limit)
       : (isActive ? 500 : 10);
 
-    // Build active filter condition
+    // Build active filter condition.
+    // ELO has no uncertainty term (Glicko-2/TrueSkill handle thin data via
+    // conservative scoring), so a single recent match can surface a years-frozen
+    // rating — e.g. a one-off Davis Cup tie after a long injury layoff. For ELO
+    // only, require a minimum match count in the 6-month window instead.
+    const MIN_ELO_ACTIVE_MATCHES = 3;
     const activeFilterCondition = isActive
-      ? ` AND EXISTS (
-          SELECT 1 FROM ${tables.matches} m
-          WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
-            AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
-        )`
+      ? ratingType === 'elo'
+        ? ` AND (
+              SELECT COUNT(*) FROM ${tables.matches} m
+              WHERE (m.player1_id = p.id OR m.player2_id = p.id)
+                AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+            ) >= ${MIN_ELO_ACTIVE_MATCHES}`
+        : ` AND EXISTS (
+              SELECT 1 FROM ${tables.matches} m
+              WHERE (m.player1_id = p.id OR m.player2_id = p.id OR m.winner_id = p.id)
+                AND m.match_date >= CURRENT_DATE - INTERVAL '6 months'
+            )`
       : '';
 
     const limitClause = playerLimit ? `LIMIT $3` : '';
