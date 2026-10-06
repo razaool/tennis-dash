@@ -695,6 +695,14 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
           p.birth_date,
           r.rating_value,
           CASE WHEN $1 = 'elo' THEN NULL ELSE r.rating_deviation END as rating_deviation,
+          -- Conservative score: subtract uncertainty so rarely-playing players
+          -- rank below their raw mu (Glicko docs: mu - 2*RD 95% floor; TrueSkill
+          -- Xbox convention: mu - 3*sigma). ELO has no uncertainty -> raw value.
+          CASE
+            WHEN $1 = 'glicko2' THEN r.rating_value - 2 * r.rating_deviation
+            WHEN $1 = 'trueskill' THEN r.rating_value - 3 * r.rating_deviation
+            ELSE r.rating_value
+          END as conservative_score,
           r.calculated_at,
           (
             SELECT
@@ -717,7 +725,7 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
       ranked_players AS (
         SELECT
           cr.*,
-          RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
+          RANK() OVER (ORDER BY cr.conservative_score DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
       )
@@ -728,11 +736,12 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
         rp.birth_date,
         rp.rating_value,
         rp.rating_deviation,
+        ROUND(rp.conservative_score::numeric, 1) as conservative_score,
         rp.win_percentage,
         rp.current_rank,
         rp.calculated_at
       FROM ranked_players rp
-      ORDER BY rp.rating_value DESC
+      ORDER BY rp.conservative_score DESC
       ${limitClause}
     `;
 
