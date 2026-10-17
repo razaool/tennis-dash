@@ -768,7 +768,7 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
       ranked_players AS (
         SELECT
           cr.*,
-          RANK() OVER (ORDER BY cr.conservative_score DESC) as current_rank
+          RANK() OVER (ORDER BY cr.rating_value DESC) as current_rank
         FROM current_rankings cr
         WHERE cr.rn = 1
       )
@@ -784,7 +784,7 @@ app.get('/api/players/top/:ratingType', async (req, res) => {
         rp.current_rank,
         rp.calculated_at
       FROM ranked_players rp
-      ORDER BY rp.conservative_score DESC
+      ORDER BY rp.rating_value DESC
       ${limitClause}
     `;
 
