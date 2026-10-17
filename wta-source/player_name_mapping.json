@@ -1,6 +1,7 @@
 {
   "_comment": "Player name mapping for 2025 WTA data import. Auto-generated using match context.",
   "Ambiguous": {
+    "Zhao C.": "Carol Zhao",
     "Williams S.": "Serena Williams",
     "Argyrokastriti M.": "Marianne Argyrokastriti",
     "Tan H.": "Harmony Tan",
@@ -56,6 +57,8 @@
     "Ma Y.": "Ye Xin Ma",
     "Sidorova K.": "Kristiana Sidorova",
     "Zheng W.": "Wushuang Zheng",
+    "Qu Y.": "Yihan Qu",
+    "Shao Y.": "Yushan Shao",
     "Bassols M.": "Marina Bassols Ribera",
     "Kovackova J.": "Jana Kovackova"
   },
@@ -112,6 +115,10 @@
     "Fita Boluda A.": "Angela Fita Boluda",
     "Amariei I.D.": "Ilinca Dalina Amariei",
     "Brockmann T.J.": "Tessa Johanna Brockmann",
-    "Lee C.Y.": "Carol Young Suh Lee"
+    "Lee C.Y.": "Carol Young Suh Lee",
+    "Liang E.S.": "En Shuo Liang",
+    "Lin Y.J.": "Yu Jun Lin",
+    "Friedsam A-L.": "Anna Lena Friedsam",
+    "Lazaro Garcia A.": "Andrea Lazaro Garcia"
   }
 }
