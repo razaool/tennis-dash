@@ -446,9 +446,23 @@ app.get('/api/season/progression', async (req, res) => {
       'Paris Masters',
       'ATP Finals'
     ];
-    const remainingTournaments = tour === 'wta'
-      ? []
-      : ATP_CALENDAR.filter(name => !byCanonical.has(name));
+    // WTA remaining events: derived from the previous season — the fall events
+    // that ran in 2025 after the current data's last date but haven't appeared
+    // in 2026 yet. Self-maintaining: each event drops out of this list as soon
+    // as its 2026 edition is imported (name match).
+    const WTA_CALENDAR = [
+      'Wuhan Open',
+      'Ningbo Open',
+      'Japan Open',
+      'Toray Pan Pacific Open Tennis Tournament',
+      'Guangzhou Open',
+      'Jiangxi Open',
+      'Hong Kong Tennis Open',
+      'Chennai Open',
+      'WTA Finals'
+    ];
+    const calendar = tour === 'wta' ? WTA_CALENDAR : ATP_CALENDAR;
+    const remainingTournaments = calendar.filter(name => !byCanonical.has(name));
 
     const totalTournaments = tournaments.length + remainingTournaments.length;
     
